@@ -1,108 +1,133 @@
 import re
 import requests
 from pathlib import Path
+from collections import defaultdict
 
 # -------------------- 配置 --------------------
-REMOTE_FILE_PATH = Path("md/httop_links.txt")   # 远程源列表，每行一个 m3u 链接
-ALIAS_FILE = Path("md/alias.txt")               # 别名表
-TVLOGO_DIR = Path("img")                     # 台标目录
-OUTPUT_M3U = Path("demo_output.m3u")              # 输出文件
+REMOTE_FILE_PATH = Path("md/httop_links.txt")
+ALIAS_FILE       = Path("md/alias.txt")
+TVLOGO_DIR        = Path("Images")
+OUTPUT_M3U        = Path("demo_output.m3u")
+
+# 你全部 38 个分类的正确顺序（前面 = 越靠前）
+CATEGORY_ORDER = [
+    "4K", "CCTV", "CGTN", "CIBN", "DOX", "NewTV", "WSTV", "iHOT",
+    "上海", "云南", "内蒙古", "北京", "吉林", "四川", "天津", "宁夏",
+    "安徽", "山东", "山西", "广东", "广西", "数字频道", "新疆", "江苏",
+    "江西", "河北", "河南", "浙江", "海南", "海外频道", "港澳地区",
+    "湖北", "湖南", "甘肃", "福建", "西藏", "贵州", "辽宁", "重庆",
+    "陕西", "青海", "黑龙江"
+]
 # ---------------------------------------------
 
-def load_alias_map(alias_file):
-    alias_map = {}
-    regex_map = []
-    with open(alias_file, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            parts = [p.strip() for p in line.split(",") if p.strip()]
-            main_name = parts[0]
-            for alias in parts[1:]:
-                if alias.startswith("re:"):
-                    try:
-                        regex_map.append((re.compile(alias[3:], re.IGNORECASE), main_name))
-                    except re.error as e:
-                        print(f"正则错误: {alias[3:]} → {e}")
-                else:
-                    alias_map[alias.lower()] = main_name
-    return alias_map, regex_map
-
-def map_to_main_name(name, alias_map, regex_map):
-    if not name:
-        return "未知频道"
-    key = name.lower()
-    if key in alias_map:
-        return alias_map[key]
-    for pattern, main_name in regex_map:
-        if pattern.search(name):        # 用 search 更宽松一些
-            return main_name
-    return name
-
-def match_logo_class(main_name, tvlogo_dir):
-    if not tvlogo_dir.exists():
-        return "其他"
-    for folder in tvlogo_dir.iterdir():
+# 预扫描所有台标文件 → {标准频道名: 分类文件夹名}
+logo_db = {}
+if TVLOGO_DIR.exists():
+    for folder in TVLOGO_DIR.iterdir():
         if not folder.is_dir():
             continue
-        for logo_file in folder.iterdir():
-            if logo_file.is_file() and logo_file.stem.lower() == main_name.lower():
-                return folder.name
-    return "其他"
+        cat = folder.name
+        for pic in folder.iterdir():
+            if pic.is_file() and pic.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+                name = pic.stem                     # 去掉后缀
+                # 同时支持 CCTV1 和 CCTV-1 这两种文件名写法
+                clean_names = {
+                    name,
+                    name.replace("-", ""),
+                    name.replace(" ", ""),
+                    name.replace("_", ""),
+                }
+                for n in clean_names:
+                    logo_db[n.lower()] = cat
 
-def download_m3u_content(url):
-    try:
-        resp = requests.get(url, timeout=15)
-        resp.raise_for_status()
-        resp.encoding = "utf-8"
-        return resp.text
-    except Exception as e:
-        print(f"下载失败 {url} → {e}")
-        return None
+print(f"台标库加载完成，共 {len(logo_db)} 张台标，覆盖 {len(set(logo_db.values()))} 个分类")
 
-def generate_m3u():
-    alias_map, regex_map = load_alias_map(ALIAS_FILE)
-    links = [l.strip() for l in open(REMOTE_FILE_PATH, encoding="utf-8") if l.strip()]
+# 加载别名表（可选）
+alias_map = {}
+if ALIAS_FILE.exists():
+    for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = [p.strip() for p in line.split(",") if p.strip()]
+        if len(parts) < 2:
+            continue
+        main = parts[0]
+        for a in parts[1:]:
+            if a.startswith("re:"):
+                continue                              # 本版本不需要正则，台标文件名为主
+            alias_map[a.lower()] = main
 
-    output_lines = ["#EXTM3U x-tvg-url=\"https://live.fanmingming.com/e.xml\""]
+def get_standard_name(raw_name: str) -> str:
+    """把原始频道名映射成我们在 Images 里用的标准文件名"""
+    s = raw_name.strip()
+    # 先走别名表
+    if s.lower() in alias_map:
+        s = alias_map[s.lower()]
+
+    # 常见后缀清理
+    s = re.sub(r"[ _\-]?(HD|4K|超清|高清|标清|plus|频道|台|卫视|国际|纪录|戏曲|少儿|音乐|新闻)$", "", s, flags=re.I)
+    s = s.strip(" -_")
+
+    # 生成几种常见变体，增加命中率
+    variants = {
+        s,
+        s.replace(" ", ""),
+        s.replace("-", ""),
+        s.replace("_", ""),
+        s.replace("CCTV", "CCTV"),
+    }
+    return list(variants)
+
+def main():
+    links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+    channels = defaultdict(list)        # cat → [(extinf, url), ...]
+    total_found = 0
 
     for url in links:
-        content = download_m3u_content(url)
-        if not content:
+        try:
+            text = requests.get(url, timeout=20).text
+        except:
             continue
 
-        lines = None
-        for raw_line in content.splitlines():
-            line = raw_line.strip()
+        cur_extinf = None
+        for raw in text.splitlines():
+            line = raw.strip()
             if line.startswith("#EXTINF:"):
-                # 保留原始的 tvg-logo、tvg-name 等属性
-                extinf = line
-                # 提取频道显示名（逗号之后的部分）
-                if "," in line:
-                    display_name = line.split(",", 1)[1].strip()
-                else:
-                    display_name = "未知频道"
+                cur_extinf = line
+            elif line and not line.startswith("#"):
+                if not cur_extinf:
+                    continue
 
-                # 映射标准名称 + 分类
-                main_name = map_to_main_name(display_name, alias_map, regex_map)
-                category = match_logo_class(main_name, TVLOGO_DIR)
+                # 提取显示名
+                display = cur_extinf.split(",", 1)[-1] if "," in cur_extinf else "未知频道"
 
-                # 重新拼装正确的 EXTINF 行
-                new_extinf = f'#EXTINF:-1 group-title="{category}" tvg-name="{main_name}",{main_name}'
-                output_lines.append(new_extinf)
-                extinf = None  # 等待下一行的 URL
-            elif line and not line.startswith("#") and line.startswith("http"):
-                # 这才是真正的播放地址
-                if extinf is not None:  # 上一个 EXTINF 没配对到 URL（异常情况）
-                    output_lines.append(extinf)  # 先把没地址的也写上
-                output_lines.append(line)
+                # 尝试各种写法去 logo_db 里找
+                found = False
+                for variant in get_standard_name(display):
+                    key = variant.lower()
+                    if key in logo_db:
+                        cat = logo_db[key]
+                        std_name = next((v for v in get_standard_name(display) if v.lower() == key), display)
+                        new_line = f'#EXTINF:-1 group-title="{cat}" tvg-name="{std_name}",{std_name}'
+                        channels[cat].append((new_line, line))
+                        total_found += 1
+                        found = True
+                        break
+                cur_extinf = None
 
-    # 写入文件
-    with open(OUTPUT_M3U, "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(output_lines) + "\n")
+    # 严格按 CATEGORY_ORDER 顺序写文件
+    result = ['#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"']
 
-    print(f"成功生成 {OUTPUT_M3U}，共 {len(output_lines)} 行")
+    for cat in CATEGORY_ORDER:
+        if cat in channels:
+            for extinf, url in channels[cat]:
+                result.append(extinf)
+                result.append(url)
+
+    OUTPUT_M3U.write_text("\n".join(result) + "\n", encoding="utf-8")
+    print(f"精选完成！只保留有台标的频道，共 {total_found} 个，已完美分类排序 → {OUTPUT_M3U}")
 
 if __name__ == "__main__":
-    generate_m3u()
+    main()
