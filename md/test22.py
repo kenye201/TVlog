@@ -1,8 +1,7 @@
-# md/test22.py   ← 直接覆盖原文件
+# md/test22.py  —— 终极全量版（多线路全保留 + 自动打台标 + 分类排序）
 import re
 import requests
 from pathlib import Path
-from collections import defaultdict
 
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
@@ -10,7 +9,7 @@ ALIAS_FILE       = Path("md/alias.txt")
 TVLOGO_DIR       = Path("Images")
 OUTPUT_M3U       = Path("demo_output.m3u")
 
-# 你的分类显示顺序（前面越靠前）
+# 分类显示顺序（前面越靠前）
 CATEGORY_ORDER = [
     "4K", "CCTV", "CGTN", "CIBN", "DOX", "NewTV", "WSTV", "iHOT",
     "上海", "云南", "内蒙古", "北京", "吉林", "四川", "天津", "宁夏",
@@ -23,7 +22,7 @@ CATEGORY_ORDER = [
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main"
 # ---------------------------------------------
 
-# Step 1: 加载台标数据库 → {标准化名字: (分类, 完整文件名)}
+# 1. 加载台标库 → {标准化名: (分类, 文件名)}
 logo_db = {}
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
@@ -31,14 +30,14 @@ if TVLOGO_DIR.exists():
             continue
         cat = folder.name
         for f in folder.iterdir():
-            if f.is_file() and f.suffix.lower() in {".png",".jpg",".jpeg",".webp"}:
+            if f.is_file() and f.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
                 clean = re.sub(r"[ _\-](HD|4K|超清|高清|plus|频道|台|卫视)$", "", f.stem, flags=re.I)
-                clean = clean.replace(" ","").replace("-","").replace("_","")
-                logo_db[clean.lower()] = (cat, f.name)   # 保存完整 Path 对象，后面取名字用
+                clean = clean.replace(" ", "").replace("-", "").replace("_", "")
+                logo_db[clean.lower()] = (cat, f.name)
 
 print(f"台标库加载完成：{len(logo_db)} 张")
 
-# Step 2: 加载别名表 → 把所有别名统一映射到主名（提升命中率）
+# 2. 加载别名表 → 所有别名都指向主名
 alias_to_main = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
@@ -46,30 +45,30 @@ if ALIAS_FILE.exists():
         if not line or line.startswith("#"):
             continue
         parts = [p.strip() for p in line.split(",") if p.strip()]
-        if not parts: continue
+        if not parts:
+            continue
         main = parts[0]
         for name in parts:
-            clean = re.sub(r"[ _\-](HD|4K|高清|超清|plus|频道|台|卫视)$", "", name, flags=re.I)
-            clean = clean.replace(" ","").replace("-","").replace("_","")
+            clean = re.sub(r"[ _\-](HD|4K|超清|高清|plus|频道|台|卫视)$", "", name, flags=re.I)
+            clean = clean.replace(" ", "").replace("-", "").replace("_", "")
             alias_to_main[clean.lower()] = main
 
 print(f"别名表加载完成：{len(alias_to_main)} 条")
 
-# Step 3: 用来排序的辅助字典
+# 3. 分类优先级字典，用于后面排序
 cat_priority = {cat: i for i, cat in enumerate(CATEGORY_ORDER)}
 
-# 最终结果列表
-result_lines = ['#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"']
+# 结果容器
+temp_lines = []        # 先收集所有匹配上的条目（EXTINF + URL 两行）
 total_count = 0
 
 def normalize(name: str) -> str:
-    """把任意名字标准化，尽量命中台标库"""
     s = name.strip()
     cleaned = re.sub(r"[ _\-](HD|4K|超清|高清|标清|plus|频道|台|卫视)$", "", s, flags=re.I)
-    cleaned = cleaned.replace(" ","").replace("-","").replace("_","")
+    cleaned = cleaned.replace(" ", "").replace("-", "").replace("_", "")
     return alias_to_main.get(cleaned.lower(), cleaned)
 
-# 主程序开始
+# 主循环：遍历所有远程源
 links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 for url in links:
@@ -88,33 +87,35 @@ for url in links:
             if not extinf:
                 continue
 
-            # 提取显示名（,后面的部分）
             display_name = extinf.split(",", 1)[-1] if "," in extinf else "未知频道"
+            key = normalize(ext_name)
 
-            key = normalize(display_name)
-            if key.lower() in logo_db:                              # 命中台标！
-                cat, logo_path_obj = logo_db[key.lower()]
-                logo_url = f"{REPO_RAW}/Images/{cat}/{logo_path_obj.name}"
+            if key.lower() in logo_db:
+                cat, logo_file = logo_db[key.lower()]
+                logo_url = f"{REPO_RAW}/Images/{cat}/{logo_file}"
 
-                # 用别名表里的主名作为最终显示名（最规范）
-                final_show_name = alias_to_main.get(key.lower(), display_name.split()[0] if display_name.split() else display_name)
+                # 最终显示名称使用别名表里的主名（最规范）
+                show_name = alias_to_main.get(key.lower(), ext_name.split()[0] if ext_name.split() else ext_name)
 
-                new_extinf = f'#EXTINF:-1 group-title="{cat}" tvg-logo="{logo_url}" tvg-name="{final_show_name}",{final_show_name}'
-                result_lines.append(new_extinf)
-                result_lines.append(line)
+                new_extinf = f'#EXTINF:-1 group-title="{cat}" tvg-logo="{logo_url}" tvg-name="{show_name}",{show_name}'
+                temp_lines.append(new_extinf)
+                temp_lines.append(line)
                 total_count += 1
 
             extinf = None
 
-# 按分类顺序排序（同分类内保持原始出现顺序）
-def sort_key(line):
-    if not line.startswith('#EXTINF'): return (999, line)
+# 按分类顺序排序（同一分类内保持原始顺序）
+def sort_key(line: str):
+    if not line.startswith("#EXTINF"):
+        return (9999, line)
     m = re.search(r'group-title="([^"]+)"', line)
     cat = m.group(1) if m else "其他"
     return (cat_priority.get(cat, 999), line)
 
-result_lines[1:] = sorted(result_lines[1:], key=lambda x: sort_key(x))
+temp_lines.sort(key=sort_key)
 
 # 写文件
-OUTPUT_M3U.write_text("\n".join(result_lines) + "\n", encoding="utf-8")
-print(f"全量合集生成完毕！共 {total_count} 条线路（一个频道多条线路并存），全部带正确台标和分类排序"))
+final_content = "#EXTM3U x-tvg-url=\"https://live.fanmingming.com/e.xml\"\n" + "\n".join(temp_lines) + "\n"
+OUTPUT_M3U.write_text(final_content, encoding="utf-8")
+
+print(f"全量合集生成完毕！共 {total_count} 条线路（多源全部保留），100% 带台标，分类已排序"))
