@@ -1,4 +1,4 @@
-name: Generate M3U Playlist
+name: Generate M3U
 
 on:
   push:
@@ -11,54 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-      - name: Run Python Script to Generate M3U
-        run: python md/test22.py  # 根据你的脚本路径修改
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests  # 安装 requests 库
 
-      - name: List files in the directory
-        run: ls -l
-
-      # Check if demo_output.m3u exists and upload
-      - name: Check if demo_output.m3u exists
-        id: check_demo_output
-        run: |
-          if [ -f demo_output.m3u ]; then
-            echo "✅ demo_output.m3u exists"
-            echo "::set-output name=upload_demo_output::true"
-          else
-            echo "❌ demo_output.m3u does not exist"
-            echo "::set-output name=upload_demo_output::false"
-          fi
-
-      - name: Upload demo_output.m3u if it exists
-        if: steps.check_demo_output.outputs.upload_demo_output == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: demo_output
-          path: demo_output.m3u
-
-      # Check if missing_logos.txt exists and upload
-      - name: Check if missing_logos.txt exists
-        id: check_missing_logos
-        run: |
-          if [ -f missing_logos.txt ]; then
-            echo "✅ missing_logos.txt exists"
-            echo "::set-output name=upload_missing_logos::true"
-          else
-            echo "❌ missing_logos.txt does not exist"
-            echo "::set-output name=upload_missing_logos::false"
-          fi
-
-      - name: Upload missing_logos.txt if it exists
-        if: steps.check_missing_logos.outputs.upload_missing_logos == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: missing_logos
-          path: missing_logos.txt
+    - name: Run script
+      run: python md/test22.py
