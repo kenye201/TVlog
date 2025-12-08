@@ -1,49 +1,49 @@
-name: Generate and Upload M3U File
+name: 生成并上传 M3U 播放列表
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main ]
+  workflow_dispatch:    # 手动触发
 
 jobs:
   generate_m3u:
     runs-on: ubuntu-latest
+    # 关键：给 GITHUB_TOKEN 写权限
+    permissions:
+      contents: write
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - name: 检出仓库代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0     # 完整历史记录，防止浅克隆导致 push 失败
 
-      # Step 2: Set up Python environment
-      - name: Set up Python
+      - name: 设置 Python 环境
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
           python -m pip install --upgrade pip
-          pip install requests  # 安装 requests 库
+          pip install requests
 
-      # Step 4: Run your Python script to generate the m3u file
-      - name: Run script to generate demo_output.m3u
+      - name: 运行脚本生成 demo_output.m3u
         run: |
           python md/test22.py
 
-      # Step 5: Commit and push generated file
-      - name: Commit and push generated demo_output.m3u
+      - name: 提交并推送到 main 分支
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add demo_output.m3u
-          git commit -m "Add generated demo_output.m3u"
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main
+          git diff --staged --quiet || git commit -m "自动更新播放列表 demo_output.m3u" --no-verify
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Step 6: Upload the generated m3u file as an artifact
-      - name: Upload demo_output.m3u as artifact
+      - name: 上传生成的 m3u 文件为 artifact（便于下载查看）
         uses: actions/upload-artifact@v4
         with:
-          name: demo_output
+          name: 播放列表
           path: demo_output.m3u
