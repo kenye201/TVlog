@@ -1,0 +1,38 @@
+name: Update httop Links
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write  # 允许 GitHub Actions 修改当前仓库
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install requests bs4
+
+      - name: Run crawler
+        run: |
+          python md/httop_crawler.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add md/httop_links.txt
+          git commit -m "Update httop links" || echo "No changes to commit"
+          git push

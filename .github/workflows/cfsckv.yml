@@ -1,0 +1,198 @@
+name: 智能同步 KV（Build & Upload）
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: '本次同步备注（可选）'
+        required: false
+        default: '手动触发同步'
+jobs:
+  build_and_sync:
+    runs-on: ubuntu-latest
+    # 必须有写入权限，因为要提交清单文件 (kv_uploaded_history.txt)
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 拉取所有历史，以便对比归档文件
+
+      # 确保 Python 环境可用，用于运行脚本和 URL 编码
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # 确保您的依赖文件路径正确
+          pip install -r md/requirements.txt
+
+      # ----------------------------------------------------
+      # ⬇️ 文件生成阶段 (Build)
+      # ----------------------------------------------------
+      - name: Run build scripts and Save Timestamp
+        run: |
+          # 1. 清理旧的输出文件
+          rm -f output.m3u output_with_logo.m3u tvbox_output.txt missing_logos.txt
+
+          # 2. 运行生成脚本
+          python3 md/build_m3u.py
+          python3 md/build_m3u_add_logo.py
+
+          # 3. 导出 TIMESTAMP 变量并保存备份
+          TIMESTAMP=$(date +"%m%d%H%M")
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
+          mkdir -p history
+          # 备份文件
+          cp output_with_logo.m3u history/logo${TIMESTAMP}.m3u
+          cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
+
+      - name: Merge history files
+        run: python3 md/merge_tvlist.py
+      
+      # ----------------------------------------------------
+      # ⬇️ 智能同步 KV 阶段 (Smart Sync)
+      # ----------------------------------------------------
+      - name: 智能上传 + 更新已上传清单
+        env:
+          RAW_ACCOUNT_ID: ${{ secrets.KV_ACCOUNT_ID }}
+          RAW_NAMESPACE_ID: ${{ secrets.KV_NAMESPACE_ID }}
+          RAW_API_TOKEN: ${{ secrets.KV_API_TOKEN }}
+          # 引用上一步导出的动态 TIMESTAMP
+          TIMESTAMP: ${{ env.TIMESTAMP }} 
+        run: |
+          # 1. 变量清洗：去除 Secrets 中的隐藏空格和换行符
+          ACCOUNT_ID=$(echo "$RAW_ACCOUNT_ID" | tr -d '[:space:]')
+          NAMESPACE_ID=$(echo "$RAW_NAMESPACE_ID" | tr -d '[:space:]')
+          API_TOKEN=$(echo "$RAW_API_TOKEN" | tr -d '[:space:]')
+          
+          # 检查配置
+          if [[ -z "$ACCOUNT_ID" || -z "$NAMESPACE_ID" || -z "$API_TOKEN" ]]; then
+            echo "❌ 错误: Secrets 未配置或为空，跳过上传步骤。"
+            exit 0 # 跳过，不让工作流失败
+          fi
+
+          LIST_FILE="kv_uploaded_history.txt"
+          touch "$LIST_FILE"
+
+          # 2. 构造上传列表
+          # 强制上传的文件 (根目录 + merged.*)
+          : > force_upload.txt
+          # 使用 'find' 查找根目录文件
+          find . -maxdepth 1 -type f -regex '.*\.\(txt\|m3u\|m3u8\|md\|json\)' -print >> force_upload.txt
+          # 查找 merged 文件
+          find history -maxdepth 1 -name "merged.*" -print >> force_upload.txt 2>/dev/null || true
+          
+          # 归档文件：只上传本次生成的（必须使用 $TIMESTAMP 变量）
+          echo "history/logo${TIMESTAMP}.m3u" >> force_upload.txt
+          echo "history/tvbox_${TIMESTAMP}.txt" >> force_upload.txt
+
+          # 3. 对比历史清单，找出真正的新归档文件
+          # 查找所有归档文件（排除 merged.*）
+          find history -type f ! -name "merged.*" | sort > history_all.txt
+          # 使用 comm -23 找出 history_all.txt 中有但 LIST_FILE 中没有的文件
+          comm -23 history_all.txt <(sort "$LIST_FILE" 2>/dev/null || true) > history_new.txt
+
+          # 合并最终上传列表 (使用 sort -u 去重)
+          cat force_upload.txt history_new.txt | grep -v "^$" | sort -u > final_upload.txt
+
+          if [ ! -s final_upload.txt ]; then
+            echo "没有需要上传的文件（根目录和merged都没变，也没新归档）"
+            exit 0
+          fi
+
+          echo "本次将上传 $(wc -l < final_upload.txt) 个文件"
+          echo "----------------------------------------"
+          cat final_upload.txt
+          echo "----------------------------------------"
+
+          count=0
+          uploaded_new_history=""
+          
+          while IFS= read -r file; do
+            [[ -f "$file" ]] || continue
+            
+            # 【关键】移除开头的 ./ 或 /
+            key="${file#./}"
+            key="${key#/}"
+
+            # 使用 Python 编码代替 jq
+            encoded_key=$(python3 -c "import urllib.parse, sys; sys.stdout.write(urllib.parse.quote('${key}', safe=''))")
+
+            # 计数器和上传信息
+            count=$((count + 1))
+            echo "正在上传 ($count) $key"
+            
+            # 执行 CURL PUT
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+              "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/storage/kv/namespaces/$NAMESPACE_ID/values/$encoded_key" \
+              -H "Authorization: Bearer $API_TOKEN" \
+              -H "Content-Type: text/plain" \
+              --data-binary @"$file")
+
+            if [[ "$HTTP_CODE" == "200" ]]; then
+              echo "✅ 上传成功！"
+              # 记录新的归档文件
+              if [[ "$file" == history/* ]] && [[ "$file" != history/merged.* ]]; then
+                uploaded_new_history="$uploaded_new_history$file\n"
+              fi
+            else
+              echo "❌ 上传失败！HTTP 状态码: $HTTP_CODE"
+            fi
+            
+            # 安全限流：每次上传间隔 1.5 秒
+            sleep 1.5
+          done < final_upload.txt
+
+          # 4. 更新已上传历史清单
+          if [ -n "$uploaded_new_history" ]; then
+            printf "$uploaded_new_history" >> "$LIST_FILE"
+            echo "已更新归档文件清单，本次新增："
+            printf "$uploaded_new_history"
+          fi
+
+          # 5. 提交清单文件变更
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add "$LIST_FILE"
+          
+          # 只在清单文件有实际变动时才提交
+          git diff --staged --quiet || git commit -m "chore: 更新 KV 已上传归档文件清单（${{ github.event.inputs.note || '自动同步' }}） [skip ci]"
+          git push || echo "无变化或推送失败（正常）"
+
+          echo "=========================================="
+          echo "本次同步完成！共上传 $count 个文件"
+          echo "=========================================="
+
+      # ----------------------------------------------------
+      # ⬇️ 提交代码到 GitHub (保留)
+      # ----------------------------------------------------
+      - name: Force commit & push other changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          git add -A
+          # 提交所有其他文件变动 (但跳过清单文件，清单文件已在上面提交)
+          git commit -m "Auto update $(date +'%Y-%m-%d %H:%M') [skip ci]" || echo "No changes to commit"
+          
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git
+          git push origin HEAD:main || echo "无变化或推送失败（正常）"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: m3u-files-${{ github.run_number }}
+          path: |
+            output.m3u
+            output_with_logo.m3u
+            tvbox_output.txt
+            missing_logos.txt
+            history/
