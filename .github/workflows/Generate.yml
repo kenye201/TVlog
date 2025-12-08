@@ -82,3 +82,7 @@ jobs:
         with:
           name: tvbox_output
           path: tvbox_output.txt
+      - name: Check files in the directory
+        run: |
+         ls -l
+         cat demo_output.m3u
