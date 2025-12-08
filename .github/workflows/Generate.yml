@@ -30,15 +30,37 @@ jobs:
       - name: List files in the directory
         run: ls -l
 
-      - name: Upload demo_output.m3u
-        if: success() && (exists('demo_output.m3u'))
+      - name: Upload demo_output.m3u if exists
+        run: |
+          if [ -f demo_output.m3u ]; then
+            echo "✅ demo_output.m3u exists"
+            upload_artifact="demo_output.m3u"
+          else
+            echo "❌ demo_output.m3u does not exist"
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Upload demo_output artifact
+        if: success() && steps.upload_artifact.outputs.upload_artifact == 'demo_output.m3u'
         uses: actions/upload-artifact@v4
         with:
           name: demo_output
           path: demo_output.m3u
 
-      - name: Upload missing_logos.txt
-        if: success() && (exists('missing_logos.txt'))
+      - name: Upload missing_logos.txt if exists
+        run: |
+          if [ -f missing_logos.txt ]; then
+            echo "✅ missing_logos.txt exists"
+            upload_artifact="missing_logos.txt"
+          else
+            echo "❌ missing_logos.txt does not exist"
+            exit 1
+          fi
+        continue-on-error: true
+
+      - name: Upload missing_logos artifact
+        if: success() && steps.upload_artifact.outputs.upload_artifact == 'missing_logos.txt'
         uses: actions/upload-artifact@v4
         with:
           name: missing_logos
