@@ -25,15 +25,39 @@ jobs:
       - name: List files in the directory
         run: ls -l
 
-      - name: Upload demo_output.m3u if exists
-        if: success() && (fileExists('demo_output.m3u'))
+      # Check if demo_output.m3u exists and upload
+      - name: Check if demo_output.m3u exists
+        id: check_demo_output
+        run: |
+          if [ -f demo_output.m3u ]; then
+            echo "✅ demo_output.m3u exists"
+            echo "::set-output name=upload_demo_output::true"
+          else
+            echo "❌ demo_output.m3u does not exist"
+            echo "::set-output name=upload_demo_output::false"
+          fi
+
+      - name: Upload demo_output.m3u if it exists
+        if: steps.check_demo_output.outputs.upload_demo_output == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: demo_output
           path: demo_output.m3u
 
-      - name: Upload missing_logos.txt if exists
-        if: success() && (fileExists('missing_logos.txt'))
+      # Check if missing_logos.txt exists and upload
+      - name: Check if missing_logos.txt exists
+        id: check_missing_logos
+        run: |
+          if [ -f missing_logos.txt ]; then
+            echo "✅ missing_logos.txt exists"
+            echo "::set-output name=upload_missing_logos::true"
+          else
+            echo "❌ missing_logos.txt does not exist"
+            echo "::set-output name=upload_missing_logos::false"
+          fi
+
+      - name: Upload missing_logos.txt if it exists
+        if: steps.check_missing_logos.outputs.upload_missing_logos == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: missing_logos
