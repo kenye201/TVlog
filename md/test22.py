@@ -1,15 +1,15 @@
 import re
 import requests
 from pathlib import Path
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
 ALIAS_FILE       = Path("md/alias.txt")
-TVLOGO_DIR        = Path("Images")
-OUTPUT_M3U        = Path("demo_output.m3u")
+TVLOGO_DIR       = Path("Images")
+OUTPUT_M3U       = Path("demo_output.m3u")
 
-# 你全部 38 个分类的正确顺序（前面 = 越靠前）
+# 你的分类顺序（前面越靠前）
 CATEGORY_ORDER = [
     "4K", "CCTV", "CGTN", "CIBN", "DOX", "NewTV", "WSTV", "iHOT",
     "上海", "云南", "内蒙古", "北京", "吉林", "四川", "天津", "宁夏",
@@ -18,72 +18,54 @@ CATEGORY_ORDER = [
     "湖北", "湖南", "甘肃", "福建", "西藏", "贵州", "辽宁", "重庆",
     "陕西", "青海", "黑龙江"
 ]
+
+REPO_URL = "https://raw.githubusercontent.com/kenye201/TVlog/main"   # 你的仓库地址
 # ---------------------------------------------
 
-# 预扫描所有台标文件 → {标准频道名: 分类文件夹名}
+# Step 1: 加载所有台标 → {标准化名字: (分类, 文件名.后缀)}
 logo_db = {}
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
-        if not folder.is_dir():
+        if not folder.is_dir() or folder.name not in CATEGORY_ORDER:
             continue
-        cat = folder.name
-        for pic in folder.iterdir():
-            if pic.is_file() and pic.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
-                name = pic.stem                     # 去掉后缀
-                # 同时支持 CCTV1 和 CCTV-1 这两种文件名写法
-                clean_names = {
-                    name,
-                    name.replace("-", ""),
-                    name.replace(" ", ""),
-                    name.replace("_", ""),
-                }
-                for n in clean_names:
-                    logo_db[n.lower()] = cat
+        for file in folder.iterdir():
+            if file.is_file() and file.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+                clean = re.sub(r"[ _\-](HD|4K|超清|高清|plus|频道|台|卫视)$", "", file.stem, flags=re.I)
+                clean = clean.replace(" ", "").replace("-", "").replace("_", "")
+                logo_db[clean.lower()] = (folder.name, file.name)
 
-print(f"台标库加载完成，共 {len(logo_db)} 张台标，覆盖 {len(set(logo_db.values()))} 个分类")
+print(f"台标库就绪：{len(logo_db)} 张 → {len(set(c for c,_ in logo_db.values()))} 个分类")
 
-# 加载别名表（可选）
-alias_map = {}
+# Step 2: 加载 alias.txt → {所有别名标准化后: 主名}
+alias_to_main = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
-        if not line or line.startswith("#"):
+        if not line or line.startswith("#"): 
             continue
         parts = [p.strip() for p in line.split(",") if p.strip()]
-        if len(parts) < 2:
+        if not parts: 
             continue
         main = parts[0]
-        for a in parts[1:]:
-            if a.startswith("re:"):
-                continue                              # 本版本不需要正则，台标文件名为主
-            alias_map[a.lower()] = main
+        for name in parts:
+            clean = re.sub(r"[ _\-](HD|4K|高清|超清|plus|频道|台|卫视)$", "", name, flags=re.I)
+            clean = clean.replace(" ", "").replace("-", "").replace("_", "")
+            alias_to_main[clean.lower()] = main
 
-def get_standard_name(raw_name: str) -> str:
-    """把原始频道名映射成我们在 Images 里用的标准文件名"""
-    s = raw_name.strip()
-    # 先走别名表
-    if s.lower() in alias_map:
-        s = alias_map[s.lower()]
+print(f"别名表就绪：{len(alias_to_main)} 条")
 
-    # 常见后缀清理
-    s = re.sub(r"[ _\-]?(HD|4K|超清|高清|标清|plus|频道|台|卫视|国际|纪录|戏曲|少儿|音乐|新闻)$", "", s, flags=re.I)
-    s = s.strip(" -_")
+# Step 3: 全局去重表：标准名 → (分类, 台标相对路径, 播放URL)
+final_channels = OrderedDict()
 
-    # 生成几种常见变体，增加命中率
-    variants = {
-        s,
-        s.replace(" ", ""),
-        s.replace("-", ""),
-        s.replace("_", ""),
-        s.replace("CCTV", "CCTV"),
-    }
-    return list(variants)
+def normalize_name(raw: str) -> str:
+    s = raw.strip()
+    cleaned = re.sub(r"[ _\-](HD|4K|高清|超清|plus|频道|台|卫视)$", "", s, flags=re.I)
+    cleaned = cleaned.replace(" ", "").replace("-", "").replace("_", "")
+    return alias_to_main.get(cleaned.lower(), s.split()[0] if s.split() else s)
 
+# 主程序
 def main():
     links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
-
-    channels = defaultdict(list)        # cat → [(extinf, url), ...]
-    total_found = 0
 
     for url in links:
         try:
@@ -91,43 +73,42 @@ def main():
         except:
             continue
 
-        cur_extinf = None
-        for raw in text.splitlines():
-            line = raw.strip()
+        extinf = None
+        for line in text.splitlines():
+            line = line.strip()
             if line.startswith("#EXTINF:"):
-                cur_extinf = line
+                extinf = line
             elif line and not line.startswith("#"):
-                if not cur_extinf:
+                if not extinf: 
                     continue
 
-                # 提取显示名
-                display = cur_extinf.split(",", 1)[-1] if "," in cur_extinf else "未知频道"
+                display_name = extinf.split(",", 1)[-1] if "," in extinf else "未知"
+                std_name = normalize_name(display_name)                     # 最终显示的名字
 
-                # 尝试各种写法去 logo_db 里找
-                found = False
-                for variant in get_standard_name(display):
-                    key = variant.lower()
-                    if key in logo_db:
-                        cat = logo_db[key]
-                        std_name = next((v for v in get_standard_name(display) if v.lower() == key), display)
-                        new_line = f'#EXTINF:-1 group-title="{cat}" tvg-name="{std_name}",{std_name}'
-                        channels[cat].append((new_line, line))
-                        total_found += 1
-                        found = True
-                        break
-                cur_extinf = None
+                cleaned_key = re.sub(r"[ _\-](HD|4K|高清|超清|plus|频道|台|卫视)$", "", display_name, flags=re.I)
+                cleaned_key = cleaned_key.replace(" ", "").replace("-", "").replace("_", "").lower()
 
-    # 严格按 CATEGORY_ORDER 顺序写文件
+                if cleaned_key in logo_db:
+                    cat, logo_file = logo_db[cleaned_key]
+                    logo_url = f"{REPO_URL}/Images/{cat}/{logo_file}"
+
+                    # 同一个频道保留第一个出现的链接（或你可以后面再加存活检测选最快的）
+                    if std_name not in final_channels:
+                        new_extinf = f'#EXTINF:-1 group-title="{cat}" tvg-logo="{logo_url}" tvg-name="{std_name}",{std_name}'
+                        final_channels[std_name] = (cat, new_extinf, line)
+
+                extinf = None
+
+    # 按分类顺序写文件
     result = ['#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"']
-
     for cat in CATEGORY_ORDER:
-        if cat in channels:
-            for extinf, url in channels[cat]:
+        for name, (c, extinf, url) in final_channels.items():
+            if c == cat:
                 result.append(extinf)
                 result.append(url)
 
     OUTPUT_M3U.write_text("\n".join(result) + "\n", encoding="utf-8")
-    print(f"精选完成！只保留有台标的频道，共 {total_found} 个，已完美分类排序 → {OUTPUT_M3U}")
+    print(f"最终大功告成！去重后保留 {len(final_channels)} 个频道，全带在线台标，分类排序完美！")
 
 if __name__ == "__main__":
     main()
