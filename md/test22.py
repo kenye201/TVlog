@@ -1,4 +1,5 @@
 import re
+import requests
 from pathlib import Path
 
 # -------------------- 配置 --------------------
@@ -6,7 +7,6 @@ REMOTE_FILE_PATH = Path("md/httop_links.txt")  # 存放直播源 URL，每行一
 ALIAS_FILE = Path("md/alias.txt")         # 频道别名表
 TVLOGO_DIR = Path("Images")                    # 台标文件夹，每个子文件夹为分类，里面是台标文件
 OUTPUT_M3U = Path("demo_output.m3u")          # 输出 M3U 文件
-MISSING_LOGOS = Path("missing_logos.txt")    # 存储缺失台标的文件
 # ---------------------------------------------
 
 # 解析别名表
@@ -67,37 +67,41 @@ def load_remote_links(remote_file):
                 links.append(line)
     return links
 
+# 下载 M3U 内容
+def download_m3u_content(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
+    except requests.RequestException as e:
+        print(f"⚠️ 下载失败: {url} 错误: {e}")
+        return None
+
 # 生成 M3U 文件
-def generate_m3u(links, alias_map, regex_map, tvlogo_dir, output_file, missing_logos_file):
+def generate_m3u(links, alias_map, regex_map, tvlogo_dir, output_file):
     output_lines = ["#EXTM3U"]
-    missing_logos = []
     for link in links:
-        # 从 URL 或文件名提取频道名，假设 URL 格式是 .../频道名.xxx
-        # 也可自定义规则
-        channel_name = Path(link).stem
-        main_name = map_to_main_name(channel_name, alias_map, regex_map)
-        category = match_logo_class(main_name, tvlogo_dir)
-        # 检查是否有台标，如果没有，则记录下来
-        if category == "其他频道":
-            missing_logos.append(main_name)
-        # 写入 M3U
-        output_lines.append(f'#CATEGORY:{category} #EXTINF:-1,{main_name}')
-        output_lines.append(link)
-    
+        m3u_content = download_m3u_content(link)
+        if not m3u_content:
+            continue
+
+        # 解析下载的 M3U 内容
+        for line in m3u_content.splitlines():
+            if line.startswith("#EXTINF:"):
+                match = re.search(r'tvg-name="([^"]+)"', line)
+                if match:
+                    channel_name = match.group(1)
+                    main_name = map_to_main_name(channel_name, alias_map, regex_map)
+                    category = match_logo_class(main_name, tvlogo_dir)
+                    output_lines.append(f'#CATEGORY:{category} #EXTINF:-1,{main_name}')
+                    output_lines.append(line.split(",")[1].strip())  # 频道链接部分
     # 写入输出文件
     with open(output_file, "w", encoding="utf-8") as f:
         f.write("\n".join(output_lines))
     print(f"✅ 已生成输出文件: {output_file}")
-    
-    # 如果有缺失台标，则将其写入缺失文件
-    if missing_logos:
-        with open(missing_logos_file, "w", encoding="utf-8") as f:
-            for logo in missing_logos:
-                f.write(logo + "\n")
-        print(f"⚠️ 台标缺失的频道已写入: {missing_logos_file}")
 
 # -------------------- 主程序 --------------------
 if __name__ == "__main__":
     alias_map, regex_map = load_alias_map(ALIAS_FILE)
     links = load_remote_links(REMOTE_FILE_PATH)
-    generate_m3u(links, alias_map, regex_map, TVLOGO_DIR, OUTPUT_M3U, MISSING_LOGOS)
+    generate_m3u(links, alias_map, regex_map, TVLOGO_DIR, OUTPUT_M3U)
