@@ -85,7 +85,6 @@ def generate_m3u(links, alias_map, regex_map, tvlogo_dir, output_file):
 
 # -------------------- 主程序 --------------------
 if __name__ == "__main__":
-    alias_map, regex_map = load_alias_map(ALIAS_FILE)
-    links = load_remote_links(REMOTE_FILE_PATH)
-    generate_m3u(links, alias_map, regex_map, TVLOGO_DIR, OUTPUT_M3U)
-
+    alias_map, regex_map = load_alias_map(ALIAS_FILE)  # 加载别名表
+    links = load_remote_links(REMOTE_FILE_PATH)  # 加载远程链接列表
+    generate_m3u(links, alias_map, regex_map, TVLOGO_DIR, OUTPUT_M3U)  # 生成 M3U 文件
