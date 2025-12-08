@@ -28,7 +28,7 @@ jobs:
       run: python md/test22.py
 
     - name: Upload demo_output.m3u as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: demo_output
         path: demo_output.m3u
