@@ -5,7 +5,7 @@ from pathlib import Path
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")   # 远程源列表，每行一个 m3u 链接
 ALIAS_FILE = Path("md/alias.txt")               # 别名表
-TVLOGO_DIR = Path("Images")                     # 台标目录
+TVLOGO_DIR = Path("img")                     # 台标目录
 OUTPUT_M3U = Path("demo_output.m3u")              # 输出文件
 # ---------------------------------------------
 
