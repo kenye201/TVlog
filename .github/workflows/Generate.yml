@@ -25,24 +25,59 @@ jobs:
           if [ -f py/requirements.txt ]; then pip install -r py/requirements.txt; fi
 
       - name: Run M3U generation script
+        id: generate_m3u
         run: |
-          python md/test22.py  # 根据你的脚本实际路径修改
+          python py/main.py  # 根据你的脚本实际路径修改
+
+      - name: Check if demo_output.m3u exists
+        id: check_output
+        run: |
+          if [ -f demo_output.m3u ]; then
+            echo "Output file exists"
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Output file does not exist"
+            echo "exists=false" >> $GITHUB_ENV
+          fi
 
       - name: Upload M3U output
+        if: env.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: demo_output
           path: demo_output.m3u
 
+      - name: Check if missing_logos.txt exists
+        id: check_missing_logos
+        run: |
+          if [ -f missing_logos.txt ]; then
+            echo "Missing logos file exists"
+            echo "logos_exists=true" >> $GITHUB_ENV
+          else
+            echo "Missing logos file does not exist"
+            echo "logos_exists=false" >> $GITHUB_ENV
+          fi
+
       - name: Upload missing logos
-        if: success() && (exists('missing_logos.txt'))
+        if: env.logos_exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: missing_logos
           path: missing_logos.txt
 
+      - name: Check if tvbox_output.txt exists
+        id: check_tvbox_output
+        run: |
+          if [ -f tvbox_output.txt ]; then
+            echo "TVBox output file exists"
+            echo "tvbox_exists=true" >> $GITHUB_ENV
+          else
+            echo "TVBox output file does not exist"
+            echo "tvbox_exists=false" >> $GITHUB_ENV
+          fi
+
       - name: Upload TVBox output
-        if: success() && (exists('tvbox_output.txt'))
+        if: env.tvbox_exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: tvbox_output
