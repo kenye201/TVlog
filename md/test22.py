@@ -3,7 +3,7 @@ from pathlib import Path
 
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")  # 存放直播源 URL，每行一个
-ALIAS_FILE = Path("channel_alias.txt")         # 频道别名表
+ALIAS_FILE = Path("md/alias.txt")         # 频道别名表
 TVLOGO_DIR = Path("TVlogo")                    # 台标文件夹，每个子文件夹为分类，里面是台标文件
 OUTPUT_M3U = Path("demo_output.m3u")          # 输出 M3U 文件
 # ---------------------------------------------
