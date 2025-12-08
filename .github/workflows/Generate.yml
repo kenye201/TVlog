@@ -27,7 +27,7 @@ jobs:
       - name: Run M3U generation script
         id: generate_m3u
         run: |
-          python py/main.py  # 根据你的脚本实际路径修改
+          python md/test22.py  # 根据你的脚本实际路径修改
 
       - name: Check if demo_output.m3u exists
         id: check_output
