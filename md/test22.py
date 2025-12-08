@@ -7,7 +7,7 @@ from pathlib import Path
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
 ALIAS_FILE       = Path("md/alias.txt")
 TVLOGO_DIR       = Path("Images")
-OUTPUT_M3U       = Path("demo_output.m3u")
+OUTPUT_M3U         = Path("demo_output.m3u")
 
 # 分类显示顺序（前面越靠前）
 CATEGORY_ORDER = [
@@ -22,7 +22,7 @@ CATEGORY_ORDER = [
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main"
 # ---------------------------------------------
 
-# 1. 加载台标库 → {标准化名: (分类, 文件名)}
+# 1. 加载台标库
 logo_db = {}
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
@@ -37,7 +37,7 @@ if TVLOGO_DIR.exists():
 
 print(f"台标库加载完成：{len(logo_db)} 张")
 
-# 2. 加载别名表 → 所有别名都指向主名
+# 2. 加载别名表
 alias_to_main = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
@@ -55,11 +55,11 @@ if ALIAS_FILE.exists():
 
 print(f"别名表加载完成：{len(alias_to_main)} 条")
 
-# 3. 分类优先级字典，用于后面排序
+# 3. 分类排序权重
 cat_priority = {cat: i for i, cat in enumerate(CATEGORY_ORDER)}
 
-# 结果容器
-temp_lines = []        # 先收集所有匹配上的条目（EXTINF + URL 两行）
+# 收集所有匹配成功的行
+temp_lines = []
 total_count = 0
 
 def normalize(name: str) -> str:
@@ -68,7 +68,7 @@ def normalize(name: str) -> str:
     cleaned = cleaned.replace(" ", "").replace("-", "").replace("_", "")
     return alias_to_main.get(cleaned.lower(), cleaned)
 
-# 主循环：遍历所有远程源
+# 主循环
 links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
 
 for url in links:
@@ -88,14 +88,12 @@ for url in links:
                 continue
 
             display_name = extinf.split(",", 1)[-1] if "," in extinf else "未知频道"
-            key = normalize(ext_name)
+            key = normalize(display_name)
 
             if key.lower() in logo_db:
                 cat, logo_file = logo_db[key.lower()]
                 logo_url = f"{REPO_RAW}/Images/{cat}/{logo_file}"
-
-                # 最终显示名称使用别名表里的主名（最规范）
-                show_name = alias_to_main.get(key.lower(), ext_name.split()[0] if ext_name.split() else ext_name)
+                show_name = alias_to_main.get(key.lower(), display_name.split()[0] if display_name.split() else display_name)
 
                 new_extinf = f'#EXTINF:-1 group-title="{cat}" tvg-logo="{logo_url}" tvg-name="{show_name}",{show_name}'
                 temp_lines.append(new_extinf)
@@ -104,8 +102,8 @@ for url in links:
 
             extinf = None
 
-# 按分类顺序排序（同一分类内保持原始顺序）
-def sort_key(line: str):
+# 按分类顺序排序
+def sort_key(line):
     if not line.startswith("#EXTINF"):
         return (9999, line)
     m = re.search(r'group-title="([^"]+)"', line)
@@ -115,7 +113,7 @@ def sort_key(line: str):
 temp_lines.sort(key=sort_key)
 
 # 写文件
-final_content = "#EXTM3U x-tvg-url=\"https://live.fanmingming.com/e.xml\"\n" + "\n".join(temp_lines) + "\n"
+final_content = '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n' + "\n".join(temp_lines) + "\n"
 OUTPUT_M3U.write_text(final_content, encoding="utf-8")
 
-print(f"全量合集生成完毕！共 {total_count} 条线路（多源全部保留），100% 带台标，分类已排序"))
+print(f"全量合集生成完毕！共 {total_count} 条线路（多源全保留），全部带台标，已按分类完美排序！")
