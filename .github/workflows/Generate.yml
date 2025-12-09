@@ -1,11 +1,12 @@
 # .github/workflows/Generate.yml
 name: 生成、备份、合并并上传KV播放列表
+
 on:
   workflow_dispatch:
     # 允许手动触发
   schedule:
-    # 每 6 小时运行一次 (00:01, 06:01, 12:01, 18:01 UTC)
-    - cron: '1 */6 * * *'
+    # 每 8 小时运行一次 (00:10, 08:10, 16:10 UTC)
+    - cron: '10 */8 * * *'
 
 jobs:
   generate_m3u:
@@ -17,7 +18,8 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          # 需要完整的历史记录来比较文件
+          fetch-depth: 0 
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v4
@@ -29,14 +31,45 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 生成最新的主要播放列表 (根目录)
-      - name: 运行主脚本生成 demo_output.m3u 和 tvbox_output.txt
+      # 1. 运行主脚本生成最新的文件
+      - name: 运行主脚本生成临时文件
         run: |
+          # 生成的文件暂时命名为 _new，以免覆盖上一次检出的版本
           python md/test22.py
+          mv demo_output.m3u demo_output_new.m3u
+          mv tvbox_output.txt tvbox_output_new.m3u
           echo "主文件生成完成。"
 
-      # 2. 生成带时间戳的备份文件 (history 文件夹)
+      # 2. 内容校验并终止工作流 (内容不变则跳过后续所有步骤)
+      - name: 内容校验并终止
+        id: check_content
+        run: |
+          # 检查上一次提交的文件是否存在
+          if [ -f demo_output.m3u ] && [ -f tvbox_output.txt ]; then
+            
+            # 比较新旧文件内容，cmp -s: 安静模式，0 表示相同
+            if cmp -s demo_output_new.m3u demo_output.m3u && cmp -s tvbox_output_new.m3u tvbox_output.txt; then
+              echo "内容未更改。跳过后续步骤。"
+              echo "SKIP_UPDATE=true" >> $GITHUB_OUTPUT
+              
+            else
+              echo "内容已更改。继续执行更新。"
+              echo "SKIP_UPDATE=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "未找到旧文件。继续执行更新。"
+            echo "SKIP_UPDATE=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # 如果内容有变化，将临时文件重命名为正式文件名，供后续步骤使用
+          if [ "${{ steps.check_content.outputs.SKIP_UPDATE }}" == "false" ]; then
+            mv demo_output_new.m3u demo_output.m3u
+            mv tvbox_output_new.m3u tvbox_output.txt
+          fi
+
+      # 3. 创建并复制备份文件到 history/ (如果内容有变化)
       - name: 创建并复制备份文件到 history/
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
@@ -46,14 +79,14 @@ jobs:
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT 
           echo "备份文件已生成到 history/ 目录。"
 
-      # 3. 运行合并脚本生成 merged 文件 (history 文件夹)
-      - name: 运行合并脚本生成 merged.m3u 和 merged.txt
-        run: |
-          python md/merge_tvlist.py
-          echo "合并文件生成完成。"
+      # 4. 运行合并脚本生成 merged 文件 (history 文件夹) (如果内容有变化)
+      - name: 运行合并脚本生成 merged 文件
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
+        run: python md/merge_tvlist.py
 
-      # 4. 上传文件到 Cloudflare KV (仅上传 6 个核心文件)
-      - name: 上传所有播放列表到 Cloudflare KV
+      # 5. 上传文件到 Cloudflare KV (如果内容有变化)
+      - name: 上传文件到 Cloudflare KV
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
           TIMESTAMP="${{ steps.set_timestamp.outputs.TIMESTAMP }}"
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
@@ -69,21 +102,34 @@ jobs:
           curl -s -X PUT "${CF_URL_BASE}/latest_m3u" --data-binary "@demo_output.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/latest_txt" --data-binary "@tvbox_output.txt" -H "${AUTH_HEADER}" &
           
-          # 合并文件 (2个)
+          # 合并文件 (2个, 位于 history/)
           curl -s -X PUT "${CF_URL_BASE}/history/merged.m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/history/merged.txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
           
-          # 带时间戳的备份文件 (2个)
+          # 带时间戳的备份文件 (2个, 位于 history/)
           curl -s -X PUT "${CF_URL_BASE}/history/logo_${TIMESTAMP}.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/history/tvbox_${TIMESTAMP}.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
           
-          # *** 已移除固定别名 Key 的上传 ***
-
           wait
           echo "Cloudflare KV 6 文件上传完成。"
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 5. 提交所有更改 (包含推送前拉取代码的修正)
+      # 6. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
+      - name: 清理 Cloudflare KV 中的旧备份 Key
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
+        # ⚠️ 确保 md/clear_kv.py 能够读取和使用提供的环境变量
+        run: python md/clear_kv.py
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+
+      # 7. 提交所有更改 (如果内容有变化)
       - name: 提交并推送到 main 分支
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -92,8 +138,9 @@ jobs:
           git add history/
           
           if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
-            git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
+            git commit -m "自动更新：生成、备份、合并并清理 KV" --no-verify
             
+            # 关键修正：拉取远程更改并合并，防止推送被拒绝
             echo "尝试拉取远程更改并合并..."
             git pull --rebase origin main
             
@@ -104,7 +151,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+      # 8. 上传生成的播放列表文件为 artifact (如果内容有变化)
       - name: 上传生成的播放列表文件为 artifact
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
