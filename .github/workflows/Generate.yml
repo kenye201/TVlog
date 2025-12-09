@@ -80,3 +80,32 @@ jobs:
           path: |
             demo_output.m3u
             tvbox_output.txt
+# ... (在 "运行合并脚本生成 merged.m3u 和 merged.txt" 步骤之后)
+
+      # 🚀 新增步骤: 上传文件到 Cloudflare KV
+      - name: 上传播放列表到 Cloudflare KV
+        run: |
+          # 提取 Secrets 到环境变量
+          CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID }}/values"
+          AUTH_HEADER="Authorization: Bearer ${{ secrets.CF_API_TOKEN }}"
+          
+          # 1. 上传 M3U 文件 (Key: latest_m3u)
+          echo "正在上传 demo_output.m3u 到 KV 存储..."
+          curl -X PUT "${CF_URL_BASE}/latest_m3u" \
+            -H "${AUTH_HEADER}" \
+            --data-binary "@demo_output.m3u"
+            
+          # 2. 上传 TXT 文件 (Key: latest_txt)
+          echo "正在上传 tvbox_output.txt 到 KV 存储..."
+          curl -X PUT "${CF_URL_BASE}/latest_txt" \
+            -H "${AUTH_HEADER}" \
+            --data-binary "@tvbox_output.txt"
+          
+          echo "Cloudflare KV 上传完成。"
+        env:
+          # 必须在这里声明您在 GitHub Secrets 中设置的三个变量
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+
+# ... (在此之后是 "提交并推送到 main 分支" 步骤)
