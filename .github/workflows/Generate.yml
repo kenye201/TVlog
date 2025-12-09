@@ -31,15 +31,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 运行主脚本生成临时文件
+# 1. 运行主脚本生成临时文件
       - name: 运行主脚本生成临时文件
         run: |
-          # 运行 Python 脚本，它会生成 demo_output.m3u 和 tvbox_output.txt
-          python md/test22.py
-          
-          # 立即将原始文件重命名为 _new，防止与检出的旧文件混淆
+          # 运行 Python 脚本，并直接将输出重定向到带有 _new 后缀的临时文件
+          python md/test22.py > demo_output_new.m3u
+          # 假设 tvbox_output.txt 是脚本的另一个输出，需要手动处理
+          # 假设您的 md/test22.py 脚本是在文件系统中创建文件的，我们现在让它输出到固定位置：
           mv demo_output.m3u demo_output_new.m3u
-          mv tvbox_output.txt tvbox_output_new.txt
+          mv tvbox_output.txt tvbox_output_new.txt 
           echo "主文件生成完成。"
 
       # 2. 内容校验并终止工作流 (内容不变则跳过后续所有步骤)
