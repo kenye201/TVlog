@@ -1,4 +1,4 @@
-#EXTM3U x-tvg-url="http://httop.top/e.xml"
+#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"
 
 #EXTINF:-1 tvg-name="CCTV1" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV17.png" group-title="央视频道",CCTV1
 http://42.48.106.93:808/hls/1/index.m3u8
