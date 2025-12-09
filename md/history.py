@@ -7,8 +7,8 @@ import re
 from datetime import datetime
 
 # ========== 配置 ==========
-REPO_OWNER = "qunhui201"
-REPO_NAME = "TVlogo"
+REPO_OWNER = "kenye201/"
+REPO_NAME = "TVlog"
 BRANCH = "main"
 DIRECTORY = "history"
 FILE_PATTERN = r'^(logo|tvbox_)\d{8}\.(m3u|txt)$'  # 匹配 logoMMDDHHMM.m3u 或 tvbox_MMDDHHMM.txt
