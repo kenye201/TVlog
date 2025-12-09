@@ -9,10 +9,11 @@ from collections import defaultdict
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
 ALIAS_FILE       = Path("md/alias.txt")
-TVLOGO_DIR       = Path("Images") 
-IMG_DIR          = Path("img")    
+TVLOGO_DIR       = Path("Images") # 包含分类文件夹 (CCTV, WSTV, 湖南等)
+IMG_DIR          = Path("img")    # 无分类的通用台标文件夹
 OUTPUT_M3U       = Path("demo_output.m3u")
 OUTPUT_TXT       = Path("tvbox_output.txt") # TXT 文件路径
+# 您的台标仓库裸链接
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main" 
 
 # 分类排序顺序
@@ -37,6 +38,7 @@ if ALIAS_FILE.exists():
         alias_db[main_name] = set(parts)
 
 # ==================== 2. 加载台标库并映射所有别名到台标文件 ====================
+# 结构: { 'CLEAN_ALIAS_KEY': (分类文件夹, 台标文件名) }
 logo_map = {}
 
 def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
@@ -88,12 +90,14 @@ def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
             
     return new_aliases
 
+# 优先加载分类文件夹（Images/CCTV, Images/湖南 等）
 total_aliases = 0
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
         if folder.is_dir():
             total_aliases += load_logos_from_dir(folder)
 
+# 其次加载通用文件夹 (img/)，如果 key 已存在，不覆盖
 if IMG_DIR.exists():
     total_aliases += load_logos_from_dir(IMG_DIR, base_cat='img') 
 
@@ -140,6 +144,7 @@ for url in links:
             logo_url = ""
             best_match_cat = None
             
+            # 增强 Key 的简洁度：主动去除“卫视”、“频道”等后缀
             aggressive_clean_name = raw_name
             for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
                 aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
@@ -190,13 +195,20 @@ for url in links:
             
             new_line += f',{raw_name}'
 
-            # -------------------- E. 保存结果 (使用新的数据结构) --------------------
+            # -------------------- E. 保存结果 (结构化) --------------------
             
             weight = CATEGORY_ORDER.index(final_group) if final_group in CATEGORY_ORDER else 9999
             
-            # 频道排序权重：CCTV 频道按数字排序
+            # 频道排序权重：CCTV 频道按数字排序 (实现自然排序)
             cctv_match = re.search(r'CCTV[^\d]*(\d+)', raw_name, re.I)
-            channel_sort_key = (0, cctv_match.group(1)) if cctv_match else (1, raw_name)
+            
+            if cctv_match:
+                channel_number = int(cctv_match.group(1)) 
+                # Key: (0, 频道数字) 确保按数字大小排序
+                channel_sort_key = (0, channel_number) 
+            else:
+                # Key: (1, 频道名称) 非CCTV频道按名称排序
+                channel_sort_key = (1, raw_name)
             
             grouped_channels[final_group][raw_name].append({
                 'weight': weight,
@@ -221,6 +233,7 @@ for group_name in sorted_groups:
     
     # 对当前分类下的频道进行排序
     # 排序键：(CCTV数字, 频道名)
+    # 这里的 sorted_channels 存储的是频道名称 (raw_name)
     sorted_channels = sorted(channels.keys(), key=lambda c: channels[c][0]['channel_sort_key'])
     
     # TXT 格式分类行
