@@ -1,4 +1,4 @@
-# md/test22.py —— 最终标准 TVbox TXT 格式生成版本
+# md/test22.py —— 最终标准 TVbox TXT 格式生成版本 (分类汉化)
 import re
 import requests
 from pathlib import Path
@@ -9,24 +9,37 @@ from collections import defaultdict
 # -------------------- 配置 --------------------
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
 ALIAS_FILE       = Path("md/alias.txt")
-TVLOGO_DIR       = Path("Images") # 包含分类文件夹 (CCTV, WSTV, 湖南等)
-IMG_DIR          = Path("img")    # 无分类的通用台标文件夹
+TVLOGO_DIR       = Path("Images") 
+IMG_DIR          = Path("img")    
 OUTPUT_M3U       = Path("demo_output.m3u")
-OUTPUT_TXT       = Path("tvbox_output.txt") # TXT 文件路径
-# 您的台标仓库裸链接
+OUTPUT_TXT       = Path("tvbox_output.txt")
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main" 
 
-# 分类排序顺序
-CATEGORY_ORDER = ["4K","CCTV","CGTN","CIBN","DOX","NewTV","WSTV","iHOT",
+# 【新增】内部代号 (文件夹名) 到 显示名 (中文名) 的映射
+# 未映射的文件夹将直接使用其文件夹名作为显示名。
+GROUP_MAPPING = {
+    "CCTV": "央视频道",
+    "WSTV": "卫视频道",
+    "CGTN": "国际频道",
+    "DOX": "求索系列",
+    "NewTV": "新视听",
+    "iHOT": "iHOT系列",
+    "img": "地方频道", # 如果 'img' 文件夹的台标是地方台，可映射为地方频道
+    "其他": "其它频道"
+    # 其他分类 (如 湖南, 广东, 数字频道) 将直接使用文件夹名作为显示名
+}
+
+# 【更新】分类排序顺序：现在使用最终的中文显示名进行排序
+CATEGORY_ORDER = ["4K","央视频道","卫视频道","国际频道","CIBN","求索系列","新视听","iHOT系列",
     "上海","云南","内蒙古","北京","吉林","四川","天津","宁夏",
     "安徽","山东","山西","广东","广西","数字频道","新疆","江苏",
     "江西","河北","河南","浙江","海南","海外频道","港澳地区",
     "湖北","湖南","甘肃","福建","西藏","贵州","辽宁","重庆",
-    "陕西","青海","黑龙江","其他"]
+    "陕西","青海","黑龙江","地方频道","其它频道"]
 # ----------------------------------------------
 
 
-# ==================== 1. 加载别名表 (Main Name <-> Alias Set) ====================
+# ==================== 1. 加载别名表 ====================
 alias_db = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
@@ -37,12 +50,10 @@ if ALIAS_FILE.exists():
         main_name = parts[0]
         alias_db[main_name] = set(parts)
 
-# ==================== 2. 加载台标库并映射所有别名到台标文件 ====================
-# 结构: { 'CLEAN_ALIAS_KEY': (分类文件夹, 台标文件名) }
+# ==================== 2. 加载台标库 ====================
 logo_map = {}
 
 def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
-    """从指定目录加载台标文件，并将其映射到 logo_map，返回新增的映射数量。"""
     if not directory.exists(): return 0
 
     new_aliases = 0
@@ -53,7 +64,7 @@ def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
         logo_stem = f.stem 
         logo_name = f.name 
         
-        # --- 阶段 A: 通过 alias.txt 映射所有别名 ---
+        # --- 阶段 A: 通过 alias.txt 映射 ---
         main_name_found = None
         for main, aliases in alias_db.items():
             clean_logo_stem = re.sub(r"[-_ .]","", logo_stem).upper()
@@ -79,7 +90,7 @@ def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
                         logo_map[k] = (cat, logo_name)
                         new_aliases += 1
 
-        # --- 阶段 B: 额外添加台标文件名本身的映射 (作为保底) ---
+        # --- 阶段 B: 额外添加台标文件名本身的映射 ---
         clean_stem = re.sub(r"[-_ .]","", logo_stem).upper()
         if logo_stem.upper() not in logo_map:
             logo_map[logo_stem.upper()] = (cat, logo_name)
@@ -90,21 +101,19 @@ def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
             
     return new_aliases
 
-# 优先加载分类文件夹（Images/CCTV, Images/湖南 等）
 total_aliases = 0
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
         if folder.is_dir():
             total_aliases += load_logos_from_dir(folder)
 
-# 其次加载通用文件夹 (img/)，如果 key 已存在，不覆盖
 if IMG_DIR.exists():
     total_aliases += load_logos_from_dir(IMG_DIR, base_cat='img') 
 
 print(f"台标库加载完成：共映射 {total_aliases} 个频道名称变体。")
 
 # ==================== 3. 主程序（精简匹配） ====================
-# 结构: { 分类名: { 频道名: [ (权重, EXTINF行, URL) ] } }
+# 结构: { 内部代号/文件夹名: { 频道名: [ item_data ] } }
 grouped_channels = defaultdict(lambda: defaultdict(list))
 total = 0
 
@@ -142,9 +151,8 @@ for url in links:
             # -------------------- B. 查找台标 --------------------
             
             logo_url = ""
-            best_match_cat = None
+            best_match_cat = None # 内部代号/文件夹名
             
-            # 增强 Key 的简洁度：主动去除“卫视”、“频道”等后缀
             aggressive_clean_name = raw_name
             for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
                 aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
@@ -164,30 +172,34 @@ for url in links:
                         
                     break
 
-            # -------------------- C. 确定最终 Group --------------------
+            # -------------------- C. 确定最终 Group (使用内部代号) --------------------
             
-            final_group = "其他" 
+            final_group_internal = "其他" 
             
             # 优先级 1: 强制分类 (CCTV/WSTV)
             if any(x in name_upper for x in ["CCTV","央视","中央","CGTN"]):
-                final_group = "CCTV"
+                final_group_internal = "CCTV"
             elif "卫视" in name_upper:
-                final_group = "WSTV"
+                final_group_internal = "WSTV"
             
-            # 优先级 2: 台标归属分类
-            elif logo_url and best_match_cat not in ['其他', 'img']:
-                final_group = best_match_cat 
+            # 优先级 2: 台标归属分类 (使用文件夹名作为代号)
+            elif logo_url and best_match_cat not in ['其他']:
+                final_group_internal = best_match_cat 
             
             # 优先级 3: 原 EXTINF Group
             else:
                 m = re.search(r'group-title="([^"]+)"', extinf)
-                final_group = m.group(1) if m else "其他"
+                final_group_internal = m.group(1) if m else "其他"
+            
             
             # -------------------- D. 构造新的 EXTINF 行 --------------------
             
+            # ❗ M3U 文件中 group-title 使用【中文显示名】
+            group_display_name = GROUP_MAPPING.get(final_group_internal, final_group_internal)
+
             new_line = extinf.split(",",1)[0]
-            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{final_group}"', new_line)
-            if "group-title=" not in new_line: new_line += f' group-title="{final_group}"'
+            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{group_display_name}"', new_line)
+            if "group-title=" not in new_line: new_line += f' group-title="{group_display_name}"'
 
             if logo_url:
                 new_line = re.sub(r'tvg-logo="[^"]*"', f'tvg-logo="{logo_url}"', new_line)
@@ -195,22 +207,20 @@ for url in links:
             
             new_line += f',{raw_name}'
 
-            # -------------------- E. 保存结果 (结构化) --------------------
+            # -------------------- E. 保存结果 (使用内部代号) --------------------
             
-            weight = CATEGORY_ORDER.index(final_group) if final_group in CATEGORY_ORDER else 9999
+            weight = CATEGORY_ORDER.index(group_display_name) if group_display_name in CATEGORY_ORDER else 9999
             
             # 频道排序权重：CCTV 频道按数字排序 (实现自然排序)
             cctv_match = re.search(r'CCTV[^\d]*(\d+)', raw_name, re.I)
             
             if cctv_match:
                 channel_number = int(cctv_match.group(1)) 
-                # Key: (0, 频道数字) 确保按数字大小排序
                 channel_sort_key = (0, channel_number) 
             else:
-                # Key: (1, 频道名称) 非CCTV频道按名称排序
                 channel_sort_key = (1, raw_name)
             
-            grouped_channels[final_group][raw_name].append({
+            grouped_channels[final_group_internal][raw_name].append({
                 'weight': weight,
                 'channel_sort_key': channel_sort_key,
                 'extinf': new_line,
@@ -221,23 +231,29 @@ for url in links:
 
 # ==================== 4. 排序 + 写入 M3U 和 TXT 文件 ====================
 
-# 1. 对分类进行排序
-sorted_groups = sorted(grouped_channels.keys(), key=lambda g: CATEGORY_ORDER.index(g) if g in CATEGORY_ORDER else 9999)
+# 1. 对分类进行排序 (按中文显示名在 CATEGORY_ORDER 中的位置排序)
+# 排序时使用 GROUP_MAPPING 转换后的中文名
+def get_sort_key(group_internal_name):
+    display_name = GROUP_MAPPING.get(group_internal_name, group_internal_name)
+    return CATEGORY_ORDER.index(display_name) if display_name in CATEGORY_ORDER else 9999
+
+sorted_groups_internal = sorted(grouped_channels.keys(), key=get_sort_key)
 
 # 2. 准备最终的 M3U 和 TXT 数据
 m3u_lines = ['#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"']
 txt_lines = []
 
-for group_name in sorted_groups:
-    channels = grouped_channels[group_name]
+for group_internal_name in sorted_groups_internal:
+    channels = grouped_channels[group_internal_name]
+    
+    # 获取中文显示名
+    group_display_name = GROUP_MAPPING.get(group_internal_name, group_internal_name)
     
     # 对当前分类下的频道进行排序
-    # 排序键：(CCTV数字, 频道名)
-    # 这里的 sorted_channels 存储的是频道名称 (raw_name)
     sorted_channels = sorted(channels.keys(), key=lambda c: channels[c][0]['channel_sort_key'])
     
     # TXT 格式分类行
-    txt_lines.append(f"{group_name},#genre#")
+    txt_lines.append(f"{group_display_name},#genre#")
     txt_lines.append("") # 必须有一个空行
 
     for channel_name in sorted_channels:
@@ -268,6 +284,6 @@ except Exception as e:
     print(f"写入 TXT 文件 {OUTPUT_TXT} 失败: {e}")
 
 
-print(f"完美收工！共 {total} 条线路，分类精准，台标全中！")
+print(f"完美收工！共 {total} 条线路，分类名称已汉化！")
 print(f"已生成 M3U 文件: {OUTPUT_M3U.name}")
 print(f"已生成 TVbox TXT 文件 (标准格式): {OUTPUT_TXT.name}")
