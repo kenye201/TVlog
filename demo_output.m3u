@@ -409,7 +409,7 @@ http://123.14.75.54:8090/hls/23/index.m3u8
 http://182.119.121.160:8899/hls/39/index.m3u8
 #EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
 http://218.19.109.134:808/hls/15/index.m3u8
-#EXTINF:-1 tvg-name="山东教育卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/山东教育卫视.png",山东教育卫视
+#EXTINF:-1 tvg-name="山东教育卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/山东教育.png",山东教育卫视
 http://182.91.115.249:5258/hls/53/index.m3u8
 #EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
 http://182.91.115.249:5258/hls/47/index.m3u8
@@ -659,8 +659,6 @@ http://182.91.115.249:5258/hls/63/index.m3u8
 http://219.155.105.238:8899/hls/55/index.m3u8
 #EXTINF:-1 tvg-name="嘉佳卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/嘉佳卡通.png",嘉佳卡通
 http://182.119.121.160:8899/hls/64/index.m3u8
-#EXTINF:-1 tvg-name="国学频道" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/国学频道.png",国学频道
-http://182.119.121.160:8899/hls/32/index.m3u8
 #EXTINF:-1 tvg-name="文物宝库" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/文物宝库.png",文物宝库
 http://219.155.105.238:8899/hls/59/index.m3u8
 #EXTINF:-1 tvg-name="梨园频道" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/梨园频道.png",梨园频道
@@ -683,6 +681,8 @@ http://182.91.115.249:5258/hls/58/index.m3u8
 http://182.91.115.249:5258/hls/59/index.m3u8
 #EXTINF:-1 tvg-name="CETV-4高清" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/CETV4.png",CETV-4高清
 http://182.91.115.249:5258/hls/60/index.m3u8
+#EXTINF:-1 tvg-name="国学频道" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/国学.png",国学频道
+http://182.119.121.160:8899/hls/32/index.m3u8
 #EXTINF:-1 tvg-name="河南公共" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/河南公共.png",河南公共
 http://222.142.184.65:8888/hls/29/index.m3u8
 #EXTINF:-1 tvg-name="河南国际" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/河南国际.png",河南国际
