@@ -4,7 +4,7 @@ name: 生成、备份、合并并上传KV播放列表
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:      # 手动触发
+  workflow_dispatch:
 
 jobs:
   generate_m3u:
@@ -36,11 +36,14 @@ jobs:
 
       # 2. 生成带时间戳的备份文件 (history 文件夹)
       - name: 创建并复制备份文件到 history/
+        # ❗ 注意：在这里设置 TIMESTAMP 变量，并在后续步骤中复用它
+        id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT # 导出 TIMESTAMP 变量
           echo "备份文件已生成到 history/ 目录。"
 
       # 3. 运行合并脚本生成 merged 文件 (history 文件夹)
@@ -49,33 +52,60 @@ jobs:
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
 
-# 4. 上传文件到 Cloudflare KV (使用更健壮的 Bash 变量赋值)
-      - name: 上传播放列表到 Cloudflare KV
+      # 4. 上传文件到 Cloudflare KV (上传全部 6 个文件)
+      - name: 上传所有播放列表到 Cloudflare KV
         run: |
-          # 将 Secrets 赋值给局部变量，确保没有隐式换行符或空格干扰
+          # 获取前面步骤中导出的 TIMESTAMP
+          TIMESTAMP="${{ steps.set_timestamp.outputs.TIMESTAMP }}"
+          
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
           NAMESPACE_ID="${{ secrets.CF_KV_NAMESPACE_ID }}"
           API_TOKEN="${{ secrets.CF_API_TOKEN }}"
-
-          # 构造 Cloudflare API URL (现在使用局部变量，更安全)
+          
           CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${NAMESPACE_ID}/values"
           AUTH_HEADER="Authorization: Bearer ${API_TOKEN}"
+
+          echo "--- 正在上传 6 个文件到 KV 存储 ---"
+
+          # 根目录 (2个)
+          curl -s -X PUT "${CF_URL_BASE}/latest_m3u" --data-binary "@demo_output.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/latest_txt" --data-binary "@tvbox_output.txt" -H "${AUTH_HEADER}" &
           
-          # 上传 M3U 文件，键名为 latest_m3u
-          echo "正在上传 demo_output.m3u 到 KV 存储..."
-          curl -s -X PUT "${CF_URL_BASE}/latest_m3u" \
-            -H "${AUTH_HEADER}" \
-            --data-binary "@demo_output.m3u"
-            
-          # 上传 TXT 文件，键名为 latest_txt
-          echo "正在上传 tvbox_output.txt 到 KV 存储..."
-          curl -s -X PUT "${CF_URL_BASE}/latest_txt" \
-            -H "${AUTH_HEADER}" \
-            --data-binary "@tvbox_output.txt"
+          # 合并文件 (2个)
+          curl -s -X PUT "${CF_URL_BASE}/merged_m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/merged_txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
           
-          echo "Cloudflare KV 上传完成。"
+          # 带时间戳的备份文件 (2个)
+          # 注意：这里的 KV Key 包含了时间戳
+          curl -s -X PUT "${CF_URL_BASE}/logo_${TIMESTAMP}_m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/tvbox_${TIMESTAMP}_txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
+
+          # 等待所有后台上传任务完成
+          wait
+          echo "Cloudflare KV 6 文件上传完成。"
+
+      # 5. 提交所有更改
+      - name: 提交并推送到 main 分支
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          git add demo_output.m3u tvbox_output.txt
+          git add history/
+          
+          if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
+            git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
+            git push origin HEAD:main
+          else
+            echo "No new changes to commit. Skipping commit and push."
+          fi
         env:
-          # 依然需要在这里声明您在 GitHub Secrets 中设置的三个变量
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 上传生成的播放列表文件为 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 播放列表
+          path: |
+            demo_output.m3u
+            tvbox_output.txt
