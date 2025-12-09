@@ -1,9 +1,9 @@
-name: 生成并上传 M3U 播放列表
+name: 生成并上传 M3U 和 TXT 播放列表
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:    # 手动触发
+  workflow_dispatch:      # 手动触发
 
 jobs:
   generate_m3u:
@@ -16,7 +16,7 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0     # 完整历史记录，防止浅克隆导致 push 失败
+          fetch-depth: 0      # 完整历史记录，防止浅克隆导致 push 失败
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v4
@@ -28,22 +28,36 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: 运行脚本生成 demo_output.m3u
+      - name: 运行脚本生成 demo_output.m3u 和 tvbox_output.txt
         run: |
           python md/test22.py
+          # 检查文件是否生成成功
+          ls -l demo_output.m3u tvbox_output.txt
 
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add demo_output.m3u
-          git diff --staged --quiet || git commit -m "自动更新播放列表 demo_output.m3u" --no-verify
-          git push origin HEAD:main
+          
+          # 🚀 重点修正 1: 同时添加 M3U 和 TXT 文件
+          git add demo_output.m3u tvbox_output.txt
+          
+          # 使用 'git diff' 检查是否有实际更改，避免空提交
+          if git diff --staged --quiet; then
+            echo "No changes in M3U or TXT files to commit."
+          else
+            # 提交并推送更改
+            git commit -m "自动更新播放列表 demo_output.m3u 和 tvbox_output.txt" --no-verify
+            git push origin HEAD:main
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 上传生成的 m3u 文件为 artifact（便于下载查看）
+      - name: 上传生成的播放列表文件为 artifact
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
-          path: demo_output.m3u
+          # 🚀 重点修正 2: 上传 M3U 和 TXT 两个文件
+          path: |
+            demo_output.m3u
+            tvbox_output.txt
