@@ -35,30 +35,34 @@ jobs:
           # 检查文件是否生成成功
           ls -l demo_output.m3u tvbox_output.txt
 
-      # 🚀 步骤 1: 创建备份文件到 history 文件夹
+      ---
+      
+      # 🚀 步骤 1: 创建并复制备份文件 (文件名已修正)
       - name: 创建并复制备份文件
         run: |
-          # 格式化时间戳 (例如: 20251208_194500)
-          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          # 修正时间戳格式: MMDDHHMM (例如: 12081157)
+          TIMESTAMP=$(date +%m%d%H%M)
           
           # 确保 history 目录存在
           mkdir -p history
           
-          # 创建 M3U 备份文件
+          # ❗ 关键修正: 文件名现在是 logo${TIMESTAMP}.m3u
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           
-          # 创建 TXT 备份文件
+          # ❗ 关键修正: 文件名现在是 tvbox_${TIMESTAMP}.txt
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
           
           echo "备份文件已生成到 history/ 目录，时间戳：${TIMESTAMP}"
           
-      # 🚀 步骤 2: 提交并推送到 main 分支 (已修正)
+      ---
+
+      # 🚀 步骤 2: 提交并推送到 main 分支
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # ❗ 修正: 确保添加了主文件和整个 history 目录
+          # 确保添加了主文件和整个 history 目录
           git add demo_output.m3u tvbox_output.txt
           git add history/
           
@@ -73,6 +77,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
+      ---
+
       - name: 上传生成的播放列表文件为 artifact
         uses: actions/upload-artifact@v4
         with:
