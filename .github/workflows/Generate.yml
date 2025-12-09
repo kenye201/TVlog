@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (或其他名称)
+# .github/workflows/Generate.yml
 name: 生成并备份 M3U 和 TXT 播放列表
 
 on:
@@ -35,9 +35,7 @@ jobs:
           # 检查文件是否生成成功
           ls -l demo_output.m3u tvbox_output.txt
 
-      ---
-      
-      # 🚀 步骤 1: 创建并复制备份文件 (文件名已修正)
+      # 步骤 1: 创建并复制备份文件
       - name: 创建并复制备份文件
         run: |
           # 修正时间戳格式: MMDDHHMM (例如: 12081157)
@@ -46,17 +44,15 @@ jobs:
           # 确保 history 目录存在
           mkdir -p history
           
-          # ❗ 关键修正: 文件名现在是 logo${TIMESTAMP}.m3u
+          # 关键修正: 文件名现在是 logo${TIMESTAMP}.m3u
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           
-          # ❗ 关键修正: 文件名现在是 tvbox_${TIMESTAMP}.txt
+          # 关键修正: 文件名现在是 tvbox_${TIMESTAMP}.txt
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
           
           echo "备份文件已生成到 history/ 目录，时间戳：${TIMESTAMP}"
           
-      ---
-
-      # 🚀 步骤 2: 提交并推送到 main 分支
+      # 步骤 2: 提交并推送到 main 分支
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
@@ -77,8 +73,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      ---
-
       - name: 上传生成的播放列表文件为 artifact
         uses: actions/upload-artifact@v4
         with:
