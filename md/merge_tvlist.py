@@ -7,7 +7,7 @@ output_m3u = folder / "merged.m3u"
 output_txt = folder / "merged.txt"
 
 # M3U 文件头
-tvg_header = '#EXTM3U x-tvg-url="http://httop.top/e.xml"\n'
+tvg_header = '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n'
 
 # 解析 M3U 结构
 pattern_m3u = re.compile(r'(#EXTINF[^\n]*\n)(http[^\n]+)', re.MULTILINE)
