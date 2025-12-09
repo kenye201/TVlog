@@ -409,7 +409,7 @@ http://123.14.75.54:8090/hls/23/index.m3u8
 http://182.119.121.160:8899/hls/39/index.m3u8
 #EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
 http://218.19.109.134:808/hls/15/index.m3u8
-#EXTINF:-1 tvg-name="山东教育卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/山东教育卫视.png",山东教育卫视
+#EXTINF:-1 tvg-name="山东教育卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/山东教育.png",山东教育卫视
 http://182.91.115.249:5258/hls/53/index.m3u8
 #EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
 http://182.91.115.249:5258/hls/47/index.m3u8
