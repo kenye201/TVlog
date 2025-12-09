@@ -52,12 +52,11 @@ jobs:
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
 
-      # 4. 上传文件到 Cloudflare KV (上传全部 6 个文件)
+# 4. 上传文件到 Cloudflare KV (确保 Key 中包含 history/)
       - name: 上传所有播放列表到 Cloudflare KV
         run: |
-          # 获取前面步骤中导出的 TIMESTAMP
+          # ... (Secrets and URL setup remains the same)
           TIMESTAMP="${{ steps.set_timestamp.outputs.TIMESTAMP }}"
-          
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
           NAMESPACE_ID="${{ secrets.CF_KV_NAMESPACE_ID }}"
           API_TOKEN="${{ secrets.CF_API_TOKEN }}"
@@ -65,24 +64,29 @@ jobs:
           CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${NAMESPACE_ID}/values"
           AUTH_HEADER="Authorization: Bearer ${API_TOKEN}"
 
-          echo "--- 正在上传 6 个文件到 KV 存储 ---"
+          echo "--- 正在上传 8 个 Key 到 KV 存储 ---"
 
-          # 根目录 (2个)
+          # 根目录文件 (Key 无路径)
           curl -s -X PUT "${CF_URL_BASE}/latest_m3u" --data-binary "@demo_output.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/latest_txt" --data-binary "@tvbox_output.txt" -H "${AUTH_HEADER}" &
           
-          # 合并文件 (2个)
-          curl -s -X PUT "${CF_URL_BASE}/merged_m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/merged_txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
+          # 历史文件夹文件 (Key 包含路径 history/)
+          curl -s -X PUT "${CF_URL_BASE}/history/merged.m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/history/merged.txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
           
-          # 带时间戳的备份文件 (2个)
-          # 注意：这里的 KV Key 包含了时间戳
-          curl -s -X PUT "${CF_URL_BASE}/logo_${TIMESTAMP}_m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/tvbox_${TIMESTAMP}_txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/history/logo_${TIMESTAMP}.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/history/tvbox_${TIMESTAMP}.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
+          
+          # 固定别名 Key (2个)
+          curl -s -X PUT "${CF_URL_BASE}/history/latest_backup_logo.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
+          curl -s -X PUT "${CF_URL_BASE}/history/latest_backup_tvbox.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
 
-          # 等待所有后台上传任务完成
           wait
-          echo "Cloudflare KV 6 文件上传完成。"
+          echo "Cloudflare KV 上传完成。"
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
       # 5. 提交所有更改
       - name: 提交并推送到 main 分支
