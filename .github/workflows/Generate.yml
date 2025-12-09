@@ -88,28 +88,28 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 5. 提交所有更改
+# 5. 提交所有更改 (新增 git pull/rebase 逻辑)
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
+          # 确保添加了所有更改 (生成的文件和历史文件夹)
           git add demo_output.m3u tvbox_output.txt
           git add history/
           
           if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
+            # 提交更改
             git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
+            
+            # 🌟 关键修正：在推送之前，拉取远程的最新更改并合并 (使用 rebase 保持历史记录线性)
+            echo "尝试拉取远程更改并合并..."
+            git pull --rebase origin main
+            
+            # 推送合并后的更改
             git push origin HEAD:main
           else
             echo "No new changes to commit. Skipping commit and push."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: 上传生成的播放列表文件为 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 播放列表
-          path: |
-            demo_output.m3u
-            tvbox_output.txt
