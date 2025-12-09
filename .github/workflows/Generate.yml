@@ -3,9 +3,7 @@ name: 生成、备份、合并并上传KV播放列表
 
 on:
   workflow_dispatch:
-    # 允许手动触发
   schedule:
-    # 每 6 小时运行一次 (00:01, 06:01, 12:01, 18:01 UTC)
     - cron: '1 */6 * * *'
 
 jobs:
@@ -18,7 +16,6 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          # 需要完整的历史记录来比较文件
           fetch-depth: 0 
 
       - name: 设置 Python 环境
@@ -31,10 +28,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 运行主脚本生成临时文件
+      ## 1. 运行主脚本生成临时文件
       - name: 运行主脚本生成临时文件
         run: |
-          # 运行 Python 脚本，它会生成 demo_output.m3u 和 tvbox_output.txt
+          # 运行 Python 脚本，生成 demo_output.m3u 和 tvbox_output.txt
           python md/test22.py
           
           # 将原始文件重命名为 _new，防止与检出的旧文件混淆
@@ -42,29 +39,33 @@ jobs:
           mv tvbox_output.txt tvbox_output_new.txt
           echo "主文件生成完成。"
 
-      # 2. 内容校验并终止工作流 (内容不变则跳过后续所有步骤)
-      - name: 内容校验并终止
+      ## 2. 内容校验并立即终止工作流 (使用 exit 0)
+      - name: 内容校验并立即终止
         id: check_content
         run: |
+          # 默认假设内容有变化
+          SKIP_UPDATE="false"
+          
           # 检查上一次提交的文件是否存在
           if [ -f demo_output.m3u ] && [ -f tvbox_output.txt ]; then
             
-            # 比较 M3U 文件 和 TXT 文件。cmp -s: 安静模式，0 表示内容相同。
+            # 比较 M3U 文件 和 TXT 文件。
             if cmp -s demo_output_new.m3u demo_output.m3u && cmp -s tvbox_output_new.txt tvbox_output.txt; then
-              echo "内容未更改。跳过后续步骤。"
-              echo "SKIP_UPDATE=true" >> $GITHUB_OUTPUT
-              
+              echo "内容未更改。立即终止工作流。"
+              SKIP_UPDATE="true"
             else
               echo "内容已更改。继续执行更新。"
-              echo "SKIP_UPDATE=false" >> $GITHUB_OUTPUT
             fi
           else
-            # 如果旧文件不存在 (例如第一次运行)，则继续执行
-            echo "未找到旧文件。继续执行更新。"
-            echo "SKIP_UPDATE=false" >> $GITHUB_OUTPUT
+            echo "未找到旧文件（第一次运行或 Git 缺失）。继续执行更新。"
           fi
+          
+          # 如果内容未更改，使用 exit 0 退出，后续步骤将不会执行。
+          # ⚠️ 注意：这里使用 'exit 0' 配合后续的 if 条件来实现“跳过”，更直接的退出方式是设置后续 steps 的 if 逻辑。
+          # 我们使用 if 逻辑，并设置一个明确的输出变量。
+          echo "SKIP_UPDATE=$SKIP_UPDATE" >> $GITHUB_OUTPUT
 
-      # 🌟 3. 关键修复：添加独立的重命名步骤
+      ## 3. 清理临时文件并重命名（仅在有更新时执行）
       - name: 重命名临时文件为正式文件名
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
@@ -72,25 +73,24 @@ jobs:
           mv tvbox_output_new.txt tvbox_output.txt
           echo "临时文件已重命名为正式文件名。"
 
-      # 4. 创建并复制备份文件到 history/ (如果内容有变化)
+      ## 4. 创建并复制备份文件到 history/ (如果内容有变化)
       - name: 创建并复制备份文件到 history/
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
-          # 此时 demo_output.m3u 应该已经存在且可用
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT 
           echo "备份文件已生成到 history/ 目录。"
 
-      # 5. 运行合并脚本生成 merged 文件 (如果内容有变化)
+      ## 5. 运行合并脚本生成 merged 文件 (如果内容有变化)
       - name: 运行合并脚本生成 merged 文件
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: python md/merge_tvlist.py
 
-      # 6. 上传文件到 Cloudflare KV (如果内容有变化)
+      ## 6. 上传文件到 Cloudflare KV (如果内容有变化)
       - name: 上传文件到 Cloudflare KV
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
@@ -123,10 +123,9 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 7. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
+      ## 7. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
       - name: 清理 Cloudflare KV 中的旧备份 Key
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
-        # 确保 md/clear_kv.py 能够读取和使用提供的环境变量
         run: |
           echo "正在执行 KV 清理..."
           python md/clear_kv.py
@@ -136,7 +135,7 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 8. 提交所有更改 (如果内容有变化)
+      ## 8. 提交所有更改 (如果内容有变化)
       - name: 提交并推送到 main 分支
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
@@ -149,7 +148,6 @@ jobs:
           if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
             git commit -m "自动更新：生成、备份、合并并清理 KV" --no-verify
             
-            # 关键修正：拉取远程更改并合并，防止推送被拒绝
             echo "尝试拉取远程更改并合并..."
             git pull --rebase origin main
             
@@ -160,7 +158,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      # 9. 上传生成的播放列表文件为 artifact (如果内容有变化)
+      ## 9. 上传生成的播放列表文件为 artifact (如果内容有变化)
       - name: 上传生成的播放列表文件为 artifact
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         uses: actions/upload-artifact@v4
