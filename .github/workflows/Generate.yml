@@ -1,4 +1,5 @@
-name: 生成并上传 M3U 和 TXT 播放列表
+# .github/workflows/main.yml (或其他名称)
+name: 生成并备份 M3U 和 TXT 播放列表
 
 on:
   push:
@@ -16,7 +17,7 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # 完整历史记录，防止浅克隆导致 push 失败
+          fetch-depth: 0      # 完整历史记录
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v4
@@ -28,36 +29,55 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: 运行脚本生成 demo_output.m3u 和 tvbox_output.txt
+      - name: 运行脚本生成播放列表
         run: |
           python md/test22.py
           # 检查文件是否生成成功
           ls -l demo_output.m3u tvbox_output.txt
 
+      # 🚀 步骤 1: 创建备份文件到 history 文件夹
+      - name: 创建并复制备份文件
+        run: |
+          # 格式化时间戳 (例如: 20251208_194500)
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          
+          # 确保 history 目录存在
+          mkdir -p history
+          
+          # 创建 M3U 备份文件
+          cp demo_output.m3u history/logo${TIMESTAMP}.m3u
+          
+          # 创建 TXT 备份文件
+          cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
+          
+          echo "备份文件已生成到 history/ 目录，时间戳：${TIMESTAMP}"
+          
+      # 🚀 步骤 2: 提交并推送到 main 分支 (已修正)
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # 🚀 重点修正 1: 同时添加 M3U 和 TXT 文件
+          # ❗ 修正: 确保添加了主文件和整个 history 目录
           git add demo_output.m3u tvbox_output.txt
+          git add history/
           
-          # 使用 'git diff' 检查是否有实际更改，避免空提交
-          if git diff --staged --quiet; then
-            echo "No changes in M3U or TXT files to commit."
-          else
+          # 检查是否有实际更改
+          if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
             # 提交并推送更改
-            git commit -m "自动更新播放列表 demo_output.m3u 和 tvbox_output.txt" --no-verify
+            git commit -m "自动更新播放列表和历史备份" --no-verify
             git push origin HEAD:main
+          else
+            echo "No new changes to commit. Skipping commit and push."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          
       - name: 上传生成的播放列表文件为 artifact
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
-          # 🚀 重点修正 2: 上传 M3U 和 TXT 两个文件
+          # 上传主要的 M3U 和 TXT 文件
           path: |
             demo_output.m3u
             tvbox_output.txt
