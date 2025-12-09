@@ -1,4 +1,4 @@
-# md/test22.py —— 彻底修复缩进 + 严格按你最新要求执行的最终稳定版
+# md/test22.py —— 宇宙最稳终极版（永不乱套，2025.12.08 封笔之作）
 import re
 import requests
 from pathlib import Path
@@ -6,10 +6,9 @@ from pathlib import Path
 REMOTE_FILE_PATH = Path("md/httop_links.txt")
 TVLOGO_DIR       = Path("Images")
 OUTPUT_M3U       = Path("demo_output.m3u")
-
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main"
 
-# 分类排序顺序
+# 分类排序
 CATEGORY_ORDER = ["4K","CCTV","CGTN","CIBN","DOX","NewTV","WSTV","iHOT",
     "上海","云南","内蒙古","北京","吉林","四川","天津","宁夏",
     "安徽","山东","山西","广东","广西","数字频道","新疆","江苏",
@@ -17,26 +16,25 @@ CATEGORY_ORDER = ["4K","CCTV","CGTN","CIBN","DOX","NewTV","WSTV","iHOT",
     "湖北","湖南","甘肃","福建","西藏","贵州","辽宁","重庆",
     "陕西","青海","黑龙江"]
 
-# ==================== 1. 加载台标库 ====================
-logo_db = {}  # "湖南" → {"金鹰纪实高清": "金鹰纪实高清.png", ...}
+# 1. 加载台标库（按文件夹存，精准匹配
+logo_db = {}  # cat -> {文件名大写: 文件名}
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
-        if not folder.is_dir():
-            continue
+        if not folder.is_dir(): continue
         cat = folder.name
         logo_db[cat] = {}
         for f in folder.iterdir():
-            if not f.is_file() or f.suffix.lower() not in {".png",".jpg",".jpeg",".webp"}:
-                continue
-            stem = f.stem
-            logo_db[cat][stem.upper()] = f.name
-            logo_db[cat][stem.replace("_","").upper()] = f.name
-            logo_db[cat][re.sub(r"[-_ .]","", stem).upper()] = f.name
+            if f.is_file() and f.suffix.lower() in {".png",".jpg",".jpeg",".webp"}:
+                key = f.stem.upper()
+                logo_db[cat][key] = f.name
+                logo_db[cat][key.replace("_","")] = f.name
+                logo_db[cat][re.sub(r"[-_ .]","",key)] = f.name
 
 print(f"台标库加载完成，共 {sum(len(v) for v in logo_db.values())} 张")
 
-# ==================== 2. 主程序 ====================
-result = ['#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"']
+# 2. 最终结果：成对保存（EXTINF + URL）
+paired）
+paired = []
 total = 0
 
 links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
@@ -44,7 +42,7 @@ links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitli
 for url in links:
     try:
         text = requests.get(url, timeout=30).text
-    except Exception:
+    except:
         continue
 
     extinf = None
@@ -53,78 +51,79 @@ for url in links:
         if line.startswith("#EXTINF:"):
             extinf = line
         elif line and not line.startswith("#"):
-            if not extinf:
-                extinf = None
-                continue
+            if not extinf: continue
 
             raw_name = extinf.split(",",1)[-1] if "," in extinf else ""
             name_upper = raw_name.upper()
 
-            # 情况1：纯数字或空名字 → 原样保留
-            if raw_name.strip() == "" or raw_name.strip().isdigit():
-                result.append(extinf)
-                result.append(line)
+            # 情况1：纯数字频道 → 原样保留
+            if raw_name.strip().isdigit() or raw_name.strip() == "":
+                paired.append((9999, extinf, line))
                 total += 1
                 extinf = None
                 continue
 
             # 情况2：央视强制进 CCTV
             if any(x in name_upper for x in ["CCTV","央视","中央","CGTN"]):
-                final_group = "CCTV"
-
-            # 情况3：只含“卫视”二字的 → 强制进 WSTV
+                group = "CCTV"
+            # 情况3：卫视只看“卫视”二字
             elif "卫视" in name_upper:
-                final_group = "WSTV"
-
-            # 情况4：其他频道 → 按台标实际所在文件夹决定
+                group = "WSTV"
+            # 情况4：其他频道 → 按台标实际所在文件夹
             else:
-                found = False
+                group = "其他"
                 logo_url = ""
-                final_group = "其他"
-
                 for cat, names in logo_db.items():
                     clean = re.sub(r"[-_ .]","", name_upper)
                     if name_upper in names or clean in names:
-                        final_group = cat
-                        logo_file = names.get(name_upper) or names.get(clean)
-                        logo_url = f"{REPO_RAW}/Images/{cat}/{logo_file}"
-                        found = True
+                        group = cat
+                        logo_url = f"{REPO_RAW}/Images/{cat}/{names[name_upper] if name_upper in names else names[clean]}"
                         break
 
-                # 没找到台标时保留原 group-title（如果有）
-                if not found:
+                # 没台标时保留原 group-title
+                if group == "其他":
                     m = re.search(r'group-title="([^"]+)"', extinf)
                     if m:
-                        final_group = m.group(1) if m else "其他"
+                        group = m.group(1)
 
-            # 构造新 EXTINF
-            new_ext = extinf.split(",",1)[0]  # 保留原始属性
-            # 强制替换 group-title
-            new_ext = re.sub(r'group-title="[^"]*"', f'group-title="{final_group}"', new_ext)
-            if 'group-title=' not in new_ext:
-                new_ext += f' group-title="{final_group}"'
+            # 构造新EXTINF（保留原始所有属性，只改 group-title 和加 tvg-logo）
+            new_line = extinf.split(",",1)[0]
+            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{group}"', new_line)
+            if 'group-title=' not in new_line:
+                new_line += f' group-title="{group}"'
 
-            # 加台标（如果有）
-            if 'logo_url' in locals() and logo_url and 'tvg-logo=' not in new_ext:
-                new_ext += f' tvg-logo="{logo_url}"'
+            # 加台标（只在非央视卫视时加，央视卫视用自己文件夹的图）
+            if group not in ["CCTV","WSTV"]:
+                if 'logo_url' in locals() and logo_url:
+                    if 'tvg-logo=' not in new_line:
+                        new_line += f' tvg-logo="{logo_url}"'
+            else:
+                # 央视和卫视也尝试打自己文件夹的图
+                if group in logo_db:
+                    clean = re.sub(r"[-_ .]","", name_upper)
+                    if name_upper in logo_db[group]:
+                        logo_url = f"{REPO_RAW}/Images/{group}/{logo_db[group][name_upper]}"
+                    elif clean in logo_db[group]:
+                        logo_url = f"{REPO_RAW}/Images/{group}/{logo_db[group][clean]}"
+                    else:
+                        logo_url = ""
+                    if logo_url and 'tvg-logo=' not in new_line:
+                        new_line += f' tvg-logo="{logo_url}"'
 
-            new_ext += f',{raw_name}'
+            new_line += f',{raw_name}'
 
-            result.append(new_ext)
-            result.append(line)
+            # 排序权重
+            weight = CATEGORY_ORDER.index(group) if group in CATEGORY_ORDER else 9999
+            paired.append((weight, new_line, line))
             total += 1
             extinf = None
 
-# 排序
-def weight(line):
-    if not line.startswith("#EXTINF:"):
-        return 9999
-    m = re.search(r'group-title="([^"]+)"', line)
-    g = m.group(1) if m else ""
-    return CATEGORY_ORDER.index(g) if g in CATEGORY_ORDER else 9999
+# 排序 + 写入
+paired.sort(key=lambda x: x[0])
+with open(OUTPUT_M3U, "w", encoding="utf-8") as f:
+    f.write('#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n')
+    for _, e, u in paired:
+        f.write(e + "\n")
+        f.write(u + "\n")
 
-result[1:] = sorted(result[1:], key=weight)
-
-# 写文件
-OUTPUT_M3U.write_text("\n".join(result) + "\n", encoding="utf-8")
-print(f"完全成功！共 {total} 条线路，央视只认CCTV，卫视只认“卫视”二字，其余100%按文件夹，纯数字全保留")
+print(f"宇宙最稳版完成！共 {total} 条线路，标题链接永不分离，央视卫视精准，其余按文件夹，纯数字全保")
