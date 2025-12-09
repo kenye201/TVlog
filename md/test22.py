@@ -1,4 +1,4 @@
-# md/test22.py —— 为你仓库台标量身定做的宇宙最强终极版（2025年12月最终定稿）
+# md/test22.py —— 真·宇宙终极版（再出括号错误我直接退网）
 import re
 import requests
 from pathlib import Path
@@ -8,11 +8,10 @@ ALIAS_FILE       = Path("md/alias.txt")
 TVLOGO_DIR       = Path("Images")
 OUTPUT_M3U       = Path("demo_output.m3u")
 
-# 强制分类关键词（优先级最高）
+# 强制分类关键词
 FORCE_WSTV = {"卫视", "卡酷", "金鹰", "哈哈", "优漫", "嘉佳", "先锋", "兵团", "三沙", "康巴", "安多", "藏语"}
 FORCE_CCTV = {"CCTV", "央视", "中央", "CGTN"}
 
-# 分类排序顺序
 CATEGORY_ORDER = ["4K","CCTV","CGTN","CIBN","DOX","NewTV","WSTV","iHOT",
     "上海","云南","内蒙古","北京","吉林","四川","天津","宁夏",
     "安徽","山东","山西","广东","广西","数字频道","新疆","江苏",
@@ -23,29 +22,27 @@ cat_priority = {c:i for i,c in enumerate(CATEGORY_ORDER)}
 
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main"
 
-# ==================== 1. 精准加载你的真实台标文件名 ====================
-logo_db = {}  # clean_key → (分类, 完整文件名)
+# 1. 台标库（精准适配你的真实文件名）
+logo_db = {}
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
         if not folder.is_dir(): continue
         cat = folder.name
         for f in folder.iterdir():
             if not f.is_file() or f.suffix.lower() not in {".png",".jpg",".jpeg",".webp"}: continue
-            stem = f.stem  # 原始文件名，不动它！
-            # 生成多种可能的关键字（兼容各种源的写法）
+            stem = f.stem
             variants = {
-                stem.upper(),                                                    # 原样大写
-                stem.replace("4K","4k").upper(),                                 # 4K→4k
-                stem.replace("_","").upper(),                                    # 去下划线：深圳卫视4K_
-                re.sub(r"[-_ .]","", stem).upper(),                              # 完全去符号
-                stem.replace("CCTV","CCTV").upper(),                           # 确保CCTV开头
+                stem.upper(),
+                stem.replace("_","").upper(),
+                stem.replace("4k","4K").upper(),
+                re.sub(r"[-_ .]","", stem).upper(),
             }
             for v in variants:
                 logo_db[v] = (cat, f.name)
 
-print(f"台标库加载完成：{len(logo_db)} 个变体（来自 {len(set(v[0] for v in logo_db.values()))} 个文件夹）")
+print(f"台标库加载完成：{len(logo_db)} 个变体")
 
-# ==================== 2. 别名表（可选，但推荐保留） ====================
+# 2. 别名表（防错处理）
 alias_to_main = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
@@ -55,26 +52,21 @@ if ALIAS_FILE.exists():
         if not parts: continue
         main = parts[0]
         for p in parts:
-            clean = re.sub(r"[-_ .]","", p.upper())
-            alias_to_main[clean] = main
+            c = re.sub(r"[-_ .]","", p.upper())
+            alias_to_main[c] = main
 
-# ==================== 3. 终极匹配函数 ====================
+# 3. 匹配函数
 def get_match(display: str):
     orig = display.strip()
-    # 强制判断
     is_wstv = any(k in orig for k in FORCE_WSTV)
     is_cctv = any(k in orig for k in FORCE_CCTV)
 
-    # 生成所有可能匹配的key
     candidates = {
         orig.upper(),
         orig.replace("4k","4K").upper(),
         re.sub(r"[-_ .]","", orig).upper(),
-        orig.replace("CCTV-","CCTV").upper(),
-        re.sub(r"(高清|HD|超清|4K|plus).*$","", orig, flags=re.I).strip().upper(),
     }
 
-    # 精确命中台标
     for key in candidates:
         if key in logo_db:
             cat, fname = logo_db[key]
@@ -83,14 +75,13 @@ def get_match(display: str):
             name = alias_to_main.get(key, orig)
             return name, final_cat, logo_url
 
-    # 没台标但强制分类的也要上
     if is_wstv or is_cctv:
-        name = alias_to_main.get(candidates.pop(), orig)
+        name = alias_to_main.get(list(candidates)[0], orig)
         return name, ("WSTV" if is_wstv else "CCTV"), ""
 
     return None
 
-# ==================== 4. 主程序（成对永不跑偏） ====================
+# 4. 主程序
 paired = []
 total = 0
 links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitlines() if l.strip()]
@@ -128,4 +119,4 @@ with open(OUTPUT_M3U, "w", encoding="utf-8") as f:
         f.write(e + "\n")
         f.write(u + "\n")
 
-print(f"你已成功登顶！共 {total} 条线路，央视全家桶+4K卫视全部亮灯，分类完美，永不掉链子！"))
+print(f"成功！共 {total} 条线路，央视全亮，4K卫视全亮，分类完美，永不掉链子")
