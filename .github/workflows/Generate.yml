@@ -1,5 +1,5 @@
 # .github/workflows/Generate.yml
-name: 生成、备份并合并播放列表
+name: 生成、备份、合并并上传KV播放列表
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0      # 完整历史记录
+          fetch-depth: 0
 
       - name: 设置 Python 环境
         uses: actions/setup-python@v4
@@ -37,23 +37,45 @@ jobs:
       # 2. 生成带时间戳的备份文件 (history 文件夹)
       - name: 创建并复制备份文件到 history/
         run: |
-          # 修正时间戳格式: MMDDHHMM (例如: 12081157)
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
-          
-          # 生成 2 个新的备份文件
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
-          
           echo "备份文件已生成到 history/ 目录。"
-          
+
       # 3. 运行合并脚本生成 merged 文件 (history 文件夹)
       - name: 运行合并脚本生成 merged.m3u 和 merged.txt
         run: |
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
 
-      # 4. 提交所有更改 (根目录 2 个 + history 文件夹 4 个)
+      # 4. 上传文件到 Cloudflare KV (修复了 URL 构造)
+      - name: 上传播放列表到 Cloudflare KV
+        run: |
+          # 修正方法：使用单引号定义 CF_URL_BASE，防止 Bash 提前解析 Secrets 中的 $ 符号
+          # 构造 Cloudflare API URL
+          CF_URL_BASE='https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID }}/values'
+          AUTH_HEADER="Authorization: Bearer ${{ secrets.CF_API_TOKEN }}"
+          
+          # 上传 M3U 文件，键名为 latest_m3u
+          echo "正在上传 demo_output.m3u 到 KV 存储..."
+          curl -s -X PUT "${CF_URL_BASE}/latest_m3u" \
+            -H "${AUTH_HEADER}" \
+            --data-binary "@demo_output.m3u"
+            
+          # 上传 TXT 文件，键名为 latest_txt
+          echo "正在上传 tvbox_output.txt 到 KV 存储..."
+          curl -s -X PUT "${CF_URL_BASE}/latest_txt" \
+            -H "${AUTH_HEADER}" \
+            --data-binary "@tvbox_output.txt"
+          
+          echo "Cloudflare KV 上传完成。"
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+
+      # 5. 提交所有更改
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
@@ -64,7 +86,7 @@ jobs:
           git add history/
           
           if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
-            git commit -m "自动更新：生成、备份并合并播放列表" --no-verify
+            git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
             git push origin HEAD:main
           else
             echo "No new changes to commit. Skipping commit and push."
@@ -76,36 +98,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
-          # 仅上传主文件
           path: |
             demo_output.m3u
             tvbox_output.txt
-# ... (在 "运行合并脚本生成 merged.m3u 和 merged.txt" 步骤之后)
-
-      # 🚀 新增步骤: 上传文件到 Cloudflare KV
-      - name: 上传播放列表到 Cloudflare KV
-        run: |
-          # 提取 Secrets 到环境变量
-          CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID }}/values"
-          AUTH_HEADER="Authorization: Bearer ${{ secrets.CF_API_TOKEN }}"
-          
-          # 1. 上传 M3U 文件 (Key: latest_m3u)
-          echo "正在上传 demo_output.m3u 到 KV 存储..."
-          curl -X PUT "${CF_URL_BASE}/latest_m3u" \
-            -H "${AUTH_HEADER}" \
-            --data-binary "@demo_output.m3u"
-            
-          # 2. 上传 TXT 文件 (Key: latest_txt)
-          echo "正在上传 tvbox_output.txt 到 KV 存储..."
-          curl -X PUT "${CF_URL_BASE}/latest_txt" \
-            -H "${AUTH_HEADER}" \
-            --data-binary "@tvbox_output.txt"
-          
-          echo "Cloudflare KV 上传完成。"
-        env:
-          # 必须在这里声明您在 GitHub Secrets 中设置的三个变量
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
-
-# ... (在此之后是 "提交并推送到 main 分支" 步骤)
