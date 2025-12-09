@@ -27,8 +27,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests
-      
-      ---
 
       # 1. 生成最新的主要播放列表 (根目录)
       - name: 运行主脚本生成 demo_output.m3u 和 tvbox_output.txt
@@ -39,25 +37,21 @@ jobs:
       # 2. 生成带时间戳的备份文件 (history 文件夹)
       - name: 创建并复制备份文件到 history/
         run: |
+          # 修正时间戳格式: MMDDHHMM (例如: 12081157)
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
           
-          # 生成 2 个新的备份文件 (logo12081157.m3u, tvbox_12081157.txt)
+          # 生成 2 个新的备份文件
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
           
           echo "备份文件已生成到 history/ 目录。"
           
-      ---
-      
       # 3. 运行合并脚本生成 merged 文件 (history 文件夹)
       - name: 运行合并脚本生成 merged.m3u 和 merged.txt
-        # 确保合并脚本的路径正确
         run: |
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
-
-      ---
 
       # 4. 提交所有更改 (根目录 2 个 + history 文件夹 4 个)
       - name: 提交并推送到 main 分支
@@ -65,7 +59,7 @@ jobs:
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # 确保添加了所有更改: 根目录主文件, 备份文件, 合并文件
+          # 确保添加了所有更改
           git add demo_output.m3u tvbox_output.txt
           git add history/
           
@@ -82,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
-          # 仅上传主文件，方便用户下载最新的主要资源
+          # 仅上传主文件
           path: |
             demo_output.m3u
             tvbox_output.txt
