@@ -13,7 +13,7 @@ BRANCH = "main"
 DIRECTORY = "history"
 FILE_PATTERN = r'^(logo|tvbox_)\d{8}\.(m3u|txt)$'  # 匹配 logoMMDDHHMM.m3u 或 tvbox_MMDDHHMM.txt
 OUTPUT_FILE = "duplicate_history_files.txt"
-GITHUB_TOKEN = os.getenv('TVlogo_TOKEN')  # 必须：用于 API 删除文件，需 public_repo 权限
+GITHUB_TOKEN = os.getenv('PERSONAL_ACCESS_TOKEN')  # 必须：用于 API 删除文件，需 public_repo 权限
 
 HEADERS = {
     'Accept': 'application/vnd.github.v3+json',
@@ -22,7 +22,7 @@ HEADERS = {
 if GITHUB_TOKEN:
     HEADERS['Authorization'] = f'token {GITHUB_TOKEN}'
 else:
-    raise ValueError("❌ TVlogo_TOKEN 环境变量未设置，无法删除文件")
+    raise ValueError("❌ PERSONAL_ACCESS_TOKEN 环境变量未设置，无法删除文件")
 
 def get_github_contents(repo_owner, repo_name, path, branch='main', recursive=False):
     """递归获取 GitHub 目录/文件内容"""
