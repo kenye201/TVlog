@@ -1,14 +1,10 @@
 # .github/workflows/cleanup.yml
 name: 历史记录清理 (去重)
-
 on:
-  # 1. 定时触发：每周日凌晨 00:00 UTC 运行
-  schedule:
-    - cron: '0 0 * * 0' 
-  
-  # 2. 手动触发：允许您随时在 GitHub Actions 页面手动运行
   workflow_dispatch:
-  
+    # 允许手动触发
+  schedule:
+    - cron: '10 */6 * * *'
 jobs:
   cleanup_history:
     runs-on: ubuntu-latest
