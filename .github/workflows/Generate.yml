@@ -1,17 +1,18 @@
-# .github/workflows/Generate.yml
-name: 生成、备份、合并并上传KV播放列表
+# .github/workflows/generate_and_commit.yml
+name: 1. 生成、备份、合并并提交文件
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '1 */6 * * *'
+    # 每天 4 次，例如 UTC 00:00, 06:00, 12:00, 18:00
+    - cron: '0 */6 * * *' 
 
 jobs:
-  generate_m3u:
+  generate_and_commit:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
+      
     steps:
       - name: 检出仓库代码
         uses: actions/checkout@v4
@@ -28,139 +29,49 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      ## 1. 运行主脚本生成临时文件
-      - name: 运行主脚本生成临时文件
+      # 1. 运行主脚本生成文件
+      - name: 运行主脚本生成文件
         run: |
-          # 运行 Python 脚本，生成 demo_output.m3u 和 tvbox_output.txt
           python md/test22.py
-          
-          # 将原始文件重命名为 _new，防止与检出的旧文件混淆
-          mv demo_output.m3u demo_output_new.m3u
-          mv tvbox_output.txt tvbox_output_new.txt
           echo "主文件生成完成。"
 
-      ## 2. 内容校验并立即终止工作流 (使用 exit 0)
-      - name: 内容校验并立即终止
-        id: check_content
-        run: |
-          # 默认假设内容有变化
-          SKIP_UPDATE="false"
-          
-          # 检查上一次提交的文件是否存在
-          if [ -f demo_output.m3u ] && [ -f tvbox_output.txt ]; then
-            
-            # 比较 M3U 文件 和 TXT 文件。
-            if cmp -s demo_output_new.m3u demo_output.m3u && cmp -s tvbox_output_new.txt tvbox_output.txt; then
-              echo "内容未更改。立即终止工作流。"
-              SKIP_UPDATE="true"
-            else
-              echo "内容已更改。继续执行更新。"
-            fi
-          else
-            echo "未找到旧文件（第一次运行或 Git 缺失）。继续执行更新。"
-          fi
-          
-          # 如果内容未更改，使用 exit 0 退出，后续步骤将不会执行。
-          # ⚠️ 注意：这里使用 'exit 0' 配合后续的 if 条件来实现“跳过”，更直接的退出方式是设置后续 steps 的 if 逻辑。
-          # 我们使用 if 逻辑，并设置一个明确的输出变量。
-          echo "SKIP_UPDATE=$SKIP_UPDATE" >> $GITHUB_OUTPUT
-
-      ## 3. 清理临时文件并重命名（仅在有更新时执行）
-      - name: 重命名临时文件为正式文件名
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
-        run: |
-          mv demo_output_new.m3u demo_output.m3u
-          mv tvbox_output_new.txt tvbox_output.txt
-          echo "临时文件已重命名为正式文件名。"
-
-      ## 4. 创建并复制备份文件到 history/ (如果内容有变化)
+      # 2. 创建并复制备份文件到 history/
       - name: 创建并复制备份文件到 history/
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT 
           echo "备份文件已生成到 history/ 目录。"
 
-      ## 5. 运行合并脚本生成 merged 文件 (如果内容有变化)
+      # 3. 运行合并脚本生成 merged 文件
       - name: 运行合并脚本生成 merged 文件
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: python md/merge_tvlist.py
 
-      ## 6. 上传文件到 Cloudflare KV (如果内容有变化)
-      - name: 上传文件到 Cloudflare KV
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
-        run: |
-          TIMESTAMP="${{ steps.set_timestamp.outputs.TIMESTAMP }}"
-          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
-          NAMESPACE_ID="${{ secrets.CF_KV_NAMESPACE_ID }}"
-          API_TOKEN="${{ secrets.CF_API_TOKEN }}"
-          
-          CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${NAMESPACE_ID}/values"
-          AUTH_HEADER="Authorization: Bearer ${API_TOKEN}"
-
-          echo "--- 正在上传 6 个 Key 到 KV 存储 ---"
-
-          # 根目录文件 (2个)
-          curl -s -X PUT "${CF_URL_BASE}/latest_m3u" --data-binary "@demo_output.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/latest_txt" --data-binary "@tvbox_output.txt" -H "${AUTH_HEADER}" &
-          
-          # 合并文件 (2个, 位于 history/)
-          curl -s -X PUT "${CF_URL_BASE}/history/merged.m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/history/merged.txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
-          
-          # 带时间戳的备份文件 (2个, 位于 history/)
-          curl -s -X PUT "${CF_URL_BASE}/history/logo_${TIMESTAMP}.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/history/tvbox_${TIMESTAMP}.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
-          
-          wait
-          echo "Cloudflare KV 6 文件上传完成。"
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
-
-      ## 7. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
-      - name: 清理 Cloudflare KV 中的旧备份 Key
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
-        run: |
-          echo "正在执行 KV 清理..."
-          python md/clear_kv.py
-          echo "KV 清理完成。"
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
-
-      ## 8. 提交所有更改 (如果内容有变化)
-      - name: 提交并推送到 main 分支
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
+      # 4. Git 提交所有更改 (由 Git 自动判断是否需要提交)
+      - name: Git 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          git add demo_output.m3u tvbox_output.txt
-          git add history/
+          # 暂存所有可能更改的文件
+          git add demo_output.m3u tvbox_output.txt history/
           
-          if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
-            git commit -m "自动更新：生成、备份、合并并清理 KV" --no-verify
-            
-            echo "尝试拉取远程更改并合并..."
-            git pull --rebase origin main
-            
-            git push origin HEAD:main
+          # 检查是否有实际差异需要提交
+          if git diff --cached --quiet --exit-code; then
+            echo "文件内容与上一次提交相同，无需提交。"
           else
-            echo "No new changes to commit. Skipping commit and push."
+            git commit -m "自动更新：生成、备份和合并" --no-verify
+            git pull --rebase origin main
+            git push origin HEAD:main
+            echo "文件已提交并推送。"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      ## 9. 上传生成的播放列表文件为 artifact (如果内容有变化)
+      # 5. 上传生成的播放列表文件为 artifact
       - name: 上传生成的播放列表文件为 artifact
-        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: 播放列表
