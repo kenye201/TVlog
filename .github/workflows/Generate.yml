@@ -36,14 +36,13 @@ jobs:
 
       # 2. 生成带时间戳的备份文件 (history 文件夹)
       - name: 创建并复制备份文件到 history/
-        # ❗ 注意：在这里设置 TIMESTAMP 变量，并在后续步骤中复用它
         id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
-          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT # 导出 TIMESTAMP 变量
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT 
           echo "备份文件已生成到 history/ 目录。"
 
       # 3. 运行合并脚本生成 merged 文件 (history 文件夹)
@@ -52,10 +51,9 @@ jobs:
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
 
-# 4. 上传文件到 Cloudflare KV (确保 Key 中包含 history/)
+      # 4. 上传文件到 Cloudflare KV (仅上传 6 个核心文件)
       - name: 上传所有播放列表到 Cloudflare KV
         run: |
-          # ... (Secrets and URL setup remains the same)
           TIMESTAMP="${{ steps.set_timestamp.outputs.TIMESTAMP }}"
           ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
           NAMESPACE_ID="${{ secrets.CF_KV_NAMESPACE_ID }}"
@@ -64,52 +62,51 @@ jobs:
           CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${NAMESPACE_ID}/values"
           AUTH_HEADER="Authorization: Bearer ${API_TOKEN}"
 
-          echo "--- 正在上传 8 个 Key 到 KV 存储 ---"
+          echo "--- 正在上传 6 个 Key 到 KV 存储 ---"
 
-          # 根目录文件 (Key 无路径)
+          # 根目录文件 (2个)
           curl -s -X PUT "${CF_URL_BASE}/latest_m3u" --data-binary "@demo_output.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/latest_txt" --data-binary "@tvbox_output.txt" -H "${AUTH_HEADER}" &
           
-          # 历史文件夹文件 (Key 包含路径 history/)
+          # 合并文件 (2个)
           curl -s -X PUT "${CF_URL_BASE}/history/merged.m3u" --data-binary "@history/merged.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/history/merged.txt" --data-binary "@history/merged.txt" -H "${AUTH_HEADER}" &
           
+          # 带时间戳的备份文件 (2个)
           curl -s -X PUT "${CF_URL_BASE}/history/logo_${TIMESTAMP}.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
           curl -s -X PUT "${CF_URL_BASE}/history/tvbox_${TIMESTAMP}.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
           
-          # 固定别名 Key (2个)
-          curl -s -X PUT "${CF_URL_BASE}/history/latest_backup_logo.m3u" --data-binary "@history/logo${TIMESTAMP}.m3u" -H "${AUTH_HEADER}" &
-          curl -s -X PUT "${CF_URL_BASE}/history/latest_backup_tvbox.txt" --data-binary "@history/tvbox_${TIMESTAMP}.txt" -H "${AUTH_HEADER}" &
+          # *** 已移除固定别名 Key 的上传 ***
 
           wait
-          echo "Cloudflare KV 上传完成。"
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+          echo "Cloudflare KV 6 文件上传完成。"
 
-# 5. 提交所有更改 (新增 git pull/rebase 逻辑)
+      # 5. 提交所有更改 (包含推送前拉取代码的修正)
       - name: 提交并推送到 main 分支
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           
-          # 确保添加了所有更改 (生成的文件和历史文件夹)
           git add demo_output.m3u tvbox_output.txt
           git add history/
           
           if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
-            # 提交更改
             git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
             
-            # 🌟 关键修正：在推送之前，拉取远程的最新更改并合并 (使用 rebase 保持历史记录线性)
             echo "尝试拉取远程更改并合并..."
             git pull --rebase origin main
             
-            # 推送合并后的更改
             git push origin HEAD:main
           else
             echo "No new changes to commit. Skipping commit and push."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 上传生成的播放列表文件为 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 播放列表
+          path: |
+            demo_output.m3u
+            tvbox_output.txt
