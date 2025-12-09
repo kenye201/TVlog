@@ -49,13 +49,17 @@ jobs:
           python md/merge_tvlist.py
           echo "合并文件生成完成。"
 
-      # 4. 上传文件到 Cloudflare KV (修复了 URL 构造)
+# 4. 上传文件到 Cloudflare KV (使用更健壮的 Bash 变量赋值)
       - name: 上传播放列表到 Cloudflare KV
         run: |
-          # 修正方法：使用单引号定义 CF_URL_BASE，防止 Bash 提前解析 Secrets 中的 $ 符号
-          # 构造 Cloudflare API URL
-          CF_URL_BASE='https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/storage/kv/namespaces/${{ secrets.CF_KV_NAMESPACE_ID }}/values'
-          AUTH_HEADER="Authorization: Bearer ${{ secrets.CF_API_TOKEN }}"
+          # 将 Secrets 赋值给局部变量，确保没有隐式换行符或空格干扰
+          ACCOUNT_ID="${{ secrets.CF_ACCOUNT_ID }}"
+          NAMESPACE_ID="${{ secrets.CF_KV_NAMESPACE_ID }}"
+          API_TOKEN="${{ secrets.CF_API_TOKEN }}"
+
+          # 构造 Cloudflare API URL (现在使用局部变量，更安全)
+          CF_URL_BASE="https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/storage/kv/namespaces/${NAMESPACE_ID}/values"
+          AUTH_HEADER="Authorization: Bearer ${API_TOKEN}"
           
           # 上传 M3U 文件，键名为 latest_m3u
           echo "正在上传 demo_output.m3u 到 KV 存储..."
@@ -71,33 +75,7 @@ jobs:
           
           echo "Cloudflare KV 上传完成。"
         env:
+          # 依然需要在这里声明您在 GitHub Secrets 中设置的三个变量
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
-
-      # 5. 提交所有更改
-      - name: 提交并推送到 main 分支
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
-          # 确保添加了所有更改
-          git add demo_output.m3u tvbox_output.txt
-          git add history/
-          
-          if git status --porcelain | grep -q 'demo_output.m3u\|tvbox_output.txt\|history/'; then
-            git commit -m "自动更新：生成、备份、合并并上传 KV" --no-verify
-            git push origin HEAD:main
-          else
-            echo "No new changes to commit. Skipping commit and push."
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: 上传生成的播放列表文件为 artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 播放列表
-          path: |
-            demo_output.m3u
-            tvbox_output.txt
