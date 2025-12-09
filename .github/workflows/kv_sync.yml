@@ -1,11 +1,11 @@
 # .github/workflows/kv_sync.yml
-name: 3. Cloudflare KV 同步与清理
+name: 3. Cloudflare KV 文件上传 (简化版)
 
 on:
   workflow_dispatch:
   schedule:
-    # 每天 4 次，在主工作流 (0分) 运行后 10 分钟运行。
-    - cron: '10 */6 * * *' 
+    # 每天 4 次，在主工作流 (0分) 运行后 8 分钟运行
+    - cron: '8 */6 * * *' 
 
 jobs:
   kv_sync:
@@ -25,18 +25,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 运行 KV 上传脚本
-      - name: 运行 KV 上传脚本
-        run: python md/kv_upload.py # 使用我们之前提供的 kv_upload.py 脚本
+      # 1. 运行 KV 简单上传脚本
+      - name: 运行 KV 简单上传脚本
+        run: python md/kv_upload_simple.py
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
           
-      # 2. 运行 Cloudflare KV 清理脚本
-      - name: 清理 Cloudflare KV 中的旧备份 Key
-        run: python md/clear_kv.py
-        env:
-          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
-          CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
+      # 🚨 移除 KV 清理步骤，该任务交给另一个工作流处理。
