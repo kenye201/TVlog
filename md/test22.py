@@ -1,4 +1,4 @@
-# md/test22.py —— 最终精简匹配版本
+# md/test22.py —— 最终精简匹配版本 (修正 SyntaxError)
 import re
 import requests
 from pathlib import Path
@@ -10,7 +10,7 @@ REMOTE_FILE_PATH = Path("md/httop_links.txt")
 ALIAS_FILE       = Path("md/alias.txt")
 TVLOGO_DIR       = Path("Images") # 包含分类文件夹 (CCTV, WSTV, 湖南等)
 IMG_DIR          = Path("img")    # 新增：无分类的通用台标文件夹
-OUTPUT_M3U       = Path("demo_output.m3U")
+OUTPUT_M3U       = Path("demo_output.m3u")
 # 您的台标仓库裸链接
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main" 
 
@@ -38,13 +38,13 @@ if ALIAS_FILE.exists():
 # ==================== 2. 加载台标库并映射所有别名到台标文件 ====================
 # 结构: { 'CLEAN_ALIAS_KEY': (分类文件夹, 台标文件名) }
 logo_map = {}
-total_aliases = 0
 
-def load_logos_from_dir(directory: Path, base_cat: str = None):
-    """从指定目录加载台标文件，并将其映射到 logo_map。"""
+def load_logos_from_dir(directory: Path, base_cat: str = None) -> int:
+    """从指定目录加载台标文件，并将其映射到 logo_map，返回新增的映射数量。"""
     if not directory.exists():
-        return
+        return 0
 
+    new_aliases = 0
     for f in directory.iterdir():
         if not f.is_file() or f.suffix.lower() not in {".png",".jpg",".jpeg",".webp"}: continue
         
@@ -77,28 +77,29 @@ def load_logos_from_dir(directory: Path, base_cat: str = None):
                 for k in keys_to_add:
                     if k and k not in logo_map: # 避免覆盖
                         logo_map[k] = (cat, logo_name)
-                        nonlocal total_aliases
-                        total_aliases += 1
+                        new_aliases += 1
 
         # --- 阶段 B: 额外添加台标文件名本身的映射 (作为保底) ---
         clean_stem = re.sub(r"[-_ .]","", logo_stem).upper()
         if logo_stem.upper() not in logo_map:
             logo_map[logo_stem.upper()] = (cat, logo_name)
+            new_aliases += 1
         if clean_stem not in logo_map:
             logo_map[clean_stem] = (cat, logo_name)
-        nonlocal total_aliases
-        total_aliases += 2
+            new_aliases += 1
+            
+    return new_aliases
 
 # 优先加载分类文件夹（Images/CCTV, Images/湖南 等）
+total_aliases = 0
 if TVLOGO_DIR.exists():
     for folder in TVLOGO_DIR.iterdir():
         if folder.is_dir():
-            load_logos_from_dir(folder)
+            total_aliases += load_logos_from_dir(folder)
 
 # 其次加载通用文件夹 (img/)，如果 key 已存在，不覆盖
 if IMG_DIR.exists():
-    # 注意：这里我们使用 'img' 作为分类名，但 URL 路径是 img/
-    load_logos_from_dir(IMG_DIR, base_cat='img') 
+    total_aliases += load_logos_from_dir(IMG_DIR, base_cat='img') 
 
 print(f"台标库加载完成：共映射 {total_aliases} 个频道名称变体。")
 
@@ -143,10 +144,9 @@ for url in links:
             # -------------------- B. 查找台标 (增强 Key 简洁度) --------------------
             
             logo_url = ""
-            best_match_cat = None
-            logo_file = None
-
-            # 增强 Key 的简洁度：主动去除“卫视”和“频道”等后缀
+            best_match_cat = None # 台标文件所在的分类文件夹名 (如: CCTV, 湖南, img)
+            
+            # 增强 Key 的简洁度：主动去除“卫视”、“频道”等后缀，用于提高匹配率
             aggressive_clean_name = raw_name
             for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
                 aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
@@ -185,9 +185,10 @@ for url in links:
             
             # 优先级 2: 台标归属分类 (使用台标所在的 Images/ 子文件夹名)
             elif logo_url and best_match_cat not in ['其他', 'img']:
-                final_group = best_match_cat
+                # 台标文件所在的 Images/ 子文件夹名 (如: 湖南, 河南)
+                final_group = best_match_cat 
             
-            # 优先级 3: 原 EXTINF Group
+            # 优先级 3: 原 EXTINF Group (用于保留数字频道等分类名)
             else:
                 m = re.search(r'group-title="([^"]+)"', extinf)
                 final_group = m.group(1) if m else "其他"
