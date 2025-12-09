@@ -31,13 +31,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 运行主脚本生成最新的文件
+# 1. 运行主脚本生成最新的文件
       - name: 运行主脚本生成临时文件
         run: |
-          # 生成的文件暂时命名为 _new，以免覆盖上一次检出的版本
+          # 运行 Python 脚本，它会生成 demo_output.m3u 和 tvbox_output.txt
           python md/test22.py
+          # 将原始文件重命名为 _new，防止与检出的旧文件混淆
           mv demo_output.m3u demo_output_new.m3u
-          mv tvbox_output.txt tvbox_output_new.m3u
+          mv tvbox_output.txt tvbox_output_new.txt
           echo "主文件生成完成。"
 
       # 2. 内容校验并终止工作流 (内容不变则跳过后续所有步骤)
