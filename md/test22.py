@@ -24,17 +24,14 @@ CATEGORY_ORDER = ["4K","CCTV","CGTN","CIBN","DOX","NewTV","WSTV","iHOT",
 
 
 # ==================== 1. 加载别名表 (Main Name <-> Alias Set) ====================
-# 结构: { 'CCTV-1': {'CCTV-1', 'CCTV1', 'CCTV-1综合', ...}, ... }
 alias_db = {}
 if ALIAS_FILE.exists():
     for line in ALIAS_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line or line.startswith("#"): continue
-        # 使用正则表达式处理带 * 的模糊匹配，并清理空字符串
         parts = [p.strip() for p in line.split(",") if p.strip()]
         if not parts: continue
         main_name = parts[0]
-        # 存储该主名的所有别名（包括主名本身）
         alias_db[main_name] = set(parts)
 
 # ==================== 2. 加载台标库并映射所有别名到台标文件 ====================
@@ -50,22 +47,19 @@ if TVLOGO_DIR.exists():
         for f in folder.iterdir():
             if not f.is_file() or f.suffix.lower() not in {".png",".jpg",".jpeg",".webp"}: continue
             
-            logo_stem = f.stem # 例如: 'CCTV1'
-            logo_name = f.name # 例如: 'CCTV1.png'
+            logo_stem = f.stem 
+            logo_name = f.name 
             
             # --- 阶段 A: 通过 alias.txt 映射所有别名 ---
             main_name_found = None
             
-            # 尝试用台标文件名去反查 alias.txt 中的主名
             for main, aliases in alias_db.items():
                 
-                # 检查台标文件名是否是某个别名（或主名）的简洁形式
                 clean_logo_stem = re.sub(r"[-_ .]","", logo_stem).upper()
                 
+                # 检查台标文件名是否是某个别名（或主名）的简洁形式
                 for alias in aliases:
                     clean_alias = re.sub(r"[-_ .]","", alias).upper()
-                    
-                    # 精准匹配台标文件名和别名的干净形式
                     if clean_logo_stem == clean_alias:
                         main_name_found = main
                         break
@@ -86,12 +80,10 @@ if TVLOGO_DIR.exists():
                     
                     for k in keys_to_add:
                         if k:
-                            # 存储： 干净的频道名 -> (分类, 台标文件名)
                             logo_map[k] = (cat, logo_name)
                             total_aliases += 1
 
             # --- 阶段 B: 额外添加台标文件名本身的映射 (作为保底) ---
-            # 确保即使没有别名表，台标文件本身也能被匹配
             clean_stem = re.sub(r"[-_ .]","", logo_stem).upper()
             logo_map[logo_stem.upper()] = (cat, logo_name)
             logo_map[clean_stem] = (cat, logo_name)
@@ -104,7 +96,6 @@ print(f"台标库加载完成：共映射 {total_aliases} 个频道名称变体�
 paired = []
 total = 0
 
-# 检查文件是否存在
 if not REMOTE_FILE_PATH.exists():
     print(f"错误：输入文件 {REMOTE_FILE_PATH} 不存在。")
     sys.exit(1)
@@ -113,7 +104,6 @@ links = [l.strip() for l in REMOTE_FILE_PATH.read_text(encoding="utf-8").splitli
 
 for url in links:
     try:
-        # 获取远程 M3U 内容
         text = requests.get(url, timeout=30).text
     except Exception as e:
         print(f"警告：无法获取远程链接 {url} 的内容，跳过。错误: {e}")
@@ -142,54 +132,63 @@ for url in links:
                 extinf = None
                 continue
             
-            # -------------------- 2. 确定 Group 优先级 --------------------
+            # -------------------- 2. 确定 Group 优先级（第一轮分类） --------------------
             
-            group = "其他"
             logo_url = ""
-            best_match_cat = None
-            logo_file = None
-            
-            # 强制分类优先级最高
+            best_match_cat = "其他" # 用于存储台标所在分类
+
+            # 强制分类：CCTV/WSTV 优先级最高
             if any(x in name_upper for x in ["CCTV","央视","中央","CGTN"]):
-                group = "CCTV"
+                current_group = "CCTV"
             elif "卫视" in name_upper:
-                group = "WSTV"
+                current_group = "WSTV"
+            else:
+                # 针对其他频道：先尝试读取原 EXTINF 中的 group-title
+                m = re.search(r'group-title="([^"]+)"', extinf)
+                current_group = m.group(1) if m else "其他"
             
-            # -------------------- 3. 查找台标 (全库匹配) --------------------
+            # -------------------- 3. 查找台标 (增强 Key 的简洁度) --------------------
             
-            # 尝试多种变体查找
+            # 原始和简单清理的 Key (第 1 优先级：精准匹配)
             candidates = {
                 name_upper,
                 re.sub(r"[-_ .]","", name_upper),
                 re.sub(r"(高清|HD|超清|4K|PLUS).*$","", raw_name, flags=re.I).strip().upper()
             }
             
+            # 增强 Key 的简洁度：主动去除“卫视”和“频道”等后缀 (第 2 优先级：简洁匹配)
+            aggressive_clean_name = raw_name
+            for suffix in ["频道", "卫视", "台"]:
+                # 忽略大小写地去除后缀
+                aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
+
+            candidates.add(aggressive_clean_name.upper())
+            candidates.add(re.sub(r"[-_ .]","", aggressive_clean_name).upper())
+            
+            # 实际进行匹配查找
             for key in candidates:
                 if logo_map.get(key):
                     best_match_cat, logo_file = logo_map[key]
                     logo_url = f"{REPO_RAW}/Images/{best_match_cat}/{logo_file}"
-                    break
+                    break # 找到即退出
+
+            # -------------------- 4. 确定最终 Group (融合 Group 和台标结果) --------------------
             
-            # -------------------- 4. 确定最终 Group (融合强制和台标结果) --------------------
+            final_group = current_group # 默认使用第一轮确定的分类
 
-            # 如果是卫视或央视强制分类，group 保持不变 (CCTV/WSTV)
-            # 否则，如果找到了台标，使用台标所在的文件夹分类
-            if group not in ["CCTV", "WSTV"] and logo_url:
-                group = best_match_cat
-            # 如果都没找到台标且不是强制分类，尝试使用原 EXTINF 中的 group-title
-            elif group not in ["CCTV", "WSTV"]:
-                m = re.search(r'group-title="([^"]+)"', extinf)
-                group = m.group(1) if m else "其他"
-
+            # 只有在找到了台标，并且当前 group 不是 CCTV 或 WSTV 时，才使用台标所在的分类
+            if logo_url and current_group not in ["CCTV", "WSTV"]:
+                final_group = best_match_cat # 使用台标所在的文件夹名 (例如: 湖南, 河南)
+            
             # -------------------- 5. 构造新的 EXTINF 行 --------------------
             
             # 剔除原行中的所有属性 (只保留 #EXTINF:-1)
             new_line = extinf.split(",",1)[0]
             
             # 1. 替换/添加 group-title
-            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{group}"', new_line)
+            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{final_group}"', new_line)
             if "group-title=" not in new_line:
-                new_line += f' group-title="{group}"'
+                new_line += f' group-title="{final_group}"'
 
             # 2. 替换/添加 tvg-logo
             if logo_url:
@@ -202,7 +201,7 @@ for url in links:
 
             # -------------------- 6. 保存结果 --------------------
             
-            weight = CATEGORY_ORDER.index(group) if group in CATEGORY_ORDER else 9999
+            weight = CATEGORY_ORDER.index(final_group) if final_group in CATEGORY_ORDER else 9999
             paired.append((weight, new_line, line))
             total += 1
             extinf = None
@@ -218,4 +217,4 @@ try:
 except Exception as e:
     print(f"写入文件 {OUTPUT_M3U} 失败: {e}")
 
-print(f"完美收工！共 {total} 条线路，央视卫视精准，台标全中！")
+print(f"完美收工！共 {total} 条线路，分类精准，台标全中！")
