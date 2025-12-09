@@ -1,4 +1,4 @@
-# md/test22.py —— 最终标准 TVbox TXT 格式生成版本 (分类汉化)
+# md/test22.py —— 最终标准 TVbox TXT 格式生成版本 (修正数字频道保留问题)
 import re
 import requests
 from pathlib import Path
@@ -15,8 +15,7 @@ OUTPUT_M3U       = Path("demo_output.m3u")
 OUTPUT_TXT       = Path("tvbox_output.txt")
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main" 
 
-# 【新增】内部代号 (文件夹名) 到 显示名 (中文名) 的映射
-# 未映射的文件夹将直接使用其文件夹名作为显示名。
+# 内部代号 (文件夹名) 到 显示名 (中文名) 的映射
 GROUP_MAPPING = {
     "CCTV": "央视频道",
     "WSTV": "卫视频道",
@@ -24,12 +23,11 @@ GROUP_MAPPING = {
     "DOX": "求索系列",
     "NewTV": "新视听",
     "iHOT": "iHOT系列",
-    "img": "地方频道", # 如果 'img' 文件夹的台标是地方台，可映射为地方频道
+    "img": "地方频道",
     "其他": "其它频道"
-    # 其他分类 (如 湖南, 广东, 数字频道) 将直接使用文件夹名作为显示名
 }
 
-# 【更新】分类排序顺序：现在使用最终的中文显示名进行排序
+# 分类排序顺序
 CATEGORY_ORDER = ["4K","央视频道","卫视频道","国际频道","CIBN","求索系列","新视听","iHOT系列",
     "上海","云南","内蒙古","北京","吉林","四川","天津","宁夏",
     "安徽","山东","山西","广东","广西","数字频道","新疆","江苏",
@@ -113,7 +111,6 @@ if IMG_DIR.exists():
 print(f"台标库加载完成：共映射 {total_aliases} 个频道名称变体。")
 
 # ==================== 3. 主程序（精简匹配） ====================
-# 结构: { 内部代号/文件夹名: { 频道名: [ item_data ] } }
 grouped_channels = defaultdict(lambda: defaultdict(list))
 total = 0
 
@@ -142,76 +139,77 @@ for url in links:
             raw_name = extinf.split(",",1)[-1].strip() if "," in extinf else ""
             name_upper = raw_name.upper()
             stream_url = line
+            skip_processing = False # 新增标志
 
             # -------------------- A. 预处理 --------------------
             if not raw_name or raw_name.isdigit():
-                extinf = None
-                continue
+                # 纯数字频道：跳过台标/分类处理，直接归类到 '其他'
+                final_group_internal = "其他"
+                new_line = extinf
+                skip_processing = True
             
-            # -------------------- B. 查找台标 --------------------
+            if not skip_processing:
             
-            logo_url = ""
-            best_match_cat = None # 内部代号/文件夹名
-            
-            aggressive_clean_name = raw_name
-            for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
-                aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
+                # -------------------- B. 查找台标 --------------------
+                logo_url = ""
+                best_match_cat = None
+                
+                aggressive_clean_name = raw_name
+                for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
+                    aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
 
-            candidates = {name_upper, re.sub(r"[-_ .]","", name_upper), 
-                          aggressive_clean_name.upper(), re.sub(r"[-_ .]","", aggressive_clean_name).upper()}
-            
-            for key in candidates:
-                if logo_map.get(key):
-                    best_match_cat, logo_file = logo_map[key]
-                    
-                    logo_path = best_match_cat
-                    if best_match_cat == 'img':
-                        logo_url = f"{REPO_RAW}/img/{logo_file}"
-                    else:
-                        logo_url = f"{REPO_RAW}/Images/{logo_path}/{logo_file}"
+                candidates = {name_upper, re.sub(r"[-_ .]","", name_upper), 
+                              aggressive_clean_name.upper(), re.sub(r"[-_ .]","", aggressive_clean_name).upper()}
+                
+                for key in candidates:
+                    if logo_map.get(key):
+                        best_match_cat, logo_file = logo_map[key]
                         
-                    break
+                        logo_path = best_match_cat
+                        if best_match_cat == 'img':
+                            logo_url = f"{REPO_RAW}/img/{logo_file}"
+                        else:
+                            logo_url = f"{REPO_RAW}/Images/{logo_path}/{logo_file}"
+                            
+                        break
 
-            # -------------------- C. 确定最终 Group (使用内部代号) --------------------
+                # -------------------- C. 确定最终 Group (使用内部代号) --------------------
+                
+                final_group_internal = "其他" 
+                
+                if any(x in name_upper for x in ["CCTV","央视","中央","CGTN"]):
+                    final_group_internal = "CCTV"
+                elif "卫视" in name_upper:
+                    final_group_internal = "WSTV"
+                elif logo_url and best_match_cat not in ['其他']:
+                    final_group_internal = best_match_cat 
+                else:
+                    m = re.search(r'group-title="([^"]+)"', extinf)
+                    final_group_internal = m.group(1) if m else "其他"
+                
+                
+                # -------------------- D. 构造新的 EXTINF 行 --------------------
+                
+                group_display_name = GROUP_MAPPING.get(final_group_internal, final_group_internal)
+
+                new_line = extinf.split(",",1)[0]
+                new_line = re.sub(r'group-title="[^"]*"', f'group-title="{group_display_name}"', new_line)
+                if "group-title=" not in new_line: new_line += f' group-title="{group_display_name}"'
+
+                if logo_url:
+                    new_line = re.sub(r'tvg-logo="[^"]*"', f'tvg-logo="{logo_url}"', new_line)
+                    if "tvg-logo=" not in new_line: new_line += f' tvg-logo="{logo_url}"'
+                
+                new_line += f',{raw_name}'
+
+
+            # -------------------- E. 保存结果 (结构化) --------------------
             
-            final_group_internal = "其他" 
-            
-            # 优先级 1: 强制分类 (CCTV/WSTV)
-            if any(x in name_upper for x in ["CCTV","央视","中央","CGTN"]):
-                final_group_internal = "CCTV"
-            elif "卫视" in name_upper:
-                final_group_internal = "WSTV"
-            
-            # 优先级 2: 台标归属分类 (使用文件夹名作为代号)
-            elif logo_url and best_match_cat not in ['其他']:
-                final_group_internal = best_match_cat 
-            
-            # 优先级 3: 原 EXTINF Group
-            else:
-                m = re.search(r'group-title="([^"]+)"', extinf)
-                final_group_internal = m.group(1) if m else "其他"
-            
-            
-            # -------------------- D. 构造新的 EXTINF 行 --------------------
-            
-            # ❗ M3U 文件中 group-title 使用【中文显示名】
+            # 使用中文显示名获取权重
             group_display_name = GROUP_MAPPING.get(final_group_internal, final_group_internal)
-
-            new_line = extinf.split(",",1)[0]
-            new_line = re.sub(r'group-title="[^"]*"', f'group-title="{group_display_name}"', new_line)
-            if "group-title=" not in new_line: new_line += f' group-title="{group_display_name}"'
-
-            if logo_url:
-                new_line = re.sub(r'tvg-logo="[^"]*"', f'tvg-logo="{logo_url}"', new_line)
-                if "tvg-logo=" not in new_line: new_line += f' tvg-logo="{logo_url}"'
-            
-            new_line += f',{raw_name}'
-
-            # -------------------- E. 保存结果 (使用内部代号) --------------------
-            
             weight = CATEGORY_ORDER.index(group_display_name) if group_display_name in CATEGORY_ORDER else 9999
             
-            # 频道排序权重：CCTV 频道按数字排序 (实现自然排序)
+            # 排序键：纯数字频道也使用 (1, 频道名) 进行默认排序
             cctv_match = re.search(r'CCTV[^\d]*(\d+)', raw_name, re.I)
             
             if cctv_match:
@@ -232,7 +230,6 @@ for url in links:
 # ==================== 4. 排序 + 写入 M3U 和 TXT 文件 ====================
 
 # 1. 对分类进行排序 (按中文显示名在 CATEGORY_ORDER 中的位置排序)
-# 排序时使用 GROUP_MAPPING 转换后的中文名
 def get_sort_key(group_internal_name):
     display_name = GROUP_MAPPING.get(group_internal_name, group_internal_name)
     return CATEGORY_ORDER.index(display_name) if display_name in CATEGORY_ORDER else 9999
@@ -254,7 +251,7 @@ for group_internal_name in sorted_groups_internal:
     
     # TXT 格式分类行
     txt_lines.append(f"{group_display_name},#genre#")
-    txt_lines.append("") # 必须有一个空行
+    txt_lines.append("")
 
     for channel_name in sorted_channels:
         links = channels[channel_name]
@@ -284,6 +281,6 @@ except Exception as e:
     print(f"写入 TXT 文件 {OUTPUT_TXT} 失败: {e}")
 
 
-print(f"完美收工！共 {total} 条线路，分类名称已汉化！")
+print(f"完美收工！共 {total} 条线路，包含纯数字频道！")
 print(f"已生成 M3U 文件: {OUTPUT_M3U.name}")
 print(f"已生成 TVbox TXT 文件 (标准格式): {OUTPUT_TXT.name}")
