@@ -1,4 +1,4 @@
-# md/test22.py —— 最终精简匹配版本 (修正 SyntaxError)
+# md/test22.py —— 最终精简匹配版本 (新增 TXT 导出)
 import re
 import requests
 from pathlib import Path
@@ -11,6 +11,7 @@ ALIAS_FILE       = Path("md/alias.txt")
 TVLOGO_DIR       = Path("Images") # 包含分类文件夹 (CCTV, WSTV, 湖南等)
 IMG_DIR          = Path("img")    # 新增：无分类的通用台标文件夹
 OUTPUT_M3U       = Path("demo_output.m3u")
+OUTPUT_TXT       = Path("tvbox_output.txt") # ⬅️ 新增 TXT 文件路径
 # 您的台标仓库裸链接
 REPO_RAW = "https://raw.githubusercontent.com/kenye201/TVlog/main" 
 
@@ -130,13 +131,15 @@ for url in links:
             if not extinf: 
                 continue
 
+            # 从 EXTINF 中提取 raw_name 和 name_upper
             raw_name = extinf.split(",",1)[-1].strip() if "," in extinf else ""
             name_upper = raw_name.upper()
+            stream_url = line # 记录链接
 
             # -------------------- A. 预处理 --------------------
             if not raw_name or raw_name.isdigit():
                 weight = 9999
-                paired.append((weight, extinf, line))
+                paired.append((weight, extinf, stream_url, "其他", raw_name)) # 保持原样
                 total += 1
                 extinf = None
                 continue
@@ -144,14 +147,13 @@ for url in links:
             # -------------------- B. 查找台标 (增强 Key 简洁度) --------------------
             
             logo_url = ""
-            best_match_cat = None # 台标文件所在的分类文件夹名 (如: CCTV, 湖南, img)
+            best_match_cat = None
             
-            # 增强 Key 的简洁度：主动去除“卫视”、“频道”等后缀，用于提高匹配率
+            # 增强 Key 的简洁度：主动去除“卫视”、“频道”等后缀
             aggressive_clean_name = raw_name
             for suffix in ["频道", "卫视", "台", "高清", "HD", "超清", "4K", "PLUS"]:
                 aggressive_clean_name = re.sub(f'{re.escape(suffix)}$', '', aggressive_clean_name, flags=re.I).strip()
 
-            # 候选键集：包括原始、去符号、以及激进清理后的版本
             candidates = {
                 name_upper,
                 re.sub(r"[-_ .]","", name_upper),
@@ -159,19 +161,17 @@ for url in links:
                 re.sub(r"[-_ .]","", aggressive_clean_name).upper(),
             }
             
-            # 实际进行匹配查找
             for key in candidates:
                 if logo_map.get(key):
                     best_match_cat, logo_file = logo_map[key]
                     
-                    # 确定 logo_url：如果分类是 'img'，则 URL 路径使用 'img'
                     logo_path = best_match_cat
                     if best_match_cat == 'img':
                         logo_url = f"{REPO_RAW}/img/{logo_file}"
                     else:
                         logo_url = f"{REPO_RAW}/Images/{logo_path}/{logo_file}"
                         
-                    break # 找到即退出
+                    break
 
             # -------------------- C. 确定最终 Group (强制分类 + 台标归属) --------------------
             
@@ -185,48 +185,68 @@ for url in links:
             
             # 优先级 2: 台标归属分类 (使用台标所在的 Images/ 子文件夹名)
             elif logo_url and best_match_cat not in ['其他', 'img']:
-                # 台标文件所在的 Images/ 子文件夹名 (如: 湖南, 河南)
                 final_group = best_match_cat 
             
-            # 优先级 3: 原 EXTINF Group (用于保留数字频道等分类名)
+            # 优先级 3: 原 EXTINF Group
             else:
                 m = re.search(r'group-title="([^"]+)"', extinf)
                 final_group = m.group(1) if m else "其他"
 
             # -------------------- D. 构造新的 EXTINF 行 --------------------
             
+            # 构造 M3U 格式的新行
             new_line = extinf.split(",",1)[0]
             
-            # 1. 替换/添加 group-title
             new_line = re.sub(r'group-title="[^"]*"', f'group-title="{final_group}"', new_line)
             if "group-title=" not in new_line:
                 new_line += f' group-title="{final_group}"'
 
-            # 2. 替换/添加 tvg-logo
             if logo_url:
                 new_line = re.sub(r'tvg-logo="[^"]*"', f'tvg-logo="{logo_url}"', new_line)
                 if "tvg-logo=" not in new_line:
                     new_line += f' tvg-logo="{logo_url}"'
             
-            # 3. 加上频道名
             new_line += f',{raw_name}'
 
             # -------------------- E. 保存结果 --------------------
             
             weight = CATEGORY_ORDER.index(final_group) if final_group in CATEGORY_ORDER else 9999
-            paired.append((weight, new_line, line))
+            # 存储格式: (权重, 新 EXTINF, URL, 最终分类名, 频道名)
+            paired.append((weight, new_line, stream_url, final_group, raw_name))
             total += 1
             extinf = None
 
-# 排序 + 写入
+# ==================== 4. 排序 + 写入 M3U 和 TXT 文件 ====================
+
 paired.sort(key=lambda x: x[0])
+
+# 写入 M3U 文件
 try:
     with open(OUTPUT_M3U, "w", encoding="utf-8") as f:
         f.write('#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n')
-        for _, e, u in paired:
+        for _, e, u, _, _ in paired:
             f.write(e + "\n")
             f.write(u + "\n")
 except Exception as e:
-    print(f"写入文件 {OUTPUT_M3U} 失败: {e}")
+    print(f"写入 M3U 文件 {OUTPUT_M3U} 失败: {e}")
+
+# 写入 TXT 文件 (TVbox 格式)
+try:
+    with open(OUTPUT_TXT, "w", encoding="utf-8") as f:
+        current_group = ""
+        for _, _, url, group_name, channel_name in paired:
+            # 如果分类发生变化，则写入新的分类行
+            if group_name != current_group:
+                f.write(f"\n{group_name},\n") # 分类名后面跟逗号和换行
+                current_group = group_name
+            
+            # 写入频道名和链接，用逗号分隔
+            f.write(f"{channel_name},{url}\n")
+
+except Exception as e:
+    print(f"写入 TXT 文件 {OUTPUT_TXT} 失败: {e}")
+
 
 print(f"完美收工！共 {total} 条线路，分类精准，台标全中！")
+print(f"已生成 M3U 文件: {OUTPUT_M3U.name}")
+print(f"已生成 TXT 文件: {OUTPUT_TXT.name}")
