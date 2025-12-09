@@ -1,52 +1,54 @@
-name: Check History Directory
+# .github/workflows/cleanup.yml
+name: 历史记录清理 (去重)
 
 on:
+  # 1. 定时触发：每周日凌晨 00:00 UTC 运行
   schedule:
-    - cron: "40 */6 * * *"  # 每6小时检查一次
-  workflow_dispatch:  # 支持手动触发
-
+    - cron: '0 0 * * 0' 
+  
+  # 2. 手动触发：允许您随时在 GitHub Actions 页面手动运行
+  workflow_dispatch:
+  
 jobs:
-  check-duplicates:
+  cleanup_history:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout Repository
+      - name: 检出仓库代码
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN}}  # 使用 TVlogo_TOKEN 确保写权限
+          fetch-depth: 0 # 必须深度克隆，以便提交更改
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.9'
 
-      - name: Install Dependencies
+      # 1. 运行清理脚本删除重复的备份文件
+      - name: 运行清理脚本删除重复的备份文件
         run: |
-          python -m pip install --upgrade pip
-          pip install requests
+          # 确保脚本路径正确
+          python md/cleanup_history.py
+          echo "历史记录清理完成。"
 
-      - name: Run Duplicate Check Script
-        env:
-          TVlogo_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 用于 API 删除重复文件
+      # 2. 提交清理结果
+      - name: 提交清理后的更改
         run: |
-          python md/history.py
-
-      - name: Commit and Push Log File
-        if: always()
-        run: |
-          git config --global user.name 'GitHub Action'
-          git config --global user.email 'action@github.com'
-          if [ -f duplicate_history_files.txt ]; then
-            git add duplicate_history_files.txt
-            git commit -m "Update duplicate files log - $(date -u '+%Y-%m-%d %H:%M:%S')" || echo "Nothing to commit"
-            git push || echo "Nothing to push"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # 仅添加 history 文件夹中的更改（删除的文件）
+          git add history/
+          
+          # 检查是否有文件被删除或修改，避免空提交
+          if git status --porcelain | grep -q 'history/'; then
+            # 使用 --allow-empty 确保即使只删除了文件也执行提交
+            git commit -m "Cleanup: 自动清理 history/ 文件夹中的重复备份文件" --allow-empty
+            git push origin HEAD:main
           else
-            echo "No duplicate log file to commit"
+            echo "历史文件夹中没有重复文件，无需提交。"
           fi
-
-      - name: Upload Duplicate Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: duplicate-files-log
-          path: duplicate_history_files.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
