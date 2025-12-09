@@ -31,15 +31,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-# 1. 运行主脚本生成临时文件
+      # 1. 运行主脚本生成临时文件
       - name: 运行主脚本生成临时文件
         run: |
-          # 运行 Python 脚本，并直接将输出重定向到带有 _new 后缀的临时文件
-          python md/test22.py > demo_output_new.m3u
-          # 假设 tvbox_output.txt 是脚本的另一个输出，需要手动处理
-          # 假设您的 md/test22.py 脚本是在文件系统中创建文件的，我们现在让它输出到固定位置：
+          # 运行 Python 脚本，它会生成 demo_output.m3u 和 tvbox_output.txt
+          python md/test22.py
+          
+          # 将原始文件重命名为 _new，防止与检出的旧文件混淆
           mv demo_output.m3u demo_output_new.m3u
-          mv tvbox_output.txt tvbox_output_new.txt 
+          mv tvbox_output.txt tvbox_output_new.txt
           echo "主文件生成完成。"
 
       # 2. 内容校验并终止工作流 (内容不变则跳过后续所有步骤)
@@ -63,33 +63,34 @@ jobs:
             echo "未找到旧文件。继续执行更新。"
             echo "SKIP_UPDATE=false" >> $GITHUB_OUTPUT
           fi
-          
-          # 🌟 关键修复：如果内容有变化 (或第一次运行)，将临时文件重命名为正式文件名
-          if [ "${{ steps.check_content.outputs.SKIP_UPDATE }}" == "false" ]; then
-            mv demo_output_new.m3u demo_output.m3u
-            mv tvbox_output_new.txt tvbox_output.txt 
-            echo "临时文件已重命名为正式文件名，供后续步骤使用。"
-          fi
 
-      # 3. 创建并复制备份文件到 history/ (如果内容有变化)
+      # 🌟 3. 关键修复：添加独立的重命名步骤
+      - name: 重命名临时文件为正式文件名
+        if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
+        run: |
+          mv demo_output_new.m3u demo_output.m3u
+          mv tvbox_output_new.txt tvbox_output.txt
+          echo "临时文件已重命名为正式文件名。"
+
+      # 4. 创建并复制备份文件到 history/ (如果内容有变化)
       - name: 创建并复制备份文件到 history/
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         id: set_timestamp
         run: |
           TIMESTAMP=$(date +%m%d%H%M)
           mkdir -p history
-          # 确保复制的是正式文件名
+          # 此时 demo_output.m3u 应该已经存在且可用
           cp demo_output.m3u history/logo${TIMESTAMP}.m3u
           cp tvbox_output.txt history/tvbox_${TIMESTAMP}.txt
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_OUTPUT 
           echo "备份文件已生成到 history/ 目录。"
 
-      # 4. 运行合并脚本生成 merged 文件 (如果内容有变化)
+      # 5. 运行合并脚本生成 merged 文件 (如果内容有变化)
       - name: 运行合并脚本生成 merged 文件
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: python md/merge_tvlist.py
 
-      # 5. 上传文件到 Cloudflare KV (如果内容有变化)
+      # 6. 上传文件到 Cloudflare KV (如果内容有变化)
       - name: 上传文件到 Cloudflare KV
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
@@ -122,7 +123,7 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 6. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
+      # 7. 运行 Cloudflare KV 清理脚本 (如果内容有变化)
       - name: 清理 Cloudflare KV 中的旧备份 Key
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         # 确保 md/clear_kv.py 能够读取和使用提供的环境变量
@@ -135,7 +136,7 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_KV_NAMESPACE_ID: ${{ secrets.CF_KV_NAMESPACE_ID }}
 
-      # 7. 提交所有更改 (如果内容有变化)
+      # 8. 提交所有更改 (如果内容有变化)
       - name: 提交并推送到 main 分支
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         run: |
@@ -159,7 +160,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
-      # 8. 上传生成的播放列表文件为 artifact (如果内容有变化)
+      # 9. 上传生成的播放列表文件为 artifact (如果内容有变化)
       - name: 上传生成的播放列表文件为 artifact
         if: ${{ steps.check_content.outputs.SKIP_UPDATE != 'true' }}
         uses: actions/upload-artifact@v4
