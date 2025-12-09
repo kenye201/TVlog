@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.TVlogo_TOKEN }}  # 使用 TVlogo_TOKEN 确保写权限
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN}}  # 使用 TVlogo_TOKEN 确保写权限
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,7 +27,7 @@ jobs:
 
       - name: Run Duplicate Check Script
         env:
-          TVlogo_TOKEN: ${{ secrets.TVlogo_TOKEN }}  # 用于 API 删除重复文件
+          TVlogo_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 用于 API 删除重复文件
         run: |
           python md/history.py
 
