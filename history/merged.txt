@@ -10216,6 +10216,22 @@ CGTN,http://219.156.127.42:8899/hls/16/index.m3u8
 电视剧频,http://219.156.127.42:8899/hls/23/index.m3u8
 百姓调解,http://219.156.127.42:8899/hls/28/index.m3u8
 都市频道,http://219.156.127.42:8899/hls/20/index.m3u8
+CCTV-1 综合,http://122.114.131.154:4018/hls/1/index.m3u8
+CCTV-2 财经,http://122.114.131.154:4018/hls/2/index.m3u8
+CCTV-3 综艺,http://122.114.131.154:4018/hls/3/index.m3u8
+CCTV-4 中文国际,http://122.114.131.154:4018/hls/4/index.m3u8
+CCTV-5 体育,http://122.114.131.154:4018/hls/5/index.m3u8
+CCTV-5+ 体育赛事,http://122.114.131.154:4018/hls/16/index.m3u8
+CCTV-6 电影,http://122.114.131.154:4018/hls/6/index.m3u8
+CCTV-7 国防军事,http://122.114.131.154:4018/hls/7/index.m3u8
+CCTV-8 电视剧,http://122.114.131.154:4018/hls/8/index.m3u8
+CCTV-9 纪录,http://122.114.131.154:4018/hls/9/index.m3u8
+CCTV-10 科教,http://122.114.131.154:4018/hls/10/index.m3u8
+CCTV-11 戏曲,http://122.114.131.154:4018/hls/11/index.m3u8
+CCTV-12 社会与法,http://122.114.131.154:4018/hls/12/index.m3u8
+CCTV-13 新闻,http://122.114.131.154:4018/hls/13/index.m3u8
+CCTV-14 少儿,http://122.114.131.154:4018/hls/14/index.m3u8
+CCTV-15 音乐,http://122.114.131.154:4018/hls/15/index.m3u8
 CCTV-1 综合,http://42.48.106.138:808/hls/1/index.m3u8
 CCTV-1 综合,http://106.44.226.206:88/hls/1/index.m3u8
 CCTV-1 综合,http://1.196.157.147:999/hls/1/index.m3u8
