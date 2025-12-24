@@ -11514,6 +11514,21 @@ gz,http://220.176.60.118:20000/hls/058e42bbc010c09d.m3u8
 gz1,http://220.176.60.118:20000/hls/99639074722c8a6b.m3u8
 gz-2,http://220.176.60.118:20000/hls/8d2ff4b47ebd455c.m3u8
 CGTN,http://123.14.84.17:8888/hls/16/index.m3u8
+CCTV-1 综合,http://182.125.159.5:8088/hls/1/index.m3u8
+CCTV-2 财经,http://182.125.159.5:8088/hls/2/index.m3u8
+CCTV-3 综艺,http://182.125.159.5:8088/hls/3/index.m3u8
+CCTV-5 体育,http://182.125.159.5:8088/hls/5/index.m3u8
+CCTV-6 电影,http://182.125.159.5:8088/hls/6/index.m3u8
+CCTV-7 国防军事,http://182.125.159.5:8088/hls/7/index.m3u8
+CCTV-8 电视剧,http://182.125.159.5:8088/hls/8/index.m3u8
+东方卫视,http://182.125.159.5:8088/hls/21/index.m3u8
+天津卫视,http://182.125.159.5:8088/hls/22/index.m3u8
+安徽卫视,http://182.125.159.5:8088/hls/24/index.m3u8
+山东卫视,http://182.125.159.5:8088/hls/23/index.m3u8
+江苏卫视,http://182.125.159.5:8088/hls/18/index.m3u8
+河南卫视,http://182.125.159.5:8088/hls/16/index.m3u8
+浙江卫视,http://182.125.159.5:8088/hls/19/index.m3u8
+湖南卫视,http://182.125.159.5:8088/hls/17/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761185747-b4f2187c533664bacfada18705ded4e8-0-7cd68706c893360e01f4bbb257b032be
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761185747-aecab5272aa4a766988370dc8f525842-0-7ff5729841cfda84e189d5979d314abe
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761185747-d835d4f5247e27f3bea2e1e4cff0796c-0-913fe3fe09f80ba352c7d6c38007a368
