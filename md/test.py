@@ -7,7 +7,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 主页面URL（2025年版本，根据年份可能变，如hoteliptv2024.php）
-URL = "https://tonkiang.us/hoteliptv2025.php"  # 如果失效，试 https://tonkiang.us/ 或其他子页
+URL = "https://tonkiang.us/iptvhotel.php"  # 如果失效，试 https://tonkiang.us/ 或其他子页
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
