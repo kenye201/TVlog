@@ -27,7 +27,7 @@ jobs:
 
       - name: Run IPTV processing script
         run: |
-          python md/test22.py
+          python md/test.py
 
       - name: Commit and push if changed
         run: |
