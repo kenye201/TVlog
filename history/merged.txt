@@ -11548,6 +11548,14 @@ CCTV-少儿,http://113.205.193.154:8082/hls/14/index.m3u8
 CCTV-音乐,http://113.205.193.154:8082/hls/15/index.m3u8
 CCTV-NEWS,http://113.205.193.154:8082/hls/16/index.m3u8
 卡酷动画,http://113.205.193.154:8082/hls/49/index.m3u8
+CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761358467-6aca72862f6f74114540e977f1a85db8-0-084621cf5d38096e21c41781898f1508
+CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761358467-3046beb01d6295153dad0a6b028cd944-0-3795ad48caa28db0d5550b879c62ae28
+BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761358467-0002e60f6752626443d6feb0dd62eeef-0-15c54d5f13621a9ec8046ea1c83250bd
+WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761358467-9eff144101ccf70ca35421bf7f89ad18-0-07b2aea761d50960d004c069594a05aa
+CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761358467-8f2a10f4a5d00226a437109d1f209408-0-0d8ce3fe54d821b1ef06363052a06606
+BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761358467-fccb1878fe8f9377334b013381302c79-0-92327e16fc6144fc66ff4522910f33fd
+CCTV高尔夫·网球,http://113.227.250.189:81/hls/60/index.m3u8
+凤凰中文,http://27.41.245.32:801/hls/205/index.m3u8
 CCTV-1 综合,http://222.142.186.129:8888/hls/1/index.m3u8
 CCTV-1 综合,http://221.14.142.118:9003/hls/1/index.m3u8
 CCTV-1 综合,http://221.215.214.14:9005/hls/1/index.m3u8
@@ -11800,14 +11808,6 @@ QTV-6教育,http://221.215.214.14:9005/hls/40/index.m3u8
 7,http://144.0.23.43:8085/hls/7/index.m3u8
 8,http://144.0.23.43:8085/hls/8/index.m3u8
 9,http://144.0.23.43:8085/hls/9/index.m3u8
-CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761358467-6aca72862f6f74114540e977f1a85db8-0-084621cf5d38096e21c41781898f1508
-CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761358467-3046beb01d6295153dad0a6b028cd944-0-3795ad48caa28db0d5550b879c62ae28
-BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761358467-0002e60f6752626443d6feb0dd62eeef-0-15c54d5f13621a9ec8046ea1c83250bd
-WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761358467-9eff144101ccf70ca35421bf7f89ad18-0-07b2aea761d50960d004c069594a05aa
-CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761358467-8f2a10f4a5d00226a437109d1f209408-0-0d8ce3fe54d821b1ef06363052a06606
-BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761358467-fccb1878fe8f9377334b013381302c79-0-92327e16fc6144fc66ff4522910f33fd
-CCTV高尔夫·网球,http://113.227.250.189:81/hls/60/index.m3u8
-凤凰中文,http://27.41.245.32:801/hls/205/index.m3u8
 CCTV-1 综合,http://114.252.254.26:10443/hls/1/index.m3u8
 CCTV-1 综合,http://123.14.86.48:8888/hls/1/index.m3u8
 CCTV-2 财经,http://114.252.254.26:10443/hls/2/index.m3u8
