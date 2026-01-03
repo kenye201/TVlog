@@ -11930,6 +11930,130 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761138425-a95e7fa005e70
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761138425-27aa3157c2337dda65ff57dd589c8156-0-65108cf26f79e9404609cf9dce301f45
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761138425-545238cdefb125bf25b7dfd98cf4ea35-0-6932dc1739e7c6fed5603a3f39d19bc7
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761138425-c736ef6899cf100b1e3ec7b1cc54a86b-0-4bb7f4893e69e91f7673d872f1a7d01f
+CCTV-1 综合,http://113.200.114.168:20000/hls/1/index.m3u8
+CCTV-1 综合,http://123.14.232.226:8888/hls/1/index.m3u8
+CCTV-1 综合,http://123.14.79.54:8090/hls/1/index.m3u8
+CCTV-1 综合,http://125.40.54.153:8888/hls/1/index.m3u8
+CCTV-2 财经,http://113.200.114.168:20000/hls/2/index.m3u8
+CCTV-2 财经,http://123.14.232.226:8888/hls/2/index.m3u8
+CCTV-2 财经,http://123.14.79.54:8090/hls/2/index.m3u8
+CCTV-2 财经,http://125.40.54.153:8888/hls/2/index.m3u8
+CCTV-3 综艺,http://113.200.114.168:20000/hls/3/index.m3u8
+CCTV-3 综艺,http://123.14.232.226:8888/hls/3/index.m3u8
+CCTV-3 综艺,http://123.14.79.54:8090/hls/3/index.m3u8
+CCTV-3 综艺,http://125.40.54.153:8888/hls/3/index.m3u8
+CCTV-4 中文国际,http://113.200.114.168:20000/hls/4/index.m3u8
+CCTV-4 中文国际,http://123.14.232.226:8888/hls/4/index.m3u8
+CCTV-4 中文国际,http://123.14.79.54:8090/hls/4/index.m3u8
+CCTV-4 中文国际,http://125.40.54.153:8888/hls/4/index.m3u8
+CCTV-5 体育,http://113.200.114.168:20000/hls/5/index.m3u8
+CCTV-5 体育,http://123.14.232.226:8888/hls/5/index.m3u8
+CCTV-5 体育,http://123.14.232.226:8888/hls/18/index.m3u8
+CCTV-5 体育,http://123.14.79.54:8090/hls/5/index.m3u8
+CCTV-5 体育,http://125.40.54.153:8888/hls/5/index.m3u8
+CCTV-5+ 体育赛事,http://125.40.54.153:8888/hls/16/index.m3u8
+CCTV-6 电影,http://113.200.114.168:20000/hls/6/index.m3u8
+CCTV-6 电影,http://123.14.232.226:8888/hls/6/index.m3u8
+CCTV-6 电影,http://123.14.79.54:8090/hls/6/index.m3u8
+CCTV-6 电影,http://125.40.54.153:8888/hls/6/index.m3u8
+CCTV-7 国防军事,http://113.200.114.168:20000/hls/7/index.m3u8
+CCTV-7 国防军事,http://123.14.232.226:8888/hls/7/index.m3u8
+CCTV-7 国防军事,http://123.14.79.54:8090/hls/7/index.m3u8
+CCTV-7 国防军事,http://125.40.54.153:8888/hls/7/index.m3u8
+CCTV-8 电视剧,http://113.200.114.168:20000/hls/8/index.m3u8
+CCTV-8 电视剧,http://123.14.232.226:8888/hls/8/index.m3u8
+CCTV-8 电视剧,http://123.14.79.54:8090/hls/8/index.m3u8
+CCTV-8 电视剧,http://125.40.54.153:8888/hls/8/index.m3u8
+CCTV-9 纪录,http://113.200.114.168:20000/hls/9/index.m3u8
+CCTV-9 纪录,http://123.14.232.226:8888/hls/9/index.m3u8
+CCTV-9 纪录,http://123.14.79.54:8090/hls/9/index.m3u8
+CCTV-9 纪录,http://125.40.54.153:8888/hls/9/index.m3u8
+CCTV-10 科教,http://113.200.114.168:20000/hls/10/index.m3u8
+CCTV-10 科教,http://123.14.232.226:8888/hls/10/index.m3u8
+CCTV-10 科教,http://123.14.79.54:8090/hls/10/index.m3u8
+CCTV-10 科教,http://125.40.54.153:8888/hls/10/index.m3u8
+CCTV-11 戏曲,http://113.200.114.168:20000/hls/11/index.m3u8
+CCTV-11 戏曲,http://123.14.232.226:8888/hls/11/index.m3u8
+CCTV-11 戏曲,http://123.14.79.54:8090/hls/11/index.m3u8
+CCTV-11 戏曲,http://125.40.54.153:8888/hls/11/index.m3u8
+CCTV-12 社会与法,http://113.200.114.168:20000/hls/12/index.m3u8
+CCTV-12 社会与法,http://123.14.232.226:8888/hls/12/index.m3u8
+CCTV-12 社会与法,http://123.14.79.54:8090/hls/12/index.m3u8
+CCTV-12 社会与法,http://125.40.54.153:8888/hls/12/index.m3u8
+CCTV-13 新闻,http://113.200.114.168:20000/hls/13/index.m3u8
+CCTV-13 新闻,http://123.14.232.226:8888/hls/13/index.m3u8
+CCTV-13 新闻,http://123.14.79.54:8090/hls/13/index.m3u8
+CCTV-13 新闻,http://125.40.54.153:8888/hls/13/index.m3u8
+CCTV-14 少儿,http://123.14.232.226:8888/hls/14/index.m3u8
+CCTV-14 少儿,http://123.14.79.54:8090/hls/14/index.m3u8
+CCTV-14 少儿,http://125.40.54.153:8888/hls/14/index.m3u8
+CCTV-15 音乐,http://113.200.114.168:20000/hls/15/index.m3u8
+CCTV-15 音乐,http://123.14.232.226:8888/hls/15/index.m3u8
+CCTV-15 音乐,http://123.14.79.54:8090/hls/15/index.m3u8
+CCTV-15 音乐,http://125.40.54.153:8888/hls/15/index.m3u8
+CCTV-17 农业农村,http://123.14.232.226:8888/hls/17/index.m3u8
+CGTN,http://123.14.232.226:8888/hls/16/index.m3u8
+东南卫视,http://123.14.232.226:8888/hls/36/index.m3u8
+东方卫视,http://123.14.232.226:8888/hls/24/index.m3u8
+东方卫视,http://123.14.79.54:8090/hls/21/index.m3u8
+云南卫视,http://123.14.232.226:8888/hls/33/index.m3u8
+云南卫视,http://123.14.79.54:8090/hls/30/index.m3u8
+北京卫视,http://123.14.232.226:8888/hls/23/index.m3u8
+北京卫视,http://123.14.79.54:8090/hls/20/index.m3u8
+四川卫视,http://123.14.232.226:8888/hls/31/index.m3u8
+四川卫视,http://123.14.79.54:8090/hls/28/index.m3u8
+天津卫视,http://123.14.232.226:8888/hls/25/index.m3u8
+天津卫视,http://123.14.79.54:8090/hls/22/index.m3u8
+安徽卫视,http://123.14.232.226:8888/hls/27/index.m3u8
+安徽卫视,http://123.14.79.54:8090/hls/24/index.m3u8
+山东卫视,http://123.14.232.226:8888/hls/26/index.m3u8
+山东卫视,http://123.14.79.54:8090/hls/23/index.m3u8
+广东卫视,http://123.14.232.226:8888/hls/38/index.m3u8
+广西卫视,http://123.14.232.226:8888/hls/39/index.m3u8
+江苏卫视,http://123.14.232.226:8888/hls/21/index.m3u8
+江苏卫视,http://123.14.79.54:8090/hls/18/index.m3u8
+江西卫视,http://123.14.232.226:8888/hls/29/index.m3u8
+河北卫视,http://123.14.232.226:8888/hls/40/index.m3u8
+河南卫视,http://123.14.232.226:8888/hls/19/index.m3u8
+河南卫视,http://123.14.79.54:8090/hls/16/index.m3u8
+浙江卫视,http://123.14.232.226:8888/hls/22/index.m3u8
+浙江卫视,http://123.14.79.54:8090/hls/19/index.m3u8
+深圳卫视,http://123.14.232.226:8888/hls/28/index.m3u8
+深圳卫视,http://123.14.79.54:8090/hls/25/index.m3u8
+湖北卫视,http://123.14.232.226:8888/hls/30/index.m3u8
+湖北卫视,http://123.14.79.54:8090/hls/27/index.m3u8
+湖南卫视,http://123.14.232.226:8888/hls/20/index.m3u8
+湖南卫视,http://123.14.79.54:8090/hls/17/index.m3u8
+贵州卫视,http://123.14.232.226:8888/hls/34/index.m3u8
+辽宁卫视,http://123.14.232.226:8888/hls/35/index.m3u8
+辽宁卫视,http://123.14.79.54:8090/hls/32/index.m3u8
+重庆卫视,http://123.14.232.226:8888/hls/37/index.m3u8
+黑龙江卫视,http://123.14.232.226:8888/hls/32/index.m3u8
+黑龙江卫视,http://123.14.79.54:8090/hls/29/index.m3u8
+1,http://113.120.97.94:8083/hls/1/index.m3u8
+10,http://113.120.97.94:8083/hls/10/index.m3u8
+11,http://113.120.97.94:8083/hls/11/index.m3u8
+12,http://113.120.97.94:8083/hls/12/index.m3u8
+13,http://113.120.97.94:8083/hls/13/index.m3u8
+14,http://113.120.97.94:8083/hls/14/index.m3u8
+15,http://113.120.97.94:8083/hls/15/index.m3u8
+16,http://113.120.97.94:8083/hls/16/index.m3u8
+17,http://113.120.97.94:8083/hls/17/index.m3u8
+18,http://113.120.97.94:8083/hls/18/index.m3u8
+19,http://113.120.97.94:8083/hls/19/index.m3u8
+2,http://113.120.97.94:8083/hls/2/index.m3u8
+20,http://113.120.97.94:8083/hls/20/index.m3u8
+21,http://113.120.97.94:8083/hls/21/index.m3u8
+22,http://113.120.97.94:8083/hls/22/index.m3u8
+23,http://113.120.97.94:8083/hls/23/index.m3u8
+24,http://113.120.97.94:8083/hls/24/index.m3u8
+3,http://113.120.97.94:8083/hls/3/index.m3u8
+4,http://113.120.97.94:8083/hls/4/index.m3u8
+5,http://113.120.97.94:8083/hls/5/index.m3u8
+6,http://113.120.97.94:8083/hls/6/index.m3u8
+7,http://113.120.97.94:8083/hls/7/index.m3u8
+8,http://113.120.97.94:8083/hls/8/index.m3u8
+9,http://113.120.97.94:8083/hls/9/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761311409-9844575c8227c9c9f06ab15916885c3b-0-39e600b549867469ad1f4a84ac0a39ac
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761311409-1e6b691707dde69eafe521c478d2d837-0-386368f9931dea0938abbe3cf3cdcb03
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761311409-d89306440ec0d93cae6b54c8674aac3e-0-3a95fcd6d44ba997cd3d5dc69402ba5d
