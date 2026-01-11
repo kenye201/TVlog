@@ -13610,6 +13610,22 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761185747-d835d4f5247e2
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761185747-f9d2b04287ca12690dda1f7f35617ab7-0-844e2ca989eace156631873f86e01132
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761185747-5a746dd9773e4371fcf2cacb4f5b82ce-0-8de0efadc08c4bfd54bf38cda640af18
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761185747-5cd67f28ce5cf3915899878dc28694e2-0-ce4f482131debc989617dcc377255cf3
+CCTV-1 综合,http://171.15.151.99:9999/hls/1/index.m3u8
+CCTV-2 财经,http://171.15.151.99:9999/hls/2/index.m3u8
+CCTV-3 综艺,http://171.15.151.99:9999/hls/3/index.m3u8
+CCTV-4 中文国际,http://171.15.151.99:9999/hls/4/index.m3u8
+CCTV-5 体育,http://171.15.151.99:9999/hls/5/index.m3u8
+CCTV-6 电影,http://171.15.151.99:9999/hls/6/index.m3u8
+CCTV-7 国防军事,http://171.15.151.99:9999/hls/7/index.m3u8
+CCTV-8 电视剧,http://171.15.151.99:9999/hls/8/index.m3u8
+CCTV-9 纪录,http://171.15.151.99:9999/hls/9/index.m3u8
+CCTV-10 科教,http://171.15.151.99:9999/hls/10/index.m3u8
+CCTV-11 戏曲,http://171.15.151.99:9999/hls/11/index.m3u8
+CCTV-12 社会与法,http://171.15.151.99:9999/hls/12/index.m3u8
+CCTV-13 新闻,http://171.15.151.99:9999/hls/13/index.m3u8
+CCTV-14 少儿,http://171.15.151.99:9999/hls/14/index.m3u8
+CCTV-15 音乐,http://171.15.151.99:9999/hls/15/index.m3u8
+河南卫视,http://171.15.151.99:9999/hls/16/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761245466-2f856630e34a335d22eaa89a6a82430a-0-35a596017138dc8acc41365b05ed70f0
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761245466-e0b7337e60823d2a361f914f61ae3532-0-d51d24680a6e87a76d05e798f2e7a708
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761245466-6b078b4ce196ea8ca2824b55f071cf67-0-619e116f2d22313cbef51f0b74ed639e
