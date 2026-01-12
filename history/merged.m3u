@@ -8661,6 +8661,16 @@ http://live1.hrtn.net/live/cctv16hd_3000.m3u8?auth_key=1761159114-08be8730a5aedc
 #EXTINF:-1 tvg-name="CCTV17" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV17.png" group-title="央视频道",CCTV17
 http://live1.hrtn.net/live/cctv14hd_3000.m3u8?auth_key=1761159114-996820023bce569f154c3a68a58bc690-0-e436a7517d0acdf0a7d1b1e505d51f11
 #EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
+http://218.19.108.27:808/hls/1/index.m3u8
+#EXTINF:-1 tvg-name="CCTV2" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV2.png",CCTV-2 财经
+http://218.19.108.27:808/hls/2/index.m3u8
+#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
+http://218.19.108.27:808/hls/3/index.m3u8
+#EXTINF:-1 tvg-name="CCTV5+" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV5+.png",CCTV-5+ 体育赛事
+http://218.19.108.27:808/hls/31/index.m3u8
+#EXTINF:-1 tvg-name="CCTV9" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV9.png",CCTV-9 纪录
+http://218.19.108.27:808/hls/5/index.m3u8
+#EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
 http://123.14.232.226:8888/hls/1/index.m3u8
 #EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
 http://123.14.79.54:8090/hls/1/index.m3u8
@@ -20874,6 +20884,14 @@ http://live1.hrtn.net/live/xjws_1000.m3u8?auth_key=1761159114-13fc3e68c1fc72c500
 http://live1.hrtn.net/live/xzws_1000.m3u8?auth_key=1761159114-c51ec699e7e23bb4eef3f2cd2662580e-0-0ac67f5c82001a08419e18649fb3ecfd
 #EXTINF:-1 tvg-name="兵团卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/兵团卫视.png" group-title="卫视频道",兵团卫视
 http://live1.hrtn.net/live/btws_1000.m3u8?auth_key=1761159114-48cfbe46fa491e9686ab85fc6b58bb59-0-01135a58347caf8631d2a6434ab516f9
+#EXTINF:-1 tvg-name="北京卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/4K/北京卫视4k.png",北京卫视
+http://218.19.108.27:808/hls/11/index.m3u8
+#EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
+http://218.19.108.27:808/hls/15/index.m3u8
+#EXTINF:-1 tvg-name="湖北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/湖北/湖北卫视.png",湖北卫视
+http://218.19.108.27:808/hls/14/index.m3u8
+#EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
+http://218.19.108.27:808/hls/16/index.m3u8
 #EXTINF:-1 tvg-name="东南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东南卫视.png",东南卫视
 http://123.14.232.226:8888/hls/36/index.m3u8
 #EXTINF:-1 tvg-name="东方卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东方卫视.png",东方卫视
