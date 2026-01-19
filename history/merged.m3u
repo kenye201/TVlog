@@ -22564,6 +22564,8 @@ http://175.20.190.188:888/hls/54/index.m3u8
 http://14.155.128.154:8088/hls/51/index.m3u8
 #EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
 http://175.20.190.188:888/hls/46/index.m3u8
+#EXTINF:-1 tvg-name="江苏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江苏/江苏卫视.png",江苏卫视
+http://120.83.125.11:808/hls/559/index.m3u8
 #EXTINF:-1 tvg-name="东方卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东方卫视.png",东方卫视
 http://14.154.206.175:8088/hls/34/index.m3u8
 #EXTINF:-1 tvg-name="东方卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东方卫视.png",东方卫视
