@@ -13776,6 +13776,7 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761115902-c9c677f0ed403
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761115902-d3bf12c17d7eba6aad21bac4d3a24082-0-ba014645f5d4e08d3993b9711faad41a
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761115902-5013511a5d14f104a20b34963460ccb1-0-e715943952127c15fb8802d48dc17f70
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761115902-e3734f46c6c23aae8de44c97e7637332-0-d97a49e00c71a3b9bae1425416563a6a
+济南生活,http://111.14.222.117:3333/hls/19/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761046618-da4242c385a56f73b53c4838a06b5e55-0-359896fa23eeaf93683d00d5d8c0f7e1
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761046618-dc24fc4b057d9b61e524adfc0add43ad-0-b77bcb21959b1bc2cc5dae1cb86f74ec
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761046618-049b3e1d51fc635dcdd3a4b3ae5e8e99-0-b20a254e2d9a522b637d5548d82c602f
