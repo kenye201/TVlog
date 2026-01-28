@@ -8480,6 +8480,40 @@ http://218.19.108.54:808/hls/3/index.m3u8
 http://218.19.108.54:808/hls/31/index.m3u8
 #EXTINF:-1 tvg-name="CCTV9" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV9.png",CCTV-9 纪录
 http://218.19.108.54:808/hls/5/index.m3u8
+#EXTINF:-1 tvg-name="CCTV -1高清" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV -1高清
+http://58.255.201.246:808/hls/1/index.m3u8
+#EXTINF:-1 tvg-name="CCTV -2高清" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV2.png",CCTV -2高清
+http://58.255.201.246:808/hls/2/index.m3u8
+#EXTINF:-1 tvg-name="CCTV3" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV3.png",CCTV-3 综艺
+http://58.255.201.246:808/hls/3/index.m3u8
+#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
+http://58.255.201.246:808/hls/4/index.m3u8
+#EXTINF:-1 tvg-name="CCTV5" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV5.png",CCTV-5 体育
+http://58.255.201.246:808/hls/5/index.m3u8
+#EXTINF:-1 tvg-name="CCTV6" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV6.png",CCTV-6 电影
+http://58.255.201.246:808/hls/6/index.m3u8
+#EXTINF:-1 tvg-name="CCTV7" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV-7 国防军事
+http://58.255.201.246:808/hls/7/index.m3u8
+#EXTINF:-1 tvg-name="CCTV8" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV8.png",CCTV-8 电视剧
+http://58.255.201.246:808/hls/8/index.m3u8
+#EXTINF:-1 tvg-name="CCTV9" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV9.png",CCTV-9 纪录
+http://58.255.201.246:808/hls/9/index.m3u8
+#EXTINF:-1 tvg-name="CCTV10" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV10.png",CCTV-10 科教
+http://58.255.201.246:808/hls/10/index.m3u8
+#EXTINF:-1 tvg-name="CCTV11" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV11.png",CCTV-11 戏曲
+http://58.255.201.246:808/hls/11/index.m3u8
+#EXTINF:-1 tvg-name="CCTV12" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV12.png",CCTV-12 社会与法
+http://58.255.201.246:808/hls/12/index.m3u8
+#EXTINF:-1 tvg-name="CCTV13" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV13.png",CCTV-13 新闻
+http://58.255.201.246:808/hls/13/index.m3u8
+#EXTINF:-1 tvg-name="CCTV14" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV14.png",CCTV-14 少儿
+http://58.255.201.246:808/hls/14/index.m3u8
+#EXTINF:-1 tvg-name="CCTV15" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV15.png",CCTV-15 音乐
+http://58.255.201.246:808/hls/15/index.m3u8
+#EXTINF:-1 tvg-name="CCTV16" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV16.png",CCTV-16 奥林匹克
+http://58.255.201.246:808/hls/16/index.m3u8
+#EXTINF:-1 tvg-name="CCTV17" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV17.png",CCTV-17 农业农村
+http://58.255.201.246:808/hls/17/index.m3u8
 #EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
 http://42.237.165.30:9003/hls/1/index.m3u8
 #EXTINF:-1 tvg-name="CCTV2" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV2.png",CCTV-2 财经
@@ -11088,60 +11122,6 @@ http://14.106.98.72:888/hls/6/index.m3u8
 http://14.106.98.72:888/hls/7/index.m3u8
 #EXTINF:-1 tvg-name="CCTV12" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV12.png" group-title="央视频道",CCTV12
 http://14.106.98.72:888/hls/8/index.m3u8
-#EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
-http://123.162.36.200:888/hls/72/index.m3u8
-#EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
-http://14.106.99.194:888/hls/1/index.m3u8
-#EXTINF:-1 tvg-name="CCTV2" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV2.png",CCTV-2 财经
-http://14.106.99.194:888/hls/2/index.m3u8
-#EXTINF:-1 tvg-name="CCTV3" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV3.png",CCTV-3 综艺
-http://123.162.36.200:888/hls/3/index.m3u8
-#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
-http://123.162.36.200:888/hls/4/index.m3u8
-#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
-http://14.106.99.194:888/hls/3/index.m3u8
-#EXTINF:-1 tvg-name="CCTV5" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV5.png",CCTV-5 体育
-http://123.162.36.200:888/hls/5/index.m3u8
-#EXTINF:-1 tvg-name="CCTV6" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV6.png",CCTV-6 电影
-http://123.162.36.200:888/hls/6/index.m3u8
-#EXTINF:-1 tvg-name="CCTV7" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV-7 国防军事
-http://123.162.36.200:888/hls/7/index.m3u8
-#EXTINF:-1 tvg-name="CCTV7" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV-7 国防军事
-http://14.106.99.194:888/hls/4/index.m3u8
-#EXTINF:-1 tvg-name="CCTV8" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV8.png",CCTV-8 电视剧
-http://123.162.36.200:888/hls/8/index.m3u8
-#EXTINF:-1 tvg-name="CCTV9" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV9.png",CCTV-9 纪录
-http://123.162.36.200:888/hls/9/index.m3u8
-#EXTINF:-1 tvg-name="CCTV10" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV10.png",CCTV-10 科教
-http://123.162.36.200:888/hls/10/index.m3u8
-#EXTINF:-1 tvg-name="CCTV10" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV10.png",CCTV-10 科教
-http://14.106.99.194:888/hls/6/index.m3u8
-#EXTINF:-1 tvg-name="CCTV11" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV11.png",CCTV-11 戏曲
-http://123.162.36.200:888/hls/11/index.m3u8
-#EXTINF:-1 tvg-name="CCTV11" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV11.png",CCTV-11 戏曲
-http://14.106.99.194:888/hls/7/index.m3u8
-#EXTINF:-1 tvg-name="CCTV12" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV12.png",CCTV-12 社会与法
-http://123.162.36.200:888/hls/12/index.m3u8
-#EXTINF:-1 tvg-name="CCTV12" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV12.png",CCTV-12 社会与法
-http://14.106.99.194:888/hls/8/index.m3u8
-#EXTINF:-1 tvg-name="CCTV13" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV13.png",CCTV-13 新闻
-http://123.162.36.200:888/hls/13/index.m3u8
-#EXTINF:-1 tvg-name="CCTV14" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV14.png",CCTV-14 少儿
-http://123.162.36.200:888/hls/14/index.m3u8
-#EXTINF:-1 tvg-name="CCTV15" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV15.png",CCTV-15 音乐
-http://123.162.36.200:888/hls/15/index.m3u8
-#EXTINF:-1 tvg-name="CCTV-NEWS" group-title="央视频道",CCTV-NEWS
-http://14.106.99.194:888/hls/5/index.m3u8
-#EXTINF:-1 tvg-name="CCTV-少儿" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV14.png",CCTV-少儿
-http://14.106.99.194:888/hls/10/index.m3u8
-#EXTINF:-1 tvg-name="CCTV-新闻" group-title="央视频道",CCTV-新闻
-http://14.106.99.194:888/hls/9/index.m3u8
-#EXTINF:-1 tvg-name="CCTV-音乐" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV15.png",CCTV-音乐
-http://14.106.99.194:888/hls/11/index.m3u8
-#EXTINF:-1 tvg-name="CCTV国防军事" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV国防军事
-http://123.162.36.200:888/hls/74/index.m3u8
-#EXTINF:-1 tvg-name="CCTV第一剧场" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV第一剧场.png",CCTV第一剧场
-http://123.162.36.200:888/hls/73/index.m3u8
 #EXTINF:-1 tvg-name="CCTV1" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV1.png" group-title="央视频道",CCTV1
 http://114.252.245.56:10443/hls/1/index.m3u8
 #EXTINF:-1 tvg-name="CCTV2" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV2.png" group-title="央视频道",CCTV2
@@ -11356,6 +11336,60 @@ http://live1.hrtn.net/live/cctv14_1000.m3u8?auth_key=1761058214-67d06c59840977d4
 http://live1.hrtn.net/live/cctv16hd_3000.m3u8?auth_key=1761058214-11db191391c2004a9524bb39486f1919-0-4d27ade5e4e77f6fd6a55d1f63725cd8
 #EXTINF:-1 tvg-name="CCTV17" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV17.png" group-title="央视频道",CCTV17
 http://live1.hrtn.net/live/cctv14hd_3000.m3u8?auth_key=1761058214-6b2e45f796b22aef72aa404fa3cd83b4-0-c61be3e59e3bce9b25bb4e1bcc700f5b
+#EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
+http://123.162.36.200:888/hls/72/index.m3u8
+#EXTINF:-1 tvg-name="CCTV1" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV1.png",CCTV-1 综合
+http://14.106.99.194:888/hls/1/index.m3u8
+#EXTINF:-1 tvg-name="CCTV2" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV2.png",CCTV-2 财经
+http://14.106.99.194:888/hls/2/index.m3u8
+#EXTINF:-1 tvg-name="CCTV3" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV3.png",CCTV-3 综艺
+http://123.162.36.200:888/hls/3/index.m3u8
+#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
+http://123.162.36.200:888/hls/4/index.m3u8
+#EXTINF:-1 tvg-name="CCTV4" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV4美洲.png",CCTV-4 中文国际
+http://14.106.99.194:888/hls/3/index.m3u8
+#EXTINF:-1 tvg-name="CCTV5" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV5.png",CCTV-5 体育
+http://123.162.36.200:888/hls/5/index.m3u8
+#EXTINF:-1 tvg-name="CCTV6" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV6.png",CCTV-6 电影
+http://123.162.36.200:888/hls/6/index.m3u8
+#EXTINF:-1 tvg-name="CCTV7" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV-7 国防军事
+http://123.162.36.200:888/hls/7/index.m3u8
+#EXTINF:-1 tvg-name="CCTV7" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV-7 国防军事
+http://14.106.99.194:888/hls/4/index.m3u8
+#EXTINF:-1 tvg-name="CCTV8" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV8.png",CCTV-8 电视剧
+http://123.162.36.200:888/hls/8/index.m3u8
+#EXTINF:-1 tvg-name="CCTV9" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV9.png",CCTV-9 纪录
+http://123.162.36.200:888/hls/9/index.m3u8
+#EXTINF:-1 tvg-name="CCTV10" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV10.png",CCTV-10 科教
+http://123.162.36.200:888/hls/10/index.m3u8
+#EXTINF:-1 tvg-name="CCTV10" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV10.png",CCTV-10 科教
+http://14.106.99.194:888/hls/6/index.m3u8
+#EXTINF:-1 tvg-name="CCTV11" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV11.png",CCTV-11 戏曲
+http://123.162.36.200:888/hls/11/index.m3u8
+#EXTINF:-1 tvg-name="CCTV11" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV11.png",CCTV-11 戏曲
+http://14.106.99.194:888/hls/7/index.m3u8
+#EXTINF:-1 tvg-name="CCTV12" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV12.png",CCTV-12 社会与法
+http://123.162.36.200:888/hls/12/index.m3u8
+#EXTINF:-1 tvg-name="CCTV12" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV12.png",CCTV-12 社会与法
+http://14.106.99.194:888/hls/8/index.m3u8
+#EXTINF:-1 tvg-name="CCTV13" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV13.png",CCTV-13 新闻
+http://123.162.36.200:888/hls/13/index.m3u8
+#EXTINF:-1 tvg-name="CCTV14" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV14.png",CCTV-14 少儿
+http://123.162.36.200:888/hls/14/index.m3u8
+#EXTINF:-1 tvg-name="CCTV15" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV15.png",CCTV-15 音乐
+http://123.162.36.200:888/hls/15/index.m3u8
+#EXTINF:-1 tvg-name="CCTV-NEWS" group-title="央视频道",CCTV-NEWS
+http://14.106.99.194:888/hls/5/index.m3u8
+#EXTINF:-1 tvg-name="CCTV-少儿" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV14.png",CCTV-少儿
+http://14.106.99.194:888/hls/10/index.m3u8
+#EXTINF:-1 tvg-name="CCTV-新闻" group-title="央视频道",CCTV-新闻
+http://14.106.99.194:888/hls/9/index.m3u8
+#EXTINF:-1 tvg-name="CCTV-音乐" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV15.png",CCTV-音乐
+http://14.106.99.194:888/hls/11/index.m3u8
+#EXTINF:-1 tvg-name="CCTV国防军事" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV7.png",CCTV国防军事
+http://123.162.36.200:888/hls/74/index.m3u8
+#EXTINF:-1 tvg-name="CCTV第一剧场" group-title="央视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/CCTV/CCTV第一剧场.png",CCTV第一剧场
+http://123.162.36.200:888/hls/73/index.m3u8
 #EXTINF:-1 tvg-name="CCTV1" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV1.png" group-title="央视频道",CCTV1
 http://219.156.53.115:8082/hls/1/index.m3u8
 #EXTINF:-1 tvg-name="CCTV3" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/中央电视台/CCTV3.png" group-title="央视频道",CCTV3
@@ -22560,6 +22594,58 @@ http://218.19.108.54:808/hls/15/index.m3u8
 http://218.19.108.54:808/hls/14/index.m3u8
 #EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
 http://218.19.108.54:808/hls/16/index.m3u8
+#EXTINF:-1 tvg-name="东南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东南卫视.png",东南卫视
+http://58.255.201.246:808/hls/46/index.m3u8
+#EXTINF:-1 tvg-name="东方卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东方卫视.png",东方卫视
+http://58.255.201.246:808/hls/37/index.m3u8
+#EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
+http://58.255.201.246:808/hls/54/index.m3u8
+#EXTINF:-1 tvg-name="北京卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/4K/北京卫视4k.png",北京卫视
+http://58.255.201.246:808/hls/31/index.m3u8
+#EXTINF:-1 tvg-name="吉林卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/吉林/吉林卫视.png",吉林卫视
+http://58.255.201.246:808/hls/50/index.m3u8
+#EXTINF:-1 tvg-name="四川卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/四川卫视.png",四川卫视
+http://58.255.201.246:808/hls/39/index.m3u8
+#EXTINF:-1 tvg-name="大湾区卫视高清" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/大湾区卫视.png",大湾区卫视高清
+http://58.255.201.246:808/hls/22/index.m3u8
+#EXTINF:-1 tvg-name="天津卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/天津/天津卫视.png",天津卫视
+http://58.255.201.246:808/hls/35/index.m3u8
+#EXTINF:-1 tvg-name="安徽卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/安徽/安徽卫视.png",安徽卫视
+http://58.255.201.246:808/hls/42/index.m3u8
+#EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
+http://58.255.201.246:808/hls/36/index.m3u8
+#EXTINF:-1 tvg-name="广东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/广东卫视.png",广东卫视
+http://58.255.201.246:808/hls/18/index.m3u8
+#EXTINF:-1 tvg-name="广西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广西/广西卫视.png",广西卫视
+http://58.255.201.246:808/hls/51/index.m3u8
+#EXTINF:-1 tvg-name="江苏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江苏/江苏卫视.png",江苏卫视
+http://58.255.201.246:808/hls/30/index.m3u8
+#EXTINF:-1 tvg-name="江西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江西/江西卫视.png",江西卫视
+http://58.255.201.246:808/hls/49/index.m3u8
+#EXTINF:-1 tvg-name="河北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/河北卫视.png",河北卫视
+http://58.255.201.246:808/hls/48/index.m3u8
+#EXTINF:-1 tvg-name="河南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/河南/河南卫视.png",河南卫视
+http://58.255.201.246:808/hls/53/index.m3u8
+#EXTINF:-1 tvg-name="浙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/浙江/浙江卫视.png",浙江卫视
+http://58.255.201.246:808/hls/29/index.m3u8
+#EXTINF:-1 tvg-name="海南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/海南卫视.png",海南卫视
+http://58.255.201.246:808/hls/55/index.m3u8
+#EXTINF:-1 tvg-name="深圳卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/深圳卫视.png",深圳卫视
+http://58.255.201.246:808/hls/32/index.m3u8
+#EXTINF:-1 tvg-name="湖北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/湖北/湖北卫视.png",湖北卫视
+http://58.255.201.246:808/hls/34/index.m3u8
+#EXTINF:-1 tvg-name="湖南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/湖南卫视.png",湖南卫视
+http://58.255.201.246:808/hls/28/index.m3u8
+#EXTINF:-1 tvg-name="甘肃卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/甘肃/甘肃卫视.png",甘肃卫视
+http://58.255.201.246:808/hls/52/index.m3u8
+#EXTINF:-1 tvg-name="贵州卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/贵州卫视.png",贵州卫视
+http://58.255.201.246:808/hls/43/index.m3u8
+#EXTINF:-1 tvg-name="辽宁卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/辽宁/辽宁卫视.png",辽宁卫视
+http://58.255.201.246:808/hls/38/index.m3u8
+#EXTINF:-1 tvg-name="重庆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/重庆卫视.png",重庆卫视
+http://58.255.201.246:808/hls/41/index.m3u8
+#EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
+http://58.255.201.246:808/hls/33/index.m3u8
 #EXTINF:-1 tvg-name="东方卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东方卫视.png",东方卫视
 http://42.237.165.30:9003/hls/19/index.m3u8
 #EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
@@ -26020,94 +26106,6 @@ http://14.106.98.72:888/hls/41/index.m3u8
 http://14.106.98.72:888/hls/42/index.m3u8
 #EXTINF:-1 tvg-name="宁夏卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/宁夏卫视.png" group-title="卫视频道",宁夏卫视
 http://14.106.98.72:888/hls/43/index.m3u8
-#EXTINF:-1 tvg-name="东南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东南卫视.png",东南卫视
-http://123.162.36.200:888/hls/58/index.m3u8
-#EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
-http://123.162.36.200:888/hls/54/index.m3u8
-#EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
-http://14.106.99.194:888/hls/35/index.m3u8
-#EXTINF:-1 tvg-name="兵团卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/兵团卫视.png",兵团卫视
-http://14.106.99.194:888/hls/41/index.m3u8
-#EXTINF:-1 tvg-name="内蒙古卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/内蒙古/内蒙古卫视.png",内蒙古卫视
-http://123.162.36.200:888/hls/59/index.m3u8
-#EXTINF:-1 tvg-name="内蒙古卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/内蒙古/内蒙古卫视.png",内蒙古卫视
-http://14.106.99.194:888/hls/39/index.m3u8
-#EXTINF:-1 tvg-name="吉林卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/吉林/吉林卫视.png",吉林卫视
-http://123.162.36.200:888/hls/56/index.m3u8
-#EXTINF:-1 tvg-name="吉林卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/吉林/吉林卫视.png",吉林卫视
-http://14.106.99.194:888/hls/28/index.m3u8
-#EXTINF:-1 tvg-name="四川卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/四川卫视.png",四川卫视
-http://123.162.36.200:888/hls/51/index.m3u8
-#EXTINF:-1 tvg-name="天津卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/天津/天津卫视.png",天津卫视
-http://123.162.36.200:888/hls/53/index.m3u8
-#EXTINF:-1 tvg-name="天津卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/天津/天津卫视.png",天津卫视
-http://14.106.99.194:888/hls/27/index.m3u8
-#EXTINF:-1 tvg-name="宁夏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/宁夏/宁夏卫视.png",宁夏卫视
-http://123.162.36.200:888/hls/57/index.m3u8
-#EXTINF:-1 tvg-name="宁夏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/宁夏/宁夏卫视.png",宁夏卫视
-http://14.106.99.194:888/hls/43/index.m3u8
-#EXTINF:-1 tvg-name="安徽卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/安徽/安徽卫视.png",安徽卫视
-http://123.162.36.200:888/hls/43/index.m3u8
-#EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
-http://123.162.36.200:888/hls/42/index.m3u8
-#EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
-http://123.162.36.200:888/hls/61/index.m3u8
-#EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
-http://14.106.99.194:888/hls/30/index.m3u8
-#EXTINF:-1 tvg-name="广东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/广东卫视.png",广东卫视
-http://123.162.36.200:888/hls/41/index.m3u8
-#EXTINF:-1 tvg-name="广西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广西/广西卫视.png",广西卫视
-http://123.162.36.200:888/hls/60/index.m3u8
-#EXTINF:-1 tvg-name="新疆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/新疆/新疆卫视.png",新疆卫视
-http://123.162.36.200:888/hls/69/index.m3u8
-#EXTINF:-1 tvg-name="新疆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/新疆/新疆卫视.png",新疆卫视
-http://14.106.99.194:888/hls/40/index.m3u8
-#EXTINF:-1 tvg-name="江苏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江苏/江苏卫视.png",江苏卫视
-http://123.162.36.200:888/hls/40/index.m3u8
-#EXTINF:-1 tvg-name="江西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江西/江西卫视.png",江西卫视
-http://123.162.36.200:888/hls/48/index.m3u8
-#EXTINF:-1 tvg-name="河北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/河北卫视.png",河北卫视
-http://123.162.36.200:888/hls/47/index.m3u8
-#EXTINF:-1 tvg-name="河北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/河北卫视.png",河北卫视
-http://14.106.99.194:888/hls/34/index.m3u8
-#EXTINF:-1 tvg-name="河南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/河南/河南卫视.png",河南卫视
-http://123.162.36.200:888/hls/38/index.m3u8
-#EXTINF:-1 tvg-name="浙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/浙江/浙江卫视.png",浙江卫视
-http://123.162.36.200:888/hls/39/index.m3u8
-#EXTINF:-1 tvg-name="海南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/海南卫视.png",海南卫视
-http://123.162.36.200:888/hls/62/index.m3u8
-#EXTINF:-1 tvg-name="深圳卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/深圳卫视.png",深圳卫视
-http://123.162.36.200:888/hls/50/index.m3u8
-#EXTINF:-1 tvg-name="深圳卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/深圳卫视.png",深圳卫视
-http://14.106.99.194:888/hls/36/index.m3u8
-#EXTINF:-1 tvg-name="湖北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/湖北/湖北卫视.png",湖北卫视
-http://123.162.36.200:888/hls/52/index.m3u8
-#EXTINF:-1 tvg-name="湖南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/湖南卫视.png",湖南卫视
-http://123.162.36.200:888/hls/49/index.m3u8
-#EXTINF:-1 tvg-name="甘肃卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/甘肃/甘肃卫视.png",甘肃卫视
-http://123.162.36.200:888/hls/63/index.m3u8
-#EXTINF:-1 tvg-name="甘肃卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/甘肃/甘肃卫视.png",甘肃卫视
-http://14.106.99.194:888/hls/42/index.m3u8
-#EXTINF:-1 tvg-name="西藏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/西藏/西藏卫视.png",西藏卫视
-http://123.162.36.200:888/hls/70/index.m3u8
-#EXTINF:-1 tvg-name="西藏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/西藏/西藏卫视.png",西藏卫视
-http://14.106.99.194:888/hls/38/index.m3u8
-#EXTINF:-1 tvg-name="贵州卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/贵州卫视.png",贵州卫视
-http://123.162.36.200:888/hls/46/index.m3u8
-#EXTINF:-1 tvg-name="辽宁卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/辽宁/辽宁卫视.png",辽宁卫视
-http://123.162.36.200:888/hls/45/index.m3u8
-#EXTINF:-1 tvg-name="重庆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/重庆卫视.png",重庆卫视
-http://123.162.36.200:888/hls/55/index.m3u8
-#EXTINF:-1 tvg-name="陕西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/陕西/陕西卫视.png",陕西卫视
-http://123.162.36.200:888/hls/44/index.m3u8
-#EXTINF:-1 tvg-name="陕西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/陕西/陕西卫视.png",陕西卫视
-http://14.106.99.194:888/hls/33/index.m3u8
-#EXTINF:-1 tvg-name="青海卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/青海/青海卫视.png",青海卫视
-http://123.162.36.200:888/hls/64/index.m3u8
-#EXTINF:-1 tvg-name="青海卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/青海/青海卫视.png",青海卫视
-http://14.106.99.194:888/hls/37/index.m3u8
-#EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
-http://14.106.99.194:888/hls/29/index.m3u8
 #EXTINF:-1 tvg-name="北京卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/北京卫视.png" group-title="卫视频道",北京卫视
 http://114.252.245.56:10443/hls/16/index.m3u8
 #EXTINF:-1 tvg-name="湖南卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/湖南卫视.png" group-title="卫视频道",湖南卫视
@@ -26404,6 +26402,94 @@ http://live1.hrtn.net/live/xjws_1000.m3u8?auth_key=1761058214-0e3e0ae47f66dcbb74
 http://live1.hrtn.net/live/xzws_1000.m3u8?auth_key=1761058214-4705f1d310ed3156bf636f1733189edc-0-a3a6610c54e927e814eddb09aaca54f0
 #EXTINF:-1 tvg-name="兵团卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/兵团卫视.png" group-title="卫视频道",兵团卫视
 http://live1.hrtn.net/live/btws_1000.m3u8?auth_key=1761058214-a5e574c78c3511af81c4a002f3b69018-0-dea6c2f2af46865d6ad6877bd685b323
+#EXTINF:-1 tvg-name="东南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/东南卫视.png",东南卫视
+http://123.162.36.200:888/hls/58/index.m3u8
+#EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
+http://123.162.36.200:888/hls/54/index.m3u8
+#EXTINF:-1 tvg-name="云南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/云南卫视.png",云南卫视
+http://14.106.99.194:888/hls/35/index.m3u8
+#EXTINF:-1 tvg-name="兵团卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/兵团卫视.png",兵团卫视
+http://14.106.99.194:888/hls/41/index.m3u8
+#EXTINF:-1 tvg-name="内蒙古卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/内蒙古/内蒙古卫视.png",内蒙古卫视
+http://123.162.36.200:888/hls/59/index.m3u8
+#EXTINF:-1 tvg-name="内蒙古卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/内蒙古/内蒙古卫视.png",内蒙古卫视
+http://14.106.99.194:888/hls/39/index.m3u8
+#EXTINF:-1 tvg-name="吉林卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/吉林/吉林卫视.png",吉林卫视
+http://123.162.36.200:888/hls/56/index.m3u8
+#EXTINF:-1 tvg-name="吉林卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/吉林/吉林卫视.png",吉林卫视
+http://14.106.99.194:888/hls/28/index.m3u8
+#EXTINF:-1 tvg-name="四川卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/四川卫视.png",四川卫视
+http://123.162.36.200:888/hls/51/index.m3u8
+#EXTINF:-1 tvg-name="天津卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/天津/天津卫视.png",天津卫视
+http://123.162.36.200:888/hls/53/index.m3u8
+#EXTINF:-1 tvg-name="天津卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/天津/天津卫视.png",天津卫视
+http://14.106.99.194:888/hls/27/index.m3u8
+#EXTINF:-1 tvg-name="宁夏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/宁夏/宁夏卫视.png",宁夏卫视
+http://123.162.36.200:888/hls/57/index.m3u8
+#EXTINF:-1 tvg-name="宁夏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/宁夏/宁夏卫视.png",宁夏卫视
+http://14.106.99.194:888/hls/43/index.m3u8
+#EXTINF:-1 tvg-name="安徽卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/安徽/安徽卫视.png",安徽卫视
+http://123.162.36.200:888/hls/43/index.m3u8
+#EXTINF:-1 tvg-name="山东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山东/山东卫视.png",山东卫视
+http://123.162.36.200:888/hls/42/index.m3u8
+#EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
+http://123.162.36.200:888/hls/61/index.m3u8
+#EXTINF:-1 tvg-name="山西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/山西/山西卫视.png",山西卫视
+http://14.106.99.194:888/hls/30/index.m3u8
+#EXTINF:-1 tvg-name="广东卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/广东卫视.png",广东卫视
+http://123.162.36.200:888/hls/41/index.m3u8
+#EXTINF:-1 tvg-name="广西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广西/广西卫视.png",广西卫视
+http://123.162.36.200:888/hls/60/index.m3u8
+#EXTINF:-1 tvg-name="新疆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/新疆/新疆卫视.png",新疆卫视
+http://123.162.36.200:888/hls/69/index.m3u8
+#EXTINF:-1 tvg-name="新疆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/新疆/新疆卫视.png",新疆卫视
+http://14.106.99.194:888/hls/40/index.m3u8
+#EXTINF:-1 tvg-name="江苏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江苏/江苏卫视.png",江苏卫视
+http://123.162.36.200:888/hls/40/index.m3u8
+#EXTINF:-1 tvg-name="江西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/江西/江西卫视.png",江西卫视
+http://123.162.36.200:888/hls/48/index.m3u8
+#EXTINF:-1 tvg-name="河北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/河北卫视.png",河北卫视
+http://123.162.36.200:888/hls/47/index.m3u8
+#EXTINF:-1 tvg-name="河北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/河北卫视.png",河北卫视
+http://14.106.99.194:888/hls/34/index.m3u8
+#EXTINF:-1 tvg-name="河南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/河南/河南卫视.png",河南卫视
+http://123.162.36.200:888/hls/38/index.m3u8
+#EXTINF:-1 tvg-name="浙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/浙江/浙江卫视.png",浙江卫视
+http://123.162.36.200:888/hls/39/index.m3u8
+#EXTINF:-1 tvg-name="海南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/海南卫视.png",海南卫视
+http://123.162.36.200:888/hls/62/index.m3u8
+#EXTINF:-1 tvg-name="深圳卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/深圳卫视.png",深圳卫视
+http://123.162.36.200:888/hls/50/index.m3u8
+#EXTINF:-1 tvg-name="深圳卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/深圳卫视.png",深圳卫视
+http://14.106.99.194:888/hls/36/index.m3u8
+#EXTINF:-1 tvg-name="湖北卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/湖北/湖北卫视.png",湖北卫视
+http://123.162.36.200:888/hls/52/index.m3u8
+#EXTINF:-1 tvg-name="湖南卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/湖南卫视.png",湖南卫视
+http://123.162.36.200:888/hls/49/index.m3u8
+#EXTINF:-1 tvg-name="甘肃卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/甘肃/甘肃卫视.png",甘肃卫视
+http://123.162.36.200:888/hls/63/index.m3u8
+#EXTINF:-1 tvg-name="甘肃卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/甘肃/甘肃卫视.png",甘肃卫视
+http://14.106.99.194:888/hls/42/index.m3u8
+#EXTINF:-1 tvg-name="西藏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/西藏/西藏卫视.png",西藏卫视
+http://123.162.36.200:888/hls/70/index.m3u8
+#EXTINF:-1 tvg-name="西藏卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/西藏/西藏卫视.png",西藏卫视
+http://14.106.99.194:888/hls/38/index.m3u8
+#EXTINF:-1 tvg-name="贵州卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/贵州卫视.png",贵州卫视
+http://123.162.36.200:888/hls/46/index.m3u8
+#EXTINF:-1 tvg-name="辽宁卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/辽宁/辽宁卫视.png",辽宁卫视
+http://123.162.36.200:888/hls/45/index.m3u8
+#EXTINF:-1 tvg-name="重庆卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/重庆卫视.png",重庆卫视
+http://123.162.36.200:888/hls/55/index.m3u8
+#EXTINF:-1 tvg-name="陕西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/陕西/陕西卫视.png",陕西卫视
+http://123.162.36.200:888/hls/44/index.m3u8
+#EXTINF:-1 tvg-name="陕西卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/陕西/陕西卫视.png",陕西卫视
+http://14.106.99.194:888/hls/33/index.m3u8
+#EXTINF:-1 tvg-name="青海卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/青海/青海卫视.png",青海卫视
+http://123.162.36.200:888/hls/64/index.m3u8
+#EXTINF:-1 tvg-name="青海卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/青海/青海卫视.png",青海卫视
+http://14.106.99.194:888/hls/37/index.m3u8
+#EXTINF:-1 tvg-name="黑龙江卫视" group-title="卫视频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/WSTV/黑龙江卫视.png",黑龙江卫视
+http://14.106.99.194:888/hls/29/index.m3u8
 #EXTINF:-1 tvg-name="河南卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/河南卫视.png" group-title="卫视频道",河南卫视
 http://219.156.53.115:8082/hls/18/index.m3u8
 #EXTINF:-1 tvg-name="北京卫视" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/全国卫视/北京卫视.png" group-title="卫视频道",北京卫视
@@ -33028,6 +33114,28 @@ http://222.142.185.127:8888/hls/28/index.m3u8
 http://222.142.185.127:8888/hls/29/index.m3u8
 #EXTINF:-1 tvg-name="河南国际" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/河南/河南国际频道.png" group-title="地方频道",河南国际
 http://222.142.185.127:8888/hls/30/index.m3u8
+#EXTINF:-1 tvg-name="广东体育高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东体育.png",广东体育高清
+http://58.255.201.246:808/hls/20/index.m3u8
+#EXTINF:-1 tvg-name="广东少儿高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东少儿.png",广东少儿高清
+http://58.255.201.246:808/hls/25/index.m3u8
+#EXTINF:-1 tvg-name="广东影视高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东影视.png",广东影视高清
+http://58.255.201.246:808/hls/23/index.m3u8
+#EXTINF:-1 tvg-name="广东新闻高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东新闻.png",广东新闻高清
+http://58.255.201.246:808/hls/26/index.m3u8
+#EXTINF:-1 tvg-name="广东民生高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东民生.png",广东民生高清
+http://58.255.201.246:808/hls/24/index.m3u8
+#EXTINF:-1 tvg-name="广东珠江高清" group-title="广东" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/广东/广东珠江.png",广东珠江高清
+http://58.255.201.246:808/hls/21/index.m3u8
+#EXTINF:-1 tvg-name="嘉佳卡通高清" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/嘉佳卡通.png",嘉佳卡通高清
+http://58.255.201.246:808/hls/27/index.m3u8
+#EXTINF:-1 tvg-name="金鹰卡通高清" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/金鹰卡通.png",金鹰卡通高清
+http://58.255.201.246:808/hls/56/index.m3u8
+#EXTINF:-1 tvg-name="中国教育-1高清" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/CETV1.png",中国教育-1高清
+http://58.255.201.246:808/hls/44/index.m3u8
+#EXTINF:-1 tvg-name="少儿动画" group-title="其它频道",少儿动画
+http://58.255.201.246:808/hls/63/index.m3u8
+#EXTINF:-1 tvg-name="经济科教高清" group-title="其它频道",经济科教高清
+http://58.255.201.246:808/hls/19/index.m3u8
 #EXTINF:-1 tvg-name="CCTV" tvg-logo="" group-title="其他频道",CCTV
 http://220.176.60.118:20000/hls/33a102e27984d665.m3u8
 #EXTINF:-1 tvg-name="江西都市频道" tvg-logo="https://kenyu.ggff.net/https://raw.githubusercontent.com/qunhui201/logo/main/TVlogo_Images/江西/江西都市频道.png" group-title="地方频道",江西都市频道
@@ -34728,66 +34836,6 @@ http://14.106.98.72:888/hls/44/index.m3u8
 http://14.106.98.72:888/hls/46/index.m3u8
 #EXTINF:-1 tvg-name="炫动卡通" tvg-logo="" group-title="其他频道",炫动卡通
 http://14.106.98.72:888/hls/48/index.m3u8
-#EXTINF:-1 tvg-name="优漫卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/优漫卡通.png",优漫卡通
-http://123.162.36.200:888/hls/71/index.m3u8
-#EXTINF:-1 tvg-name="卡酷动画" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/卡酷少儿.png",卡酷动画
-http://123.162.36.200:888/hls/67/index.m3u8
-#EXTINF:-1 tvg-name="嘉佳卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/嘉佳卡通.png",嘉佳卡通
-http://123.162.36.200:888/hls/66/index.m3u8
-#EXTINF:-1 tvg-name="文物宝库" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/文物宝库.png",文物宝库
-http://123.162.36.200:888/hls/30/index.m3u8
-#EXTINF:-1 tvg-name="梨园频道" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/梨园频道.png",梨园频道
-http://123.162.36.200:888/hls/31/index.m3u8
-#EXTINF:-1 tvg-name="武术世界" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/武术世界.png",武术世界
-http://123.162.36.200:888/hls/32/index.m3u8
-#EXTINF:-1 tvg-name="炫动卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/哈哈炫动.png",炫动卡通
-http://123.162.36.200:888/hls/68/index.m3u8
-#EXTINF:-1 tvg-name="炫动卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/哈哈炫动.png",炫动卡通
-http://14.106.99.194:888/hls/48/index.m3u8
-#EXTINF:-1 tvg-name="金鹰卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/金鹰卡通.png",金鹰卡通
-http://123.162.36.200:888/hls/65/index.m3u8
-#EXTINF:-1 tvg-name="中国教育-1" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/CETV1.png",中国教育-1
-http://14.106.99.194:888/hls/12/index.m3u8
-#EXTINF:-1 tvg-name="晴彩中原" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/晴彩中原.png",晴彩中原
-http://123.162.36.200:888/hls/28/index.m3u8
-#EXTINF:-1 tvg-name="CQTV影视" group-title="其它频道",CQTV影视
-http://14.106.99.194:888/hls/14/index.m3u8
-#EXTINF:-1 tvg-name="CQTV时尚" group-title="其它频道",CQTV时尚
-http://14.106.99.194:888/hls/16/index.m3u8
-#EXTINF:-1 tvg-name="CQTV都市" group-title="其它频道",CQTV都市
-http://14.106.99.194:888/hls/15/index.m3u8
-#EXTINF:-1 tvg-name="中国气象" group-title="其它频道",中国气象
-http://14.106.99.194:888/hls/44/index.m3u8
-#EXTINF:-1 tvg-name="人文地理记录" group-title="其它频道",人文地理记录
-http://123.162.36.200:888/hls/37/index.m3u8
-#EXTINF:-1 tvg-name="公共频道" group-title="其它频道",公共频道
-http://123.162.36.200:888/hls/26/index.m3u8
-#EXTINF:-1 tvg-name="新农村频道" group-title="其它频道",新农村频道
-http://123.162.36.200:888/hls/27/index.m3u8
-#EXTINF:-1 tvg-name="新闻频道" group-title="其它频道",新闻频道
-http://123.162.36.200:888/hls/24/index.m3u8
-#EXTINF:-1 tvg-name="棋牌会" group-title="其它频道",棋牌会
-http://123.162.36.200:888/hls/34/index.m3u8
-#EXTINF:-1 tvg-name="欢乐购物" group-title="其它频道",欢乐购物
-http://123.162.36.200:888/hls/25/index.m3u8
-#EXTINF:-1 tvg-name="民生频道" group-title="其它频道",民生频道
-http://123.162.36.200:888/hls/21/index.m3u8
-#EXTINF:-1 tvg-name="法治频道" group-title="其它频道",法治频道
-http://123.162.36.200:888/hls/22/index.m3u8
-#EXTINF:-1 tvg-name="电视剧频道" group-title="其它频道",电视剧频道
-http://123.162.36.200:888/hls/23/index.m3u8
-#EXTINF:-1 tvg-name="百姓调解" group-title="其它频道",百姓调解
-http://123.162.36.200:888/hls/35/index.m3u8
-#EXTINF:-1 tvg-name="移动戏曲" group-title="其它频道",移动戏曲
-http://123.162.36.200:888/hls/29/index.m3u8
-#EXTINF:-1 tvg-name="纪实频道" group-title="其它频道",纪实频道
-http://14.106.99.194:888/hls/46/index.m3u8
-#EXTINF:-1 tvg-name="美食汇" group-title="其它频道",美食汇
-http://123.162.36.200:888/hls/33/index.m3u8
-#EXTINF:-1 tvg-name="都市频道" group-title="其它频道",都市频道
-http://123.162.36.200:888/hls/20/index.m3u8
-#EXTINF:-1 tvg-name="风尚河南" group-title="其它频道",风尚河南
-http://123.162.36.200:888/hls/36/index.m3u8
 #EXTINF:-1 tvg-name="少儿动画" tvg-logo="" group-title="其他频道",少儿动画
 http://114.252.245.56:10443/hls/3/index.m3u8
 #EXTINF:-1 tvg-name="BTV文艺高清" tvg-logo="" group-title="DOX系列",BTV文艺高清
@@ -34932,6 +34980,66 @@ http://live1.hrtn.net/live/shjs_1000.m3u8?auth_key=1761058214-0615566bcb27ad3420
 http://live1.hrtn.net/live/zgqx_1000.m3u8?auth_key=1761058214-825d2f767f74fdfa25de11214f18b37d-0-139424feb4d5df8259d6fe0c58f47655
 #EXTINF:-1 tvg-name="山东教育" tvg-logo="" group-title="地方频道",山东教育
 http://live1.hrtn.net/live/sdjyws_1000.m3u8?auth_key=1761058214-ea18a0bb14f86f30b2348a2f7d384dc3-0-04739cb34bba26066b82e2057f2bc046
+#EXTINF:-1 tvg-name="优漫卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/优漫卡通.png",优漫卡通
+http://123.162.36.200:888/hls/71/index.m3u8
+#EXTINF:-1 tvg-name="卡酷动画" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/卡酷少儿.png",卡酷动画
+http://123.162.36.200:888/hls/67/index.m3u8
+#EXTINF:-1 tvg-name="嘉佳卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/嘉佳卡通.png",嘉佳卡通
+http://123.162.36.200:888/hls/66/index.m3u8
+#EXTINF:-1 tvg-name="文物宝库" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/文物宝库.png",文物宝库
+http://123.162.36.200:888/hls/30/index.m3u8
+#EXTINF:-1 tvg-name="梨园频道" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/梨园频道.png",梨园频道
+http://123.162.36.200:888/hls/31/index.m3u8
+#EXTINF:-1 tvg-name="武术世界" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/武术世界.png",武术世界
+http://123.162.36.200:888/hls/32/index.m3u8
+#EXTINF:-1 tvg-name="炫动卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/哈哈炫动.png",炫动卡通
+http://123.162.36.200:888/hls/68/index.m3u8
+#EXTINF:-1 tvg-name="炫动卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/哈哈炫动.png",炫动卡通
+http://14.106.99.194:888/hls/48/index.m3u8
+#EXTINF:-1 tvg-name="金鹰卡通" group-title="数字频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/Images/数字频道/金鹰卡通.png",金鹰卡通
+http://123.162.36.200:888/hls/65/index.m3u8
+#EXTINF:-1 tvg-name="中国教育-1" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/CETV1.png",中国教育-1
+http://14.106.99.194:888/hls/12/index.m3u8
+#EXTINF:-1 tvg-name="晴彩中原" group-title="地方频道" tvg-logo="https://raw.githubusercontent.com/kenye201/TVlog/main/img/晴彩中原.png",晴彩中原
+http://123.162.36.200:888/hls/28/index.m3u8
+#EXTINF:-1 tvg-name="CQTV影视" group-title="其它频道",CQTV影视
+http://14.106.99.194:888/hls/14/index.m3u8
+#EXTINF:-1 tvg-name="CQTV时尚" group-title="其它频道",CQTV时尚
+http://14.106.99.194:888/hls/16/index.m3u8
+#EXTINF:-1 tvg-name="CQTV都市" group-title="其它频道",CQTV都市
+http://14.106.99.194:888/hls/15/index.m3u8
+#EXTINF:-1 tvg-name="中国气象" group-title="其它频道",中国气象
+http://14.106.99.194:888/hls/44/index.m3u8
+#EXTINF:-1 tvg-name="人文地理记录" group-title="其它频道",人文地理记录
+http://123.162.36.200:888/hls/37/index.m3u8
+#EXTINF:-1 tvg-name="公共频道" group-title="其它频道",公共频道
+http://123.162.36.200:888/hls/26/index.m3u8
+#EXTINF:-1 tvg-name="新农村频道" group-title="其它频道",新农村频道
+http://123.162.36.200:888/hls/27/index.m3u8
+#EXTINF:-1 tvg-name="新闻频道" group-title="其它频道",新闻频道
+http://123.162.36.200:888/hls/24/index.m3u8
+#EXTINF:-1 tvg-name="棋牌会" group-title="其它频道",棋牌会
+http://123.162.36.200:888/hls/34/index.m3u8
+#EXTINF:-1 tvg-name="欢乐购物" group-title="其它频道",欢乐购物
+http://123.162.36.200:888/hls/25/index.m3u8
+#EXTINF:-1 tvg-name="民生频道" group-title="其它频道",民生频道
+http://123.162.36.200:888/hls/21/index.m3u8
+#EXTINF:-1 tvg-name="法治频道" group-title="其它频道",法治频道
+http://123.162.36.200:888/hls/22/index.m3u8
+#EXTINF:-1 tvg-name="电视剧频道" group-title="其它频道",电视剧频道
+http://123.162.36.200:888/hls/23/index.m3u8
+#EXTINF:-1 tvg-name="百姓调解" group-title="其它频道",百姓调解
+http://123.162.36.200:888/hls/35/index.m3u8
+#EXTINF:-1 tvg-name="移动戏曲" group-title="其它频道",移动戏曲
+http://123.162.36.200:888/hls/29/index.m3u8
+#EXTINF:-1 tvg-name="纪实频道" group-title="其它频道",纪实频道
+http://14.106.99.194:888/hls/46/index.m3u8
+#EXTINF:-1 tvg-name="美食汇" group-title="其它频道",美食汇
+http://123.162.36.200:888/hls/33/index.m3u8
+#EXTINF:-1 tvg-name="都市频道" group-title="其它频道",都市频道
+http://123.162.36.200:888/hls/20/index.m3u8
+#EXTINF:-1 tvg-name="风尚河南" group-title="其它频道",风尚河南
+http://123.162.36.200:888/hls/36/index.m3u8
 #EXTINF:-1 tvg-name="CCTV-音乐" tvg-logo="" group-title="其他频道",CCTV-音乐
 http://219.156.53.115:8082/hls/16/index.m3u8
 #EXTINF:-1 tvg-name="CCTV-NEWS" tvg-logo="" group-title="其他频道",CCTV-NEWS
