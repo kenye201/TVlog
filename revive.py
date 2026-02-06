@@ -10,27 +10,34 @@ import sys
 # --- 配置 ---
 INPUT_FILE = "aggregated_hotel.txt"
 OUTPUT_FILE = "revived_hotel.txt"
-THREADS = 60  
+THREADS = 80
 TIMEOUT = 3
 
-class ReviveScanner:
+class SmartScanner:
     def __init__(self):
         self.results = {}
         self.lock = threading.Lock()
         self.found_count = 0
-        self.current_scanning_seg = ""
+
+    def is_ip(self, netloc):
+        ip_part = netloc.split(':')[0]
+        return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip_part)
 
     def check_alive(self, url):
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) VLC/3.0.18"}
+        """核心探测：返回 (是否存活, 延迟ms)"""
+        headers = {"User-Agent": "Mozilla/5.0 VLC/3.0.18"}
+        start_time = time.time()
         try:
             req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=TIMEOUT) as response:
                 if response.getcode() in [200, 206]:
                     content = response.read(300).decode('utf-8', errors='ignore')
-                    return "#EXTM3U" in content
+                    if "#EXTM3U" in content:
+                        duration = (time.time() - start_time) * 1000
+                        return True, duration
         except:
             pass
-        return False
+        return False, 99999
 
     def worker(self, q):
         while not q.empty():
@@ -38,73 +45,88 @@ class ReviveScanner:
             c_seg, port, last_num, templates = task
             test_ip = f"{c_seg}.{last_num}"
             
-            # 拿到探针频道名和完整URL模型
             probe_name = list(templates.keys())[0]
-            orig_url = templates[probe_name]
-            
-            # 精准拼接
-            p = urlparse(orig_url)
             new_netloc = f"{test_ip}:{port}"
-            new_parts = list(p)
-            new_parts[1] = new_netloc
-            test_url = urlunparse(new_parts)
-
-            if self.check_alive(test_url):
-                with self.lock:
-                    self.found_count += 1
-                    self.results[test_ip] = {}
-                    for name, old_url in templates.items():
-                        op = urlparse(old_url)
-                        ou = list(op)
-                        ou[1] = new_netloc
-                        self.results[test_ip][name] = urlunparse(ou)
-                
-                # 发现成功，高亮显示
-                sys.stdout.write(f"\n✅ [成功复活] {test_ip}:{port} | 频道: {probe_name}\n")
-                sys.stdout.flush()
             
+            p = urlparse(templates[probe_name])
+            test_url = urlunparse(list(p)[:1] + [new_netloc] + list(p)[2:])
+
+            is_ok, ms = self.check_alive(test_url)
+            if is_ok:
+                with self.lock:
+                    if test_ip not in self.results: # 防止重复录入
+                        self.found_count += 1
+                        self.results[test_ip] = {
+                            'ms': ms,
+                            'chans': {name: urlunparse(list(urlparse(u))[:1] + [new_netloc] + list(urlparse(u))[2:]) 
+                                     for name, u in templates.items()}
+                        }
+                sys.stdout.write(f"\n✨ [发现活源] {test_ip}:{port} ({int(ms)}ms)\n")
+                sys.stdout.flush()
             q.task_done()
 
 def main():
     if not os.path.exists(INPUT_FILE):
-        print(f"❌ 错误: 找不到 {INPUT_FILE}"); return
+        print("❌ 错误: 找不到输入文件"); return
 
-    # 解析段基因
+    # 阶段 1: 解析基因
     segments = []
     with open(INPUT_FILE, 'r', encoding='utf-8') as f:
-        current_templates = {}
+        current_tpl = {}
         for line in f:
             line = line.strip()
             if not line: continue
             if "#genre#" in line:
-                if current_templates:
-                    first_url = next(iter(current_templates.values()))
-                    p = urlparse(first_url)
-                    c_seg = ".".join(p.netloc.split(':')[0].split('.')[:3])
-                    port = p.netloc.split(':')[1] if ':' in p.netloc else "80"
-                    segments.append({'c_seg': c_seg, 'port': port, 'tpl': current_templates.copy()})
-                current_templates = {}
+                if current_tpl:
+                    u = list(current_tpl.values())[0]
+                    p = urlparse(u)
+                    if scanner.is_ip(p.netloc):
+                        if len(set(urlparse(x).query for x in current_tpl.values())) == 1:
+                            ip_full = p.netloc.split(':')[0]
+                            c_seg = ".".join(ip_full.split('.')[:3])
+                            port = p.netloc.split(':')[1] if ':' in p.netloc else "80"
+                            segments.append({'full_ip': ip_full, 'c_seg': c_seg, 'port': port, 'tpl': current_tpl.copy()})
+                current_tpl = {}
             elif ',' in line:
                 name, url = line.split(',', 1)
-                current_templates[name] = url
+                current_tpl[name] = url
 
-    print(f"🚀 开始扫描，共 {len(segments)} 个原始 IP 段待复活...")
-    scanner = ReviveScanner()
+    print(f"🚀 准备处理 {len(segments)} 组源...")
 
-    # 按组顺序执行扫描，但组内使用多线程并发
+    # 阶段 2: 循环处理每一组
     for i, seg in enumerate(segments):
+        full_ip = seg['full_ip']
         c_seg = seg['c_seg']
         port = seg['port']
         tpl = seg['tpl']
-        
-        print(f"\n📡 [{i+1}/{len(segments)}] 正在扫描 C 段: {c_seg}.0/24 (端口: {port})")
-        
-        # 为当前段建立队列
-        q = Queue()
-        for last_num in range(1, 255):
-            q.put((c_seg, port, last_num, tpl))
 
-        # 启动线程池处理这 254 个 IP
+        print(f"\n🔍 [{i+1}/{len(segments)}] 正在分析段: {c_seg}.x")
+        
+        # --- 步骤 A: 预检原 IP ---
+        probe_name = list(tpl.keys())[0]
+        test_url = tpl[probe_name]
+        print(f"   📡 预检原IP {full_ip}...", end="")
+        is_ok, ms = scanner.check_alive(test_url)
+        
+        if is_ok:
+            print(f" [OK] {int(ms)}ms (跳过段扫描)")
+            with scanner.lock:
+                scanner.found_count += 1
+                scanner.results[full_ip] = {
+                    'ms': ms,
+                    'chans': tpl.copy()
+                }
+            continue # 直接跳过，处理下一组
+        else:
+            print(" [失效] 启动 C 段复活扫描...")
+
+        # --- 步骤 B: 失效后才执行扫描 ---
+        q = Queue()
+        for n in range(1, 255):
+            # 排除掉已经预检过的原 IP，不重复测
+            if f"{c_seg}.{n}" == full_ip: continue
+            q.put((c_seg, port, n, tpl))
+
         threads = []
         for _ in range(THREADS):
             t = threading.Thread(target=scanner.worker, args=(q,))
@@ -112,30 +134,25 @@ def main():
             t.start()
             threads.append(t)
 
-        # 等待这一组扫完再扫下一组，方便前台观察
         while not q.empty():
-            # 简单的进度反馈
-            remaining = q.qsize()
-            done = 254 - remaining
-            percent = (done / 254) * 100
-            sys.stdout.write(f"\r   进度: {percent:.1f}% | 已发现: {scanner.found_count} ")
+            sys.stdout.write(f"\r   进度: {((254-q.qsize())/254)*100:.1f}% | 累计复活: {scanner.found_count}")
             sys.stdout.flush()
-            time.sleep(0.5)
-        
-        q.join() # 确保线程收尾
+            time.sleep(0.4)
+        q.join()
 
-    # 保存结果
-    print(f"\n\n💾 正在保存结果到 {OUTPUT_FILE}...")
+    # 阶段 3: 排序保存
+    print(f"\n\n💾 正在优选排序并保存到 {OUTPUT_FILE}...")
+    sorted_res = sorted(scanner.results.items(), key=lambda x: x[1]['ms'])
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        for ip in sorted(scanner.results.keys()):
-            chans = scanner.results[ip]
-            netloc = urlparse(next(iter(chans.values()))).netloc
-            f.write(f"{netloc},#genre#\n")
-            for name in sorted(chans.keys(), key=lambda x: (not x.startswith("CCTV"), x)):
-                f.write(f"{name},{chans[name]}\n")
+        for ip, data in sorted_res:
+            netloc = urlparse(list(data['chans'].values())[0]).netloc
+            f.write(f"{netloc} (延迟:{int(data['ms'])}ms),#genre#\n")
+            for name in sorted(data['chans'].keys(), key=lambda x: (not x.startswith("CCTV"), x)):
+                f.write(f"{name},{data['chans'][name]}\n")
             f.write("\n")
 
-    print(f"✅ 扫描结束！共复活 {scanner.found_count} 个新源。")
+    print(f"✅ 处理完成！")
 
 if __name__ == "__main__":
+    scanner = SmartScanner()
     main()
