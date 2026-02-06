@@ -5,8 +5,6 @@ on:
     paths:
       - 'history/**'        # 只有 history 文件夹变动时才触发
   workflow_dispatch:        # 允许手动点击运行
-  schedule:
-    - cron: '0 0 * * *'     # 每天凌晨自动运行一次
 
 jobs:
   build:
