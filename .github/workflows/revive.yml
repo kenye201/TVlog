@@ -1,38 +1,31 @@
-name: Hotel IP Precision Revive
+name: Precision Hotel Auto-Self-Healing
 
 on:
   schedule:
-    - cron: '0 22 * * *' # 每天北京时间早上 6 点自动运行
-  workflow_dispatch:      # 允许手动随时触发
+    - cron: '0 22 * * *'
+  workflow_dispatch:
 
 jobs:
-  revive_process:
+  revive:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Step 1 - Aggregate Genes
-        run: |
-          # 运行聚合脚本，将 tvbox_output.txt 和 revived_hotel.txt 合并
-          python aggregate.py
-          echo "✅ 基因聚合完成，生成新的 aggregated_hotel.txt"
+      - name: Aggregate and Clean
+        run: python aggregate.py
 
-      - name: Step 2 - Precision Revive Scan
-        run: |
-          # 运行复活脚本，前台同步显示进度
-          python revive.py
-          echo "✅ 扫描与复活任务结束"
+      - name: Self-Healing Scan
+        run: python revive.py
 
-      - name: Step 3 - Commit and Push
+      - name: Save Updated Genes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add aggregated_hotel.txt revived_hotel.txt
-          # 只有在文件有变动时才提交，防止报错
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-Update: $(date +'%Y-%m-%d %H:%M') Precision Scan" && git push)
+          git add revived_hotel.txt
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-Healing: Update living hotel IPs" && git push)
