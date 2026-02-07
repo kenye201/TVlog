@@ -23,9 +23,13 @@ jobs:
       - name: Self-Healing Scan
         run: python revive.py
 
-      - name: Save Updated Genes
+      - name: Convert to M3U
+        run: python convert.py  # 新增这一步
+
+      - name: Save Updated Results
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add revived_hotel.txt
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-Healing: Update living hotel IPs" && git push)
+          # 记得把新生成的 hotel_list.m3u 也加入暂存区
+          git add revived_hotel.txt hotel_list.m3u
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-Update: Revive & M3U Conversion $(date +'%Y-%m-%d %H:%M')" && git push)
