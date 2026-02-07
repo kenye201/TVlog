@@ -2,7 +2,7 @@ name: Precision Hotel Auto-Self-Healing
 
 on:
   schedule:
-    - cron: '0 22 * * *'
+    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 jobs:
