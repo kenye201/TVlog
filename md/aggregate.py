@@ -39,7 +39,7 @@ def main():
                         ip_map[cur_ip][name.strip()] = url.strip()
 
     # ！！！顺序至关重要：先加载底库（你的修改），再加载抓取源！！！
-    load_data("aggregated_hotel.txt", "手动底库")
+    load_data("md/aggregated_hotel.txt", "手动底库")
     load_data("tvbox_output.txt", "新抓取源")
 
     all_ips = list(ip_map.keys())
