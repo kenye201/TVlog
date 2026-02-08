@@ -42,7 +42,7 @@ def main():
         txt_output += "\n"
 
     # 在根目录生成文件
-    with open("aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_output)
+    with open("md/aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_output)
     with open("final_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_output)
     with open("final_hotel.m3u", 'w', encoding='utf-8') as f: f.write(m3u_output)
     print("🎨 洗版完成：final_hotel.txt & final_hotel.m3u 已生成。")
