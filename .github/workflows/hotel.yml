@@ -33,6 +33,6 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
         # 只有在有变动时才提交
         git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
