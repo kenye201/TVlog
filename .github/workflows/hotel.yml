@@ -24,6 +24,8 @@ jobs:
       run: pip install requests
 
     - name: Run Pipeline
+      env:
+        PYTHONUNBUFFERED: 1 # 禁用缓存，强制实时日志
       run: |
         python md/aggregate.py
         python md/rescue_hotel.py
