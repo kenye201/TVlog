@@ -1,0 +1,22 @@
+name: Quality Test Only
+
+on:
+  workflow_dispatch: # 只允许你手动点运行
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install FFmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+    - name: Run Test Script
+      run: python md/test_check.py
+
+    - name: Upload Result
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-report
+        path: md/test_result.txt
