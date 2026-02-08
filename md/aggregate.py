@@ -1,154 +1,104 @@
-import subprocess
-import json
-import os
-import re
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import os, sys, requests, re, concurrent.futures
+from urllib.parse import urlparse
 
-# --- 路径配置 ---
+# --- 路径配置区 ---
+# 获取当前脚本所在目录 (即 md 文件夹)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-# 底库：已标记画质且洗过版的库
-LOCAL_BASE = os.path.join(CURRENT_DIR, "aggregated_hotel.txt")  
-# 新源：当天抓取的原始 tvbox_output.txt (位于项目根目录)
-INPUT_RAW = os.path.join(os.path.dirname(CURRENT_DIR), "tvbox_output.txt") 
-# 输出：写回底库
-OUTPUT_FILE = os.path.join(CURRENT_DIR, "aggregated_hotel.txt") 
+# 你的底库现在就在 md 文件夹内
+LOCAL_BASE = os.path.join(CURRENT_DIR, "aggregated_hotel.txt")
+# 原始抓取源通常在根目录 (md 的上一级)
+INPUT_RAW = os.path.join(os.path.dirname(CURRENT_DIR), "tvbox_output.txt")
 
-CCTV_MAP = {
-    'CCTV1': 'CCTV-1', 'CCTV2': 'CCTV-2', 'CCTV3': 'CCTV-3', 'CCTV4': 'CCTV-4',
-    'CCTV5': 'CCTV-5', 'CCTV5+': 'CCTV-5+', 'CCTV6': 'CCTV-6', 'CCTV7': 'CCTV-7',
-    'CCTV8': 'CCTV-8', 'CCTV9': 'CCTV-9', 'CCTV10': 'CCTV-10', 'CCTV11': 'CCTV-11',
-    'CCTV12': 'CCTV-12', 'CCTV13': 'CCTV-13', 'CCTV14': 'CCTV-14', 'CCTV15': 'CCTV-15',
-    'CCTV16': 'CCTV-16', 'CCTV17': 'CCTV-17'
-}
+# 中转文件也放在 md 文件夹内，防止根目录混乱
+MID_REVIVED = os.path.join(CURRENT_DIR, "revived_temp.txt")
+MID_DEAD = os.path.join(CURRENT_DIR, "dead_tasks.txt")
+
+TIMEOUT = 3
+MAX_WORKERS = 30
 
 def is_valid_ip(ip_str):
-    """正则判断是否为 123.123.123.123:80 格式"""
-    return bool(re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+$', ip_str.strip()))
-
-def get_stream_quality(url):
-    """深度探测函数 (3次重试)"""
-    for attempt in range(3):
-        cmd = [
-            'ffprobe', '-v', 'quiet', '-select_streams', 'v:0',
-            '-show_entries', 'stream=width,height', '-of', 'json',
-            '-analyzeduration', '15000000', '-probesize', '15000000',
-            '-timeout', '15000000', url
-        ]
-        try:
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-            data = json.loads(result.stdout)
-            if 'streams' in data and len(data['streams']) > 0:
-                w = data['streams'][0].get('width', 0)
-                h = data['streams'][0].get('height', 0)
-                if h >= 1080 or w >= 1920: return "1080P"
-                if h >= 720 or w >= 1280: return "720P"
-                return "SD"
-        except: pass
-        if attempt < 2: time.sleep(2)
-    return "Unknown"
-
-def clean_and_sort_key(name):
-    """清洗频道名并获取排序权重"""
-    clean = re.sub(r'\(.*?\)', '', name).upper().replace(' ', '').replace('-', '').replace('中央', '').replace('台', '').replace('PLUS', '+')
-    for key, std_name in CCTV_MAP.items():
-        if key in clean:
-            num_match = re.search(r'\d+', std_name)
-            order = int(num_match.group()) if num_match else 0
-            if '5+' in std_name: order = 5.5
-            return std_name, order
-    return name.strip(), 999
-
-def parse_content(content):
-    """解析 M3U 块，以双换行分割"""
-    groups = {}
-    blocks = content.replace('\r\n', '\n').split('\n\n')
-    for block in blocks:
-        lines = [l.strip() for l in block.split('\n') if l.strip()]
-        if not lines: continue
-        header = lines[0]
-        # 提取分类标签（去除已有的画质后缀）
-        tag = header.split(',')[0].split('(')[0].strip()
-        groups[tag] = lines
-    return groups
-
-def process_group(tag, lines, should_probe=False):
-    """处理单个组，洗版并可选探测画质"""
-    header = lines[0]
-    test_url = lines[1].split(',')[1] if len(lines) > 1 else ""
-    
-    # 只有明确需要探测且标题中没有标记过的才执行探测
-    if should_probe and ("(" not in header):
-        quality = get_stream_quality(test_url)
-        print(f"🔎 探测新 IP: {tag} -> {quality}", flush=True)
-        if quality in ["SD", "720P"]: header = f"{tag}(SD),#genre#"
-        elif quality == "Unknown": header = f"{tag}(Unknown),#genre#"
-        else: header = f"{tag},#genre#"
-    
-    processed = []
-    for l in lines[1:]:
-        if ',' in l:
-            name, url = l.split(',', 1)
-            std_name, sort_order = clean_and_sort_key(name)
-            processed.append({'order': sort_order, 'line': f"{std_name},{url.strip()}"})
-    
-    processed.sort(key=lambda x: x['order'])
-    return "\n".join([header] + [ch['line'] for ch in processed])
+    """校验 IP:Port 或 域名:Port 格式"""
+    pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
+    return bool(re.match(pattern, ip_str))
 
 def main():
-    # 1. 加载底库 (已手动/自动打标过的)
-    base_groups = {}
+    ip_map = {} # 结构: { "IP:Port": { "频道名": "URL" } }
+
+    # 打印路径确认，方便在 Actions 日志中排查
+    print(f"📂 正在定位底库: {LOCAL_BASE}", flush=True)
     if os.path.exists(LOCAL_BASE):
-        with open(LOCAL_BASE, 'r', encoding='utf-8') as f:
-            base_groups = parse_content(f.read())
+        print(f"📏 底库文件大小: {os.path.getsize(LOCAL_BASE)} bytes", flush=True)
+    else:
+        print(f"⚠️ 警告：未在 md 目录下找到 aggregated_hotel.txt！", flush=True)
+
+    def load_data(path, label):
+        if not os.path.exists(path): return
+        print(f"📖 正在从 [{label}] 加载基因...", flush=True)
+        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+            cur_ip = None
+            for line in f:
+                line = line.strip()
+                if not line: continue
+                if "#genre#" in line:
+                    potential_ip = line.split(',')[0].strip()
+                    if is_valid_ip(potential_ip):
+                        cur_ip = potential_ip
+                        if cur_ip not in ip_map: ip_map[cur_ip] = {}
+                    else: cur_ip = None
+                    continue
+                if ',' in line and cur_ip:
+                    name, url = line.split(',', 1)
+                    # 关键：优先保护已存在的内容 (底库内容)
+                    name_s, url_s = name.strip(), url.strip()
+                    if name_s not in ip_map[cur_ip]:
+                        ip_map[cur_ip][name_s] = url_s
+
+    # ！！！加载顺序：1.底库(md/) 2.新源(根目录) ！！！
+    load_data(LOCAL_BASE, "MD底库(含手动修改)")
+    load_data(INPUT_RAW, "根目录新源")
+
+    all_ips = list(ip_map.keys())
+    total_ips = len(all_ips)
     
-    # 2. 加载新抓取的源 (tvbox_output.txt)
-    new_raw_groups = {}
-    if os.path.exists(INPUT_RAW):
-        with open(INPUT_RAW, 'r', encoding='utf-8') as f:
-            new_raw_groups = parse_content(f.read())
+    if total_ips == 0:
+        print("❌ 错误：未加载到任何有效 IP，请检查文件内容和路径！", flush=True)
+        return
 
-    # 3. 分类逻辑
-    # a. 老源：直接保留
-    # b. 新 IP 源：底库没有且符合 IP 格式 -> 需要探测
-    # c. 非 IP 新分类：底库没有但不符合 IP 格式 -> 直接合并
-    ips_to_probe = [t for t in new_raw_groups if t not in base_groups and is_valid_ip(t)]
-    others_to_add = [t for t in new_raw_groups if t not in base_groups and not is_valid_ip(t)]
+    print(f"📡 共有 {total_ips} 个 IP 网段参与探测...", flush=True)
 
-    print(f"📉 老底库已有: {len(base_groups)} 个网段")
-    print(f"📈 发现新 IP 需要探测: {len(ips_to_probe)} 个")
-    if others_to_add:
-        print(f"📦 发现新分类直接加入: {len(others_to_add)} 个 ({', '.join(others_to_add[:3])}...)")
+    revived, dead = [], []
+    processed = 0
 
-    # 4. 并发探测新 IP
-    new_probed_results = {}
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_tag = {executor.submit(process_group, tag, new_raw_groups[tag], True): tag for tag in ips_to_probe}
-        for future in as_completed(future_to_tag):
-            tag = future_to_tag[future]
-            new_probed_results[tag] = future.result()
+    def check(ip):
+        try:
+            first_name = list(ip_map[ip].keys())[0]
+            test_url = ip_map[ip][first_name]
+            r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"Mozilla/5.0"})
+            return ip, r.status_code == 200
+        except: return ip, False
 
-    # 5. 处理老源和非 IP 新源 (不探测，仅洗版排序)
-    final_list = []
-    
-    # 先加老底库
-    for tag, lines in base_groups.items():
-        final_list.append(process_group(tag, lines, False))
-        
-    # 再加非 IP 的新分类
-    for tag in others_to_add:
-        final_list.append(process_group(tag, new_raw_groups[tag], False))
-        
-    # 最后加新探测到的 IP
-    for tag in ips_to_probe:
-        if tag in new_probed_results:
-            final_list.append(new_probed_results[tag])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
+        futures = {exe.submit(check, ip): ip for ip in all_ips}
+        for f in concurrent.futures.as_completed(futures):
+            processed += 1
+            ip, ok = f.result()
+            
+            # 重组文件块
+            block_content = f"{ip},#genre#\n"
+            for name, url in ip_map[ip].items():
+                block_content += f"{name},{url}\n"
+            block_content += "\n"
+            
+            if ok:
+                revived.append(block_content)
+                print(f"[{processed}/{total_ips}] ✅ [存活] {ip}", flush=True)
+            else:
+                dead.append(block_content)
+                print(f"[{processed}/{total_ips}] 💀 [失效] {ip}", flush=True)
 
-    # 6. 写入结果
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-        f.write("\n\n".join(final_list))
-    
-    print(f"✨ 任务完成！底库当前总规模: {len(final_list)} 个分组。")
+    with open(MID_REVIVED, 'w', encoding='utf-8') as f: f.writelines(revived)
+    with open(MID_DEAD, 'w', encoding='utf-8') as f: f.writelines(dead)
+    print(f"📊 探测完成。存活: {len(revived)} | 待抢救: {len(dead)}", flush=True)
 
 if __name__ == "__main__":
     main()
