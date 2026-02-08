@@ -11,40 +11,33 @@ def natural_sort_key(s):
     return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
 
 def main():
-    all_data = {}
-    # 汇总直连和抢救的数据
+    all_data = {} # {ip: {name: url}}
     for f_name in ["revived_temp.txt", "rescued_temp.txt"]:
         if not os.path.exists(f_name): continue
         with open(f_name, 'r', encoding='utf-8') as f:
-            blocks = f.read().strip().split('\n\n')
-            for block in blocks:
+            for block in f.read().strip().split('\n\n'):
                 lines = block.strip().split('\n')
                 if len(lines) < 2: continue
                 ip = lines[0].split(',')[0]
                 if ip not in all_data: all_data[ip] = {}
                 for l in lines[1:]:
                     if ',' in l:
-                        name, url = l.split(',', 1)
-                        all_data[ip][clean_name(name)] = url
+                        n, u = l.split(',', 1)
+                        all_data[ip][clean_name(n)] = u
 
-    txt_output = ""
-    m3u_output = '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n'
-    
-    # 按 IP 排序
+    txt_out, m3u_out = "", '#EXTM3U x-tvg-url="https://live.fanmingming.com/e.xml"\n'
     for ip in sorted(all_data.keys()):
-        txt_output += f"{ip},#genre#\n"
-        # 频道自然排序
-        sorted_ch = sorted(all_data[ip].keys(), key=natural_sort_key)
-        for name in sorted_ch:
+        txt_out += f"{ip},#genre#\n"
+        for name in sorted(all_data[ip].keys(), key=natural_sort_key):
             url = all_data[ip][name]
-            txt_output += f"{name},{url}\n"
-            m3u_output += f'#EXTINF:-1 tvg-name="{name}" tvg-logo="https://tb.yubo.qzz.io/logo/{name}.png" group-title="{ip}",{name}\n{url}\n'
-        txt_output += "\n"
+            txt_out += f"{name},{url}\n"
+            m3u_out += f'#EXTINF:-1 tvg-name="{name}" tvg-logo="https://tb.yubo.qzz.io/logo/{name}.png" group-title="{ip}",{name}\n{url}\n'
+        txt_out += "\n"
 
-    # 在根目录生成文件
-    with open("md/aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_output)
-    with open("final_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_output)
-    with open("final_hotel.m3u", 'w', encoding='utf-8') as f: f.write(m3u_output)
-    print("🎨 洗版完成：final_hotel.txt & final_hotel.m3u 已生成。")
+    # 写回根目录：同时更新底库和成品
+    with open("aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_out)
+    with open("final_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_out)
+    with open("final_hotel.m3u", 'w', encoding='utf-8') as f: f.write(m3u_out)
+    print("🎨 洗版完成，底库与成品已更新。", flush=True)
 
 if __name__ == "__main__": main()
