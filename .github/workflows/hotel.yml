@@ -41,5 +41,5 @@ jobs:
 
     - name: Commit and Push
       run: |
-        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
         git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
