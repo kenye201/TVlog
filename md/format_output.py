@@ -35,7 +35,7 @@ def main():
         txt_out += "\n"
 
     # 写回根目录：同时更新底库和成品
-    with open("aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_out)
+    with open("md/aggregated_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_out)
     with open("final_hotel.txt", 'w', encoding='utf-8') as f: f.write(txt_out)
     with open("final_hotel.m3u", 'w', encoding='utf-8') as f: f.write(m3u_out)
     print("🎨 洗版完成，底库与成品已更新。", flush=True)
