@@ -3,90 +3,81 @@ from urllib.parse import urlparse
 
 # 配置
 INPUT_RAW = "tvbox_output.txt"
-LOCAL_BASE = "md/aggregated_hotel.txt"
+LOCAL_BASE = "aggregated_hotel.txt"
 MID_REVIVED = "revived_temp.txt"
 MID_DEAD = "dead_tasks.txt"
 TIMEOUT = 3
 MAX_WORKERS = 30
 
 def is_valid_ip(ip_str):
-    """判断字符串是否为有效的 IP:Port 或 域名:Port 格式"""
-    # 匹配 数字.数字.数字.数字:端口 或 域名:端口
+    """校验 IP:Port 或 域名:Port"""
     pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
     return bool(re.match(pattern, ip_str))
 
-def get_ip_port(url):
-    try: return urlparse(url).netloc
-    except: return None
-
 def main():
-    ip_map = {}
-    def load_file(path):
+    ip_map = {} # 结构: { "IP:Port": { "频道名": "URL" } }
+
+    def load_data(path, label):
         if not os.path.exists(path): return
-        print(f"📖 正在加载文件: {path}")
+        print(f"📖 正在从 [{label}] 加载基因...", flush=True)
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             cur_ip = None
             for line in f:
                 line = line.strip()
                 if not line: continue
-                
-                # 关键改进：解析 IP 块头
                 if "#genre#" in line:
                     potential_ip = line.split(',')[0].strip()
-                    # 只有符合 IP:Port 格式的才作为待测目标，过滤掉“央视频道”等文字分类
                     if is_valid_ip(potential_ip):
                         cur_ip = potential_ip
-                        if cur_ip not in ip_map: ip_map[cur_ip] = []
-                    else:
-                        cur_ip = None # 如果是文字分类，后续频道行直接跳过，防止归类错误
+                        if cur_ip not in ip_map: ip_map[cur_ip] = {}
+                    else: cur_ip = None
                     continue
-                
-                # 解析频道 URL 行
                 if ',' in line and cur_ip:
-                    ip_map[cur_ip].append(line)
+                    name, url = line.split(',', 1)
+                    # 如果底库已存在该频道，不覆盖，保留手动修改的结果
+                    if name.strip() not in ip_map[cur_ip]:
+                        ip_map[cur_ip][name.strip()] = url.strip()
 
-    load_file(INPUT_RAW)
-    load_file(LOCAL_BASE)
+    # 重点：先加载本地底库（含你的手动修改），再合并新抓取的源
+    load_data(LOCAL_BASE, "本地底库")
+    load_data(INPUT_RAW, "新抓取源")
 
-    # 过滤掉没有频道数据的空 IP
-    ip_map = {k: v for k, v in ip_map.items() if v}
-    
-    total_ips = len(ip_map)
-    if total_ips == 0:
-        print("⚠️ 未发现有效 IP 基因，请检查源文件格式。")
-        return
-
-    print(f"📡 共有 {total_ips} 个有效 IP 网段，启动并发探测...")
+    all_ips = list(ip_map.keys())
+    total_ips = len(all_ips)
+    print(f"📡 共有 {total_ips} 个有效 IP 网段参与探测...", flush=True)
 
     revived, dead = [], []
     processed = 0
 
     def check(ip):
         try:
-            # 找到第一个非空的 URL 进行测试
-            test_url = ip_map[ip][0].split(',')[1].strip()
+            # 取该 IP 下的第一个频道测试
+            first_name = list(ip_map[ip].keys())[0]
+            test_url = ip_map[ip][first_name]
             r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"Mozilla/5.0"})
             return ip, r.status_code == 200
         except: return ip, False
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-        futures = {exe.submit(check, ip): ip for ip in ip_map}
+        futures = {exe.submit(check, ip): ip for ip in all_ips}
         for f in concurrent.futures.as_completed(futures):
             processed += 1
             ip, ok = f.result()
-            target_data = f"{ip},#genre#\n" + "\n".join(ip_map[ip]) + "\n\n"
+            # 还原成文件格式
+            block_content = f"{ip},#genre#\n"
+            for name, url in ip_map[ip].items():
+                block_content += f"{name},{url}\n"
+            block_content += "\n"
             
             if ok:
-                revived.append(target_data)
-                print(f"[{processed}/{total_ips}] ✅ [存活] {ip}")
+                revived.append(block_content)
+                print(f"[{processed}/{total_ips}] ✅ [存活] {ip}", flush=True)
             else:
-                dead.append(target_data)
-                print(f"[{processed}/{total_ips}] 💀 [失效] {ip}")
+                dead.append(block_content)
+                print(f"[{processed}/{total_ips}] 💀 [失效] {ip}", flush=True)
 
     with open(MID_REVIVED, 'w', encoding='utf-8') as f: f.writelines(revived)
     with open(MID_DEAD, 'w', encoding='utf-8') as f: f.writelines(dead)
-    
-    print(f"\n📊 探测总结: 直连存活 {len(revived)} 个，待抢救 {len(dead)} 个。")
+    print(f"📊 探测完成。存活: {len(revived)} | 待抢救: {len(dead)}", flush=True)
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__": main()
