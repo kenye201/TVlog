@@ -34,6 +34,6 @@ jobs:
 
     - name: Commit and Push
       run: |
-        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
         # 只有在真的有变化时才提交，防止死循环
         git diff --quiet && git diff --staged --quiet || (git commit -m "Update $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
