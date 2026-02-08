@@ -1,25 +1,39 @@
 import os, sys, requests, re, concurrent.futures
 from urllib.parse import urlparse
 
-# 配置
-INPUT_RAW = "tvbox_output.txt"
-LOCAL_BASE = "md/aggregated_hotel.txt"
-MID_REVIVED = "revived_temp.txt"
-MID_DEAD = "dead_tasks.txt"
+# --- 路径配置区 ---
+# 获取当前脚本所在目录 (即 md 文件夹)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+# 你的底库现在就在 md 文件夹内
+LOCAL_BASE = os.path.join(CURRENT_DIR, "md/aggregated_hotel.txt")
+# 原始抓取源通常在根目录 (md 的上一级)
+INPUT_RAW = os.path.join(os.path.dirname(CURRENT_DIR), "tvbox_output.txt")
+
+# 中转文件也放在 md 文件夹内，防止根目录混乱
+MID_REVIVED = os.path.join(CURRENT_DIR, "revived_temp.txt")
+MID_DEAD = os.path.join(CURRENT_DIR, "dead_tasks.txt")
+
 TIMEOUT = 3
 MAX_WORKERS = 30
 
 def is_valid_ip(ip_str):
-    """校验 IP:Port 或 域名:Port"""
+    """校验 IP:Port 或 域名:Port 格式"""
     pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
     return bool(re.match(pattern, ip_str))
 
 def main():
-    ip_map = {} # 字典嵌套结构，自动去重
+    ip_map = {} # 结构: { "IP:Port": { "频道名": "URL" } }
+
+    # 打印路径确认，方便在 Actions 日志中排查
+    print(f"📂 正在定位底库: {LOCAL_BASE}", flush=True)
+    if os.path.exists(LOCAL_BASE):
+        print(f"📏 底库文件大小: {os.path.getsize(LOCAL_BASE)} bytes", flush=True)
+    else:
+        print(f"⚠️ 警告：未在 md 目录下找到 aggregated_hotel.txt！", flush=True)
 
     def load_data(path, label):
         if not os.path.exists(path): return
-        print(f"📖 正在加载 {label}: {path}", flush=True)
+        print(f"📖 正在从 [{label}] 加载基因...", flush=True)
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             cur_ip = None
             for line in f:
@@ -34,24 +48,29 @@ def main():
                     continue
                 if ',' in line and cur_ip:
                     name, url = line.split(',', 1)
-                    # 关键修改：如果底库已经有的频道，绝对不覆盖，保护手动修改
-                    if name.strip() not in ip_map[cur_ip]:
-                        ip_map[cur_ip][name.strip()] = url.strip()
+                    # 关键：优先保护已存在的内容 (底库内容)
+                    name_s, url_s = name.strip(), url.strip()
+                    if name_s not in ip_map[cur_ip]:
+                        ip_map[cur_ip][name_s] = url_s
 
-    # ！！！顺序至关重要：先加载底库（你的修改），再加载抓取源！！！
-    load_data("md/aggregated_hotel.txt", "手动底库")
-    load_data("tvbox_output.txt", "新抓取源")
+    # ！！！加载顺序：1.底库(md/) 2.新源(根目录) ！！！
+    load_data(LOCAL_BASE, "MD底库(含手动修改)")
+    load_data(INPUT_RAW, "根目录新源")
 
     all_ips = list(ip_map.keys())
     total_ips = len(all_ips)
-    print(f"📡 共有 {total_ips} 个有效 IP 网段参与探测...", flush=True)
+    
+    if total_ips == 0:
+        print("❌ 错误：未加载到任何有效 IP，请检查文件内容和路径！", flush=True)
+        return
+
+    print(f"📡 共有 {total_ips} 个 IP 网段参与探测...", flush=True)
 
     revived, dead = [], []
     processed = 0
 
     def check(ip):
         try:
-            # 取该 IP 下的第一个频道测试
             first_name = list(ip_map[ip].keys())[0]
             test_url = ip_map[ip][first_name]
             r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"Mozilla/5.0"})
@@ -63,7 +82,8 @@ def main():
         for f in concurrent.futures.as_completed(futures):
             processed += 1
             ip, ok = f.result()
-            # 还原成文件格式
+            
+            # 重组文件块
             block_content = f"{ip},#genre#\n"
             for name, url in ip_map[ip].items():
                 block_content += f"{name},{url}\n"
@@ -80,4 +100,5 @@ def main():
     with open(MID_DEAD, 'w', encoding='utf-8') as f: f.writelines(dead)
     print(f"📊 探测完成。存活: {len(revived)} | 待抢救: {len(dead)}", flush=True)
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
