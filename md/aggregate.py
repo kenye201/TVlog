@@ -1,4 +1,4 @@
-import os, sys, requests, concurrent.futures
+import os, sys, requests, re, concurrent.futures
 from urllib.parse import urlparse
 
 # 配置
@@ -7,7 +7,13 @@ LOCAL_BASE = "aggregated_hotel.txt"
 MID_REVIVED = "revived_temp.txt"
 MID_DEAD = "dead_tasks.txt"
 TIMEOUT = 3
-MAX_WORKERS = 30  # 适当增加并发
+MAX_WORKERS = 30
+
+def is_valid_ip(ip_str):
+    """判断字符串是否为有效的 IP:Port 或 域名:Port 格式"""
+    # 匹配 数字.数字.数字.数字:端口 或 域名:端口
+    pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
+    return bool(re.match(pattern, ip_str))
 
 def get_ip_port(url):
     try: return urlparse(url).netloc
@@ -23,26 +29,42 @@ def main():
             for line in f:
                 line = line.strip()
                 if not line: continue
+                
+                # 关键改进：解析 IP 块头
                 if "#genre#" in line:
-                    if "," in line: cur_ip = line.split(',')[0]
+                    potential_ip = line.split(',')[0].strip()
+                    # 只有符合 IP:Port 格式的才作为待测目标，过滤掉“央视频道”等文字分类
+                    if is_valid_ip(potential_ip):
+                        cur_ip = potential_ip
+                        if cur_ip not in ip_map: ip_map[cur_ip] = []
+                    else:
+                        cur_ip = None # 如果是文字分类，后续频道行直接跳过，防止归类错误
                     continue
+                
+                # 解析频道 URL 行
                 if ',' in line and cur_ip:
-                    if cur_ip not in ip_map: ip_map[cur_ip] = []
                     ip_map[cur_ip].append(line)
 
     load_file(INPUT_RAW)
     load_file(LOCAL_BASE)
 
+    # 过滤掉没有频道数据的空 IP
+    ip_map = {k: v for k, v in ip_map.items() if v}
+    
     total_ips = len(ip_map)
-    print(f"📡 共有 {total_ips} 个待测网段，启动并发探测...")
+    if total_ips == 0:
+        print("⚠️ 未发现有效 IP 基因，请检查源文件格式。")
+        return
+
+    print(f"📡 共有 {total_ips} 个有效 IP 网段，启动并发探测...")
 
     revived, dead = [], []
     processed = 0
 
     def check(ip):
         try:
-            test_url = ip_map[ip][0].split(',')[1]
-            # 模拟浏览器 Header 提高成功率
+            # 找到第一个非空的 URL 进行测试
+            test_url = ip_map[ip][0].split(',')[1].strip()
             r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"Mozilla/5.0"})
             return ip, r.status_code == 200
         except: return ip, False
