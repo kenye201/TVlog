@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 # 获取当前脚本所在目录 (即 md 文件夹)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 # 你的底库现在就在 md 文件夹内
-LOCAL_BASE = os.path.join(CURRENT_DIR, "md/aggregated_hotel.txt")
+LOCAL_BASE = os.path.join(CURRENT_DIR, "aggregated_hotel.txt")
 # 原始抓取源通常在根目录 (md 的上一级)
 INPUT_RAW = os.path.join(os.path.dirname(CURRENT_DIR), "tvbox_output.txt")
 
