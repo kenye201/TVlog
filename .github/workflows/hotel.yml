@@ -2,8 +2,8 @@ name: IPTV Auto Update
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每 2 小时运行一次
-  workflow_dispatch:      # 支持手动触发
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   update:
@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -23,9 +25,15 @@ jobs:
     - name: Install dependencies
       run: pip install requests
 
+    - name: Pull latest changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git pull origin main || echo "No changes to pull"
+
     - name: Run Pipeline
       env:
-        PYTHONUNBUFFERED: 1 # 禁用缓存，强制实时日志
+        PYTHONUNBUFFERED: 1
       run: |
         python md/aggregate.py
         python md/rescue_hotel.py
@@ -33,8 +41,5 @@ jobs:
 
     - name: Commit and Push
       run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
-        # 只有在有变动时才提交
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push)
+        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
