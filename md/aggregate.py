@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 # 配置
 INPUT_RAW = "tvbox_output.txt"
-LOCAL_BASE = "md/aggregated_hotel.txt"
+LOCAL_BASE = "aggregated_hotel.txt"
 MID_REVIVED = "revived_temp.txt"
 MID_DEAD = "dead_tasks.txt"
 TIMEOUT = 3
