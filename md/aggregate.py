@@ -15,11 +15,11 @@ def is_valid_ip(ip_str):
     return bool(re.match(pattern, ip_str))
 
 def main():
-    ip_map = {} # 结构: { "IP:Port": { "频道名": "URL" } }
+    ip_map = {} # 字典嵌套结构，自动去重
 
     def load_data(path, label):
         if not os.path.exists(path): return
-        print(f"📖 正在从 [{label}] 加载基因...", flush=True)
+        print(f"📖 正在加载 {label}: {path}", flush=True)
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             cur_ip = None
             for line in f:
@@ -34,13 +34,13 @@ def main():
                     continue
                 if ',' in line and cur_ip:
                     name, url = line.split(',', 1)
-                    # 如果底库已存在该频道，不覆盖，保留手动修改的结果
+                    # 关键修改：如果底库已经有的频道，绝对不覆盖，保护手动修改
                     if name.strip() not in ip_map[cur_ip]:
                         ip_map[cur_ip][name.strip()] = url.strip()
 
-    # 重点：先加载本地底库（含你的手动修改），再合并新抓取的源
-    load_data(LOCAL_BASE, "本地底库")
-    load_data(INPUT_RAW, "新抓取源")
+    # ！！！顺序至关重要：先加载底库（你的修改），再加载抓取源！！！
+    load_data("aggregated_hotel.txt", "手动底库")
+    load_data("tvbox_output.txt", "新抓取源")
 
     all_ips = list(ip_map.keys())
     total_ips = len(all_ips)
