@@ -15,21 +15,14 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # 获取所有历史，防止 Push 失败
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: pip install requests
-
-    - name: Pull latest changes
+    - name: Pull latest
       run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git pull origin main || echo "No changes to pull"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        # 强制在运行脚本前把你在网页端改的内容拉下来
+        git pull origin main || echo "No remote changes"
 
     - name: Run Pipeline
       env:
@@ -41,5 +34,6 @@ jobs:
 
     - name: Commit and Push
       run: |
-        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
+        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        # 只有在真的有变化时才提交，防止死循环
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Update $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
