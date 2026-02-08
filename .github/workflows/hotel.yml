@@ -3,11 +3,12 @@ name: IPTV Auto Update
 on:
   schedule:
     - cron: '0 */2 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 支持你手动点击运行测试
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    # 必须给予写入权限，否则 git pull/push 会静默失败
     permissions:
       contents: write
 
@@ -15,25 +16,37 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # 获取所有历史，防止 Push 失败
+        fetch-depth: 0 # 获取完整历史
 
-    - name: Pull latest
+    - name: 强制同步远程最新内容
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        # 强制在运行脚本前把你在网页端改的内容拉下来
-        git pull origin main || echo "No remote changes"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        # 核心步骤：丢弃 Actions 机器本地的所有缓存，强行同步远程 main 分支
+        git fetch origin main
+        git reset --hard origin/main
+        echo "✅ 当前读取的底库内容片段："
+        head -n 5 aggregated_hotel.txt
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install requests
 
     - name: Run Pipeline
       env:
         PYTHONUNBUFFERED: 1
       run: |
+        # 显式指定运行目录，确保脚本读取的是根目录下的最新文件
         python md/aggregate.py
         python md/rescue_hotel.py
         python md/format_output.py
 
     - name: Commit and Push
       run: |
-        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
-        # 只有在真的有变化时才提交，防止死循环
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Update $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
+        git add aggregated_hotel.txt final_hotel.txt final_hotel.m3u
+        # 只有在真的有变化时才提交
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M:%S')" && git push origin main)
