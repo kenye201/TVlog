@@ -1,38 +1,34 @@
-name: Quality Test Only
+name: Aggregate Hotel IPTV List
 
 on:
-  workflow_dispatch: # 手动触发
+  push:
+    paths:
+      - 'history/**'        # 只有 history 文件夹变动时才触发
+  workflow_dispatch:        # 允许手动点击运行
+  schedule:
+    - cron: '0 0 * * *'     # 每天凌晨自动运行一次
 
 jobs:
-  test_and_report:
+  build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install FFmpeg
+      - name: Run Aggregate Script
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          python aggregate.py  # 运行下面为你准备的脚本
 
-      - name: Run Quality Check Script
-        run: python md/test_check.py
-
-      # 预览步骤：让你直接在 Actions 日志里看到生成的内容
-      - name: Preview Results
+      - name: Commit and Push
         run: |
-          echo "--- 预览生成的文件内容 (前50行) ---"
-          head -n 50 md/test_result.txt
-
-      # 上传步骤：将文件打包，存放在 Actions 页面最下方
-      - name: Upload Test Result
-        uses: actions/upload-artifact@v4
-        with:
-          name: hotel_test_report
-          path: md/test_result.txt
-          retention-days: 1 # 只保存1天，因为是临时测试
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add aggregated_hotel.txt
+          # 只有在文件有变化时才 commit，防止报错
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update: $(date +'%Y-%m-%d') aggregated hotel list" && git push)
