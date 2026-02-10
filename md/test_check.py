@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 # --- 配置 ---
 BASE_DIR = "history"
-SAVE_PATH = "aggregated_hotel.txt"
+SAVE_PATH = "hotel.txt"
 
 def get_ip_from_url(url):
     """提取 IP:Port"""
