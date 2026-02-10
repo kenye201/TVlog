@@ -23,12 +23,12 @@ jobs:
 
       - name: Run Aggregate Script
         run: |
-          python aggregate.py  # 运行下面为你准备的脚本
+          python md/test_check.py  # 运行下面为你准备的脚本
 
       - name: Commit and Push
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add aggregated_hotel.txt
+          git add hotel.txt
           # 只有在文件有变化时才 commit，防止报错
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update: $(date +'%Y-%m-%d') aggregated hotel list" && git push)
