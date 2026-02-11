@@ -24,25 +24,29 @@ jobs:
     - name: Install dependencies
       run: pip install requests
 
-    - name: Run Discovery
-      env:
-        PYTHONUNBUFFERED: 1
-      run: |
-        # 运行挖矿脚本，将新活 IP 追加到 manual_fix.txt
-        python md/discovery.py
+    - name: 运行挖矿脚本
+      run: python md/discovery.py
 
-    - name: Commit and Push
+    - name: 提交并推送更新
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # 核心：即使没有文件，执行这个命令也不会报错
-        git add md/manual_fix.txt || echo "No manual_fix.txt found"
+        # 1. 先把远程最新的改动拉下来，避免在你挖矿期间别人提交了代码
+        git pull --rebase origin main
         
-        # 只有在有变动时才 commit
-        if git diff --staged --quiet; then
-          echo "No changes to commit"
-        else
-          git commit -m "Discovery: 全量体检并同步存活网段"
-          git push
-        fi
+        # 2. 添加修改的文件
+        git add md/manual_fix.txt
+        
+        # 3. 提交，如果没有变化则跳过
+        git commit -m "Discovery: 自动挖掘并修复活跃网段" || echo "No changes to commit"
+        
+        # 4. 推送，如果还是冲突，重试最多 3 次
+        n=0
+        until [ "$n" -ge 3 ]
+        do
+           git push origin main && break
+           n=$((n+1))
+           git pull --rebase origin main
+           sleep 5
+        done
