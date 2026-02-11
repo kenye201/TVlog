@@ -1,79 +1,77 @@
 import os, requests, concurrent.futures, re
+from urllib.parse import urlparse
 
 # --- 路径配置 ---
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(CURRENT_DIR)
-# 源头：汇总了 400 多个 IP 的大冷库
 MERGED_SOURCE = os.path.join(PARENT_DIR, "history", "merged.txt")
-# 目的地：你手动维护的补丁库 (追加模式)
 MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
 
-TIMEOUT = 3
+TIMEOUT = 4
 MAX_WORKERS = 50
 
-def is_valid_ip(ip_str):
-    """极致校验：匹配 IP:Port 或 域名:Port"""
-    pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
-    return bool(re.match(pattern, ip_str))
+def extract_ip_port(url):
+    """从 URL 中提取 Host:Port"""
+    try:
+        parsed = urlparse(url)
+        if parsed.netloc:
+            return parsed.netloc
+    except:
+        return None
+    return None
 
 def load_fix_ips():
-    """读取补丁库已有的 IP，避免重复挖掘"""
+    """读取补丁库现有的所有 IP"""
     ips = set()
     if os.path.exists(MANUAL_FIX):
         with open(MANUAL_FIX, 'r', encoding='utf-8', errors='ignore') as f:
-            for line in f:
-                if "#genre#" in line:
-                    ips.add(line.split(',')[0].strip())
+            # 匹配所有形如 1.2.3.4:80 的字符串
+            found = re.findall(r'([\w\.\-]+:\d+)', f.read())
+            for item in found:
+                ips.add(item.strip())
     return ips
 
 def main():
     existing_ips = load_fix_ips()
-    ip_map = {} # 结构: { "IP:Port": [ "频道,URL", ... ] }
+    # 结构: { "122.114.131.154:4060": [ "CCTV1,url1", "CCTV2,url2" ] }
+    ip_groups = {} 
 
-    print(f"🔍 正在从大库挖掘新基因: {MERGED_SOURCE}")
+    print(f"📖 正在解析混合源文件: {MERGED_SOURCE}")
     if not os.path.exists(MERGED_SOURCE):
-        print("❌ 错误：找不到源文件 history/merged.txt")
+        print("❌ 错误：找不到文件")
         return
 
-    # --- 1. 强力解析逻辑 ---
+    # --- 1. 扫描提取并按 IP 聚合 ---
     with open(MERGED_SOURCE, 'r', encoding='utf-8', errors='ignore') as f:
-        active_ip = None
         for line in f:
             line = line.strip()
-            if not line: continue
-            
-            # 兼容多种格式：无论是 IP,#genre# 还是直接带端口的行
-            parts = line.split(',')
-            potential_ip = parts[0].strip()
-            
-            if is_valid_ip(potential_ip):
-                # 如果这一行是新 IP 标识
-                if potential_ip not in existing_ips:
-                    active_ip = potential_ip
-                    if active_ip not in ip_map:
-                        ip_map[active_ip] = []
-                else:
-                    active_ip = None # 已在补丁库，跳过该段
+            if "," not in line or "http" not in line:
                 continue
             
-            # 如果是频道数据行，且当前处于有效 IP 段内
-            if "," in line and active_ip:
-                ip_map[active_ip].append(line)
+            parts = line.split(',', 1)
+            name = parts[0].strip()
+            url = parts[1].strip()
+            
+            ip_port = extract_ip_port(url)
+            if ip_port and ip_port not in existing_ips:
+                if ip_port not in ip_groups:
+                    ip_groups[ip_port] = []
+                # 存入频道名和完整 URL
+                ip_groups[ip_port].append(f"{name},{url}")
 
-    if not ip_map:
-        print("✅ 大库中没有发现不在补丁库的新 IP。")
+    if not ip_groups:
+        print("✅ 大库中所有 IP 已存在于补丁库或未发现有效 URL。")
         return
 
-    print(f"📡 发现 {len(ip_map)} 个新网段，准备全量体检...")
+    print(f"📡 提取到 {len(ip_groups)} 个全新网段，开始探测存活...")
 
-    # --- 2. 并发探测存活 ---
-    new_revived = []
+    # --- 2. 并发探测 ---
+    newly_found = []
     
-    def check_alive(ip):
+    def check_worker(ip):
         try:
-            # 随便找这个 IP 下的一个频道测一下
-            test_url = ip_map[ip][0].split(',')[1].strip()
-            # 模拟 VLC 播放器请求，绕过简单的防火墙
+            # 抽取该 IP 下的第一个频道链接进行测试
+            test_url = ip_groups[ip][0].split(',')[1]
             r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"VLC/3.0"})
             return ip, r.status_code == 200
         except:
@@ -82,24 +80,24 @@ def main():
     
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-        results = {executor.submit(check_alive, ip): ip for ip in ip_map}
-        for f in concurrent.futures.as_completed(results):
-            ip, ok = f.result()
+        future_to_ip = {executor.submit(check_worker, ip): ip for ip in ip_groups}
+        for future in concurrent.futures.as_completed(future_to_ip):
+            ip, ok = future.result()
             if ok:
-                print(f"🌟 [发现活鲜] {ip}")
-                # 构建标准追加块
+                print(f"🌟 [挖到新矿] {ip} ({len(ip_groups[ip])} 频道)")
+                # 按照你喜欢的 IP 分组格式构建块
                 block = f"{ip},#genre#\n"
-                for item in ip_map[ip]:
-                    block += f"{item}\n"
-                new_revived.append(block + "\n")
+                block += "\n".join(ip_groups[ip])
+                block += "\n\n"
+                newly_found.append(block)
 
-    # --- 3. 追加到 manual_fix.txt ---
-    if new_revived:
+    # --- 3. 追加写入 ---
+    if newly_found:
         with open(MANUAL_FIX, 'a', encoding='utf-8') as f:
-            f.writelines(new_revived)
-        print(f"🚀 搞定！已将 {len(new_revived)} 个新活 IP 追加到 manual_fix.txt 末尾。")
+            f.writelines(newly_found)
+        print(f"🚀 追加完成！本次发现 {len(newly_found)} 个新活网段并已格式化存入补丁库。")
     else:
-        print("⛈️ 扫了一圈，400 个 IP 里没发现新的活口。")
+        print("⛈️ 探测结束，没发现能连通的新源。")
 
 if __name__ == "__main__":
     main()
