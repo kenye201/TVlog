@@ -94,11 +94,41 @@ def main():
                                 new_block += f"{name},{new_url}\n"
                             final_results.append(new_block + "\n")
 
-    # 3. 最终写入 manual_fix.txt
+# 3. 最终比对并追加写入 manual_fix.txt
     if final_results:
-        with open(MANUAL_FIX, 'w', encoding='utf-8') as f:
-            f.writelines(final_results)
-        print(f"\n🎉 任务完成！结果已同步至 {MANUAL_FIX}", flush=True)
+        existing_ip_ports = set()
+        
+        # --- 步骤 A: 读取现有库中的 IP:Port ---
+        if os.path.exists(MANUAL_FIX):
+            with open(MANUAL_FIX, 'r', encoding='utf-8') as f:
+                content = f.read()
+                # 使用正则匹配现有文件中的所有 IP:Port (xxx.xxx.xxx.xxx:port)
+                existing_ip_ports = set(re.findall(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)', content))
+        
+        print(f"\n📑 库对比：当前库已有 {len(existing_ip_ports)} 个网段。", flush=True)
 
-if __name__ == "__main__":
-    main()
+        # --- 步骤 B: 过滤掉已存在的内容 ---
+        new_to_append = []
+        for block in final_results:
+            # 提取当前结果块中的 IP:Port (通常在 block 的第一行或 URL 中)
+            match = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)', block)
+            if match:
+                current_ip_port = match.group(1)
+                if current_ip_port not in existing_ip_ports:
+                    new_to_append.append(block)
+                    # 同时加入集合，防止本次扫描出的重复 IP (例如 24 段内扫描出多个)
+                    existing_ip_ports.add(current_ip_port) 
+
+        # --- 步骤 C: 追加写入 ---
+        if new_to_append:
+            # 使用 'a' 模式追加，确保不覆盖旧内容
+            with open(MANUAL_FIX, 'a', encoding='utf-8') as f:
+                # 如果文件不为空且结尾没有换行，先补一个换行
+                if os.path.exists(MANUAL_FIX) and os.path.getsize(MANUAL_FIX) > 0:
+                    f.write("\n")
+                f.writelines(new_to_append)
+            print(f"✅ 成功追加 {len(new_to_append)} 个新发现的网段到 {MANUAL_FIX}", flush=True)
+        else:
+            print("微调完成：本次扫描发现的网段均已存在于库中，无需更新。", flush=True)
+    else:
+        print("\n📭 本次扫描未发现有效网段。", flush=True)
