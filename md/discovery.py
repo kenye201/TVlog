@@ -8,8 +8,8 @@ MERGED_SOURCE = os.path.join(PARENT_DIR, "history", "merged.txt")
 MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
 
 TIMEOUT = 3
-MAX_WORKERS_IP = 40  # 提取 IP 的并发
-MAX_WORKERS_C = 60   # C 段爆破的并发
+MAX_WORKERS_CHECK = 100 # 第一步快测：并发开大
+MAX_WORKERS_RESCUE = 100 # 第二步爆破：总并发控制
 
 def extract_ip_port(url):
     try:
@@ -26,36 +26,30 @@ def check_url(url):
     except:
         return False
 
-def scan_c_segment(base_ip_port, channel_list):
-    """
-    对失效 IP 进行 C 段爆破 (1-255)
-    返回第一个扫到的活 IP 块内容
-    """
+def rescue_task(base_ip_port, channels):
+    """C段爆破单个网段的任务函数"""
     ip, port = base_ip_port.split(':')
+    # 过滤掉非 IP 的域名（域名无法爆破 C 段）
+    if not re.match(r'^\d+\.\d+\.\d+\.\d+$', ip):
+        return None
+        
     prefix = '.'.join(ip.split('.')[:-1])
+    path = channels[0].split(',')[1].split(base_ip_port)[-1]
     
-    # 构造探测任务：扫描该 C 段所有 255 个地址
-    test_tasks = []
+    # 构造该 C 段所有 255 个探测地址
     for i in range(1, 256):
         target_ip = f"{prefix}.{i}:{port}"
-        # 拿第一个频道的路径来测试
-        path = channel_list[0].split(',')[1].split(base_ip_port)[-1]
+        if target_ip == base_ip_port: continue # 跳过已知的死 IP
+        
         test_url = f"http://{target_ip}{path}"
-        test_tasks.append((target_ip, test_url))
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_C) as executor:
-        future_to_ip = {executor.submit(check_url, url): t_ip for t_ip, url in test_tasks}
-        for future in concurrent.futures.as_completed(future_to_ip):
-            target_ip = future_to_ip[future]
-            if future.result():
-                print(f"✨ C 段爆破成功: {base_ip_port} -> {target_ip}")
-                # 构造新的频道块内容
-                new_block = f"{target_ip},#genre#\n"
-                for ch in channel_list:
-                    name, old_url = ch.split(',', 1)
-                    new_url = old_url.replace(base_ip_port, target_ip)
-                    new_block += f"{name},{new_url}\n"
-                return new_block + "\n"
+        if check_url(test_url):
+            # 只要找到一个活的，立即返回块内容
+            block = f"{target_ip},#genre#\n"
+            for ch in channels:
+                name, old_url = ch.split(',', 1)
+                new_url = old_url.replace(base_ip_port, target_ip)
+                block += f"{name},{new_url}\n"
+            return block + "\n"
     return None
 
 def main():
@@ -78,33 +72,44 @@ def main():
     print(f"📖 基因库解析完成，共 {len(ip_groups)} 个原始网段。")
     
     final_results = []
+    to_rescue = [] # 存放失效网段进行爆破
 
-    # 2. 串行处理每个网段（内部使用并发）
-    for idx, (ip_port, channels) in enumerate(ip_groups.items()):
-        print(f"[{idx+1}/{len(ip_groups)}] 正在处理: {ip_port}")
-        
-        # 先测原始 IP
-        test_url = channels[0].split(',')[1]
-        if check_url(test_url):
-            print(f"✅ 原始 IP 存活: {ip_port}")
-            block = f"{ip_port},#genre#\n" + "\n".join(channels) + "\n\n"
-            final_results.append(block)
-        else:
-            # 原始 IP 不通，立即爆破 C 段
-            print(f"🚀 原始 IP 失效，开始 C 段爆破...")
-            rescued_block = scan_c_segment(ip_port, channels)
-            if rescued_block:
-                final_results.append(rescued_block)
+    # --- 第一步：并发快测原始 IP ---
+    print(f"📡 阶段 1：正在快速检测原始 IP 存活情况...")
+    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_CHECK) as executor:
+        future_to_ip = {executor.submit(check_url, data[0].split(',')[1]): ip for ip, data in ip_groups.items()}
+        for future in concurrent.futures.as_completed(future_to_ip):
+            ip_port = future_to_ip[future]
+            if future.result():
+                print(f"✅ [直连存活] {ip_port}")
+                block = f"{ip_port},#genre#\n" + "\n".join(ip_groups[ip_port]) + "\n\n"
+                final_results.append(block)
             else:
-                print(f"💀 该网段彻底失效，已放弃。")
+                to_rescue.append(ip_port)
 
-    # 3. 覆盖写入 manual_fix.txt
+    print(f"📊 统计：直连成功 {len(final_results)} 个，待爆破抢救 {len(to_rescue)} 个。")
+
+    # --- 第二步：并发执行 C 段爆破 ---
+    if to_rescue:
+        print(f"🚀 阶段 2：开始并行 C 段爆破（耗时较长，请耐心等待）...")
+        # 限制爆破任务的并发，防止 CPU/带宽 瞬间过载
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            rescue_futures = {executor.submit(rescue_task, ip, ip_groups[ip]): ip for ip in to_rescue}
+            for future in concurrent.futures.as_completed(rescue_futures):
+                orig_ip = rescue_futures[future]
+                result_block = future.result()
+                if result_block:
+                    print(f"✨ [抢救成功] 原始: {orig_ip}")
+                    final_results.append(result_block)
+                else:
+                    # print(f"💀 [彻底失效] {orig_ip}")
+                    pass
+
+    # 3. 写入文件
     if final_results:
         with open(MANUAL_FIX, 'w', encoding='utf-8') as f:
             f.writelines(final_results)
         print(f"🎉 任务完成！共导出 {len(final_results)} 个活网段至 manual_fix.txt")
-    else:
-        print("⚠️ 未发现任何存活或可修复的网段。")
 
 if __name__ == "__main__":
     main()
