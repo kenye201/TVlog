@@ -44,7 +44,7 @@ jobs:
       run: |
         # 1. 运行核心探测脚本（读取 merged.txt 和 manual_fix.txt）
         # 假设你把之前的 Python 脚本命名为 md/check_iptv.py
-        python md/check_iptv.py
+        python md/aggregate.py
         
         # 2. 如果你有抢救脚本（爆破C段），在这里运行
         python md/rescue_hotel.py
