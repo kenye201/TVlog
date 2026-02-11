@@ -1,15 +1,15 @@
 import os, sys, requests, re, concurrent.futures
-from urllib.parse import urlparse
 
 # --- 路径配置区 ---
-# 获取当前脚本所在目录 (即 md 文件夹)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-# 你的底库现在就在 md 文件夹内
-LOCAL_BASE = os.path.join(CURRENT_DIR, "aggregated_hotel.txt")
-# 原始抓取源通常在根目录 (md 的上一级)
-INPUT_RAW = os.path.join(os.path.dirname(CURRENT_DIR), "tvbox_output.txt")
+PARENT_DIR = os.path.dirname(CURRENT_DIR)
 
-# 中转文件也放在 md 文件夹内，防止根目录混乱
+# 1. 大库源 (只读)
+INPUT_SOURCE = os.path.join(PARENT_DIR, "history", "merged.txt")
+# 2. 手动补丁 (你可以在这里改名字、改顺序)
+MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
+
+# 输出文件
 MID_REVIVED = os.path.join(CURRENT_DIR, "revived_temp.txt")
 MID_DEAD = os.path.join(CURRENT_DIR, "dead_tasks.txt")
 
@@ -17,55 +17,55 @@ TIMEOUT = 3
 MAX_WORKERS = 30
 
 def is_valid_ip(ip_str):
-    """校验 IP:Port 或 域名:Port 格式"""
     pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
     return bool(re.match(pattern, ip_str))
 
-def main():
-    ip_map = {} # 结构: { "IP:Port": { "频道名": "URL" } }
-
-    # 打印路径确认，方便在 Actions 日志中排查
-    print(f"📂 正在定位底库: {LOCAL_BASE}", flush=True)
-    if os.path.exists(LOCAL_BASE):
-        print(f"📏 底库文件大小: {os.path.getsize(LOCAL_BASE)} bytes", flush=True)
-    else:
-        print(f"⚠️ 警告：未在 md 目录下找到 aggregated_hotel.txt！", flush=True)
-
-    def load_data(path, label):
-        if not os.path.exists(path): return
-        print(f"📖 正在从 [{label}] 加载基因...", flush=True)
-        with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-            cur_ip = None
-            for line in f:
-                line = line.strip()
-                if not line: continue
-                if "#genre#" in line:
-                    potential_ip = line.split(',')[0].strip()
-                    if is_valid_ip(potential_ip):
+def load_to_map(path, ip_map, is_override=False):
+    if not os.path.exists(path):
+        return
+    print(f"📖 正在加载: {path} {'(强制覆盖模式)' if is_override else '(常规加载)'}")
+    
+    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+        cur_ip = None
+        for line in f:
+            line = line.strip()
+            if not line: continue
+            if "#genre#" in line:
+                potential_ip = line.split(',')[0].strip()
+                if is_valid_ip(potential_ip):
+                    # 如果是常规加载且补丁库已经有了这个IP，我们就跳过整个块
+                    if not is_override and potential_ip in ip_map:
+                        cur_ip = "SKIP_EXISTING" 
+                    else:
                         cur_ip = potential_ip
-                        if cur_ip not in ip_map: ip_map[cur_ip] = {}
-                    else: cur_ip = None
-                    continue
-                if ',' in line and cur_ip:
-                    name, url = line.split(',', 1)
-                    # 关键：优先保护已存在的内容 (底库内容)
-                    name_s, url_s = name.strip(), url.strip()
-                    if name_s not in ip_map[cur_ip]:
-                        ip_map[cur_ip][name_s] = url_s
+                        ip_map[cur_ip] = {}
+                else: cur_ip = None
+                continue
+            
+            if ',' in line and cur_ip and cur_ip != "SKIP_EXISTING":
+                name, url = line.split(',', 1)
+                # 保持文件里的原始顺序
+                if name.strip() not in ip_map[cur_ip]:
+                    ip_map[cur_ip][name.strip()] = url.strip()
 
-    # ！！！加载顺序：1.底库(md/) 2.新源(根目录) ！！！
-    load_data(LOCAL_BASE, "MD底库(含手动修改)")
-    load_data(INPUT_RAW, "根目录新源")
+def main():
+    ip_map = {} # { "IP": { "Name": "URL" } }
+
+    # 1. 先加载【手动补丁】，占据位置
+    if os.path.exists(MANUAL_FIX):
+        load_to_map(MANUAL_FIX, ip_map, is_override=True)
+    
+    # 2. 再加载【大库汇总】，如果IP已在补丁中，则跳过
+    load_to_map(INPUT_SOURCE, ip_map, is_override=False)
 
     all_ips = list(ip_map.keys())
-    total_ips = len(all_ips)
-    
-    if total_ips == 0:
-        print("❌ 错误：未加载到任何有效 IP，请检查文件内容和路径！", flush=True)
+    if not all_ips:
+        print("❌ 未加载到任何有效 IP")
         return
 
-    print(f"📡 共有 {total_ips} 个 IP 网段参与探测...", flush=True)
+    print(f"📡 共有 {len(all_ips)} 个 IP 网段参与探测...", flush=True)
 
+    # --- 探测逻辑 (与之前一致) ---
     revived, dead = [], []
     processed = 0
 
@@ -83,22 +83,20 @@ def main():
             processed += 1
             ip, ok = f.result()
             
-            # 重组文件块
-            block_content = f"{ip},#genre#\n"
+            block = f"{ip},#genre#\n"
             for name, url in ip_map[ip].items():
-                block_content += f"{name},{url}\n"
-            block_content += "\n"
+                block += f"{name},{url}\n"
+            block += "\n"
             
             if ok:
-                revived.append(block_content)
-                print(f"[{processed}/{total_ips}] ✅ [存活] {ip}", flush=True)
+                revived.append(block)
+                print(f"[{processed}/{len(all_ips)}] ✅ [存活] {ip}")
             else:
-                dead.append(block_content)
-                print(f"[{processed}/{total_ips}] 💀 [失效] {ip}", flush=True)
+                dead.append(block)
+                print(f"[{processed}/{len(all_ips)}] 💀 [失效] {ip}")
 
     with open(MID_REVIVED, 'w', encoding='utf-8') as f: f.writelines(revived)
     with open(MID_DEAD, 'w', encoding='utf-8') as f: f.writelines(dead)
-    print(f"📊 探测完成。存活: {len(revived)} | 待抢救: {len(dead)}", flush=True)
 
 if __name__ == "__main__":
     main()
