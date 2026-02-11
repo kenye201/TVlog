@@ -9,8 +9,7 @@ MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
 
 TIMEOUT = 2
 MAX_WORKERS_CHECK = 100 
-MAX_WORKERS_RESCUE = 5   # 任务并发
-MAX_THREADS_PER_C = 20  # 每个C段任务内部的并发探测数（加速全段扫描）
+MAX_THREADS_PER_C = 30  # 每个C段内部的并发数（加速全段扫描）
 
 def extract_ip_port(url):
     try:
@@ -26,50 +25,8 @@ def check_url(url):
     except:
         return False
 
-# 用于全局记录已经发现的活 IP，防止重复追加
+# 全局去重，防止同一个网段多次录入
 found_alive_ips = set()
-
-def rescue_task(base_ip_port, channels):
-    """全段扫描任务：扫完 1-255，抓取所有活源"""
-    ip_parts = base_ip_port.split(':')
-    if len(ip_parts) != 2: return []
-    
-    ip, port = ip_parts
-    if not re.match(r'^\d+\.\d+\.\d+\.\d+$', ip):
-        return []
-        
-    prefix = '.'.join(ip.split('.')[:-1])
-    path = channels[0].split(',')[1].split(base_ip_port)[-1]
-    
-    print(f"\n🔎 [深度挖掘] 网段: {prefix}.1-255:{port}")
-    
-    discovered_blocks = []
-    test_urls = []
-    for i in range(1, 256):
-        target_ip = f"{prefix}.{i}:{port}"
-        test_url = f"http://{target_ip}{path}"
-        test_urls.append((target_ip, test_url))
-
-    # 在每个 C 段内部使用多线程并发，实现“全段秒扫”
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS_PER_C) as inner_executor:
-        future_to_ip = {inner_executor.submit(check_url, url): t_ip for t_ip, url in test_urls}
-        
-        for future in concurrent.futures.as_completed(future_to_ip):
-            target_ip = future_to_ip[future]
-            if future.result():
-                # 全局去重：如果这个 IP 已经在别的任务里抓到了，就不重复处理
-                if target_ip not in found_alive_ips:
-                    found_alive_ips.add(target_ip)
-                    print(f"  ✨ [发现活源] {target_ip}")
-                    
-                    block = f"{target_ip},#genre#\n"
-                    for ch in channels:
-                        name, old_url = ch.split(',', 1)
-                        new_url = old_url.replace(base_ip_port, target_ip)
-                        block += f"{name},{new_url}\n"
-                    discovered_blocks.append(block + "\n")
-            
-    return discovered_blocks
 
 def main():
     if not os.path.exists(MERGED_SOURCE):
@@ -93,7 +50,7 @@ def main():
     to_rescue = []
 
     # --- 阶段 1：快测 ---
-    print(f"\n📡 阶段 1：全量直连探测")
+    print(f"\n📡 阶段 1：直连探测...")
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_CHECK) as executor:
         future_to_ip = {executor.submit(check_url, data[0].split(',')[1]): ip for ip, data in ip_groups.items()}
         for future in concurrent.futures.as_completed(future_to_ip):
@@ -107,22 +64,44 @@ def main():
             else:
                 to_rescue.append(ip_port)
 
-    # --- 阶段 2：深度爆破 (全段扫描) ---
+    # --- 阶段 2：深度挖掘（实时可见过程） ---
     if to_rescue:
-        print(f"\n🚀 阶段 2：开始全段深度挖掘 (任务并发:{MAX_WORKERS_RESCUE})")
-        # 建立任务队列，确保 B 段相同但 C 段不同的任务不漏掉
-        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_RESCUE) as executor:
-            rescue_futures = {executor.submit(rescue_task, ip, ip_groups[ip]): ip for ip in to_rescue}
-            for future in concurrent.futures.as_completed(rescue_futures):
-                blocks = future.result() # 这是一个列表，包含该段内所有活源
-                if blocks:
-                    final_results.extend(blocks)
+        print(f"\n🚀 阶段 2：开始执行 C 段挖掘任务 (共 {len(to_rescue)} 个)...")
+        for idx, base_ip_port in enumerate(to_rescue):
+            ip_parts = base_ip_port.split(':')
+            if len(ip_parts) != 2: continue
+            ip, port = ip_parts
+            if not re.match(r'^\d+\.\d+\.\d+\.\d+$', ip): continue
+            
+            prefix = '.'.join(ip.split('.')[:-1])
+            channels = ip_groups[base_ip_port]
+            path = channels[0].split(',')[1].split(base_ip_port)[-1]
+            
+            print(f"[{idx+1}/{len(to_rescue)}] 🔎 正在扫描网段: {prefix}.1-255:{port}")
+            
+            test_tasks = [(f"{prefix}.{i}:{port}", f"http://{prefix}.{i}:{port}{path}") for i in range(1, 256)]
+            
+            # 使用内层并发加速 C 段扫描
+            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_THREADS_PER_C) as inner_executor:
+                future_to_target = {inner_executor.submit(check_url, url): t_ip for t_ip, url in test_tasks}
+                for future in concurrent.futures.as_completed(future_to_target):
+                    target_ip = future_to_target[future]
+                    if future.result():
+                        if target_ip not in found_alive_ips:
+                            found_alive_ips.add(target_ip)
+                            print(f"  ✨ [爆破命中!!] {target_ip}")
+                            block = f"{target_ip},#genre#\n"
+                            for ch in channels:
+                                name, old_url = ch.split(',', 1)
+                                new_url = old_url.replace(base_ip_port, target_ip)
+                                block += f"{name},{new_url}\n"
+                            final_results.append(block + "\n")
 
     # 3. 写入文件
     if final_results:
         with open(MANUAL_FIX, 'w', encoding='utf-8') as f:
             f.writelines(final_results)
-        print(f"\n🎉 挖掘结束！共捕获 {len(found_alive_ips)} 个独立活跃网段。")
+        print(f"\n🎉 任务完成！共捕获 {len(found_alive_ips)} 个独立网段。")
 
 if __name__ == "__main__":
     main()
