@@ -1,12 +1,12 @@
-name: IPTV Auto Update
+name: IPTV Pipeline Update
 
 on:
   schedule:
-    - cron: '0 */2 * * *' 
-  workflow_dispatch: 
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
 
 jobs:
-  update:
+  update-iptv:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -15,20 +15,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 
-
-    - name: 强制同步远程最新内容
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git fetch origin main
-        git reset --hard origin/main
-        # 验证源头文件是否存在
-        if [ -f "history/merged.txt" ]; then
-          echo "✅ 发现汇总源文件，当前行数：$(wc -l < history/merged.txt)"
-        else
-          echo "❌ 警告：history/merged.txt 不存在！"
-        fi
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -38,28 +25,32 @@ jobs:
     - name: Install dependencies
       run: pip install requests
 
-    - name: Run Pipeline
-      env:
-        PYTHONUNBUFFERED: 1
+    - name: Run 3-Stage Pipeline
       run: |
-        # 1. 运行核心探测脚本（读取 merged.txt 和 manual_fix.txt）
-        # 假设你把之前的 Python 脚本命名为 md/check_iptv.py
-        python md/check_iptv.py
-        
-        # 2. 如果你有抢救脚本（爆破C段），在这里运行
-        python md/rescue_hotel.py
-        
-        # 3. 运行格式化输出脚本（生成最终的 m3u 和 txt）
-        python md/format_output.py
+        # 1. 体检与初级复活
+        python -u md/check_iptv.py
+        # 2. 深度抢救
+        python -u md/rescue_hotel.py
+        # 3. 汇总发布
+        python -u md/format_output.py
 
-    - name: Commit and Push
+    - name: Commit and Robust Push
       run: |
-        # 仅添加 md 目录下的中转文件和根目录下的最终发布文件
-        # 显式排除 history/merged.txt，确保不回写源文件
-        git add md/revived_temp.txt \
-                md/dead_tasks.txt \
-                final_hotel.txt \
-                final_hotel.m3u
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
         
-        # 检查是否有变化，有变化才提交
-        git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M')" && git push)
+        # 只提交发布结果和补丁库（如果需要更新补丁库，请在脚本中加入回写逻辑，目前保持补丁库只读）
+        git add final_hotel.txt final_hotel.m3u
+        
+        git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M')" || exit 0
+        
+        # 变基推送策略
+        n=0
+        until [ "$n" -ge 5 ]
+        do
+          git pull --rebase origin main
+          git push origin main && break
+          n=$((n+1))
+          echo "Retry push $n..."
+          sleep 10
+        done
