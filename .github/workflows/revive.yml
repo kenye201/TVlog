@@ -1,32 +1,40 @@
-name: Revive Hotel IP Segment
+name: IPTV Daily Discovery
 
 on:
   schedule:
-    - cron: '0 2 * * *'     # 每天凌晨 2:00 自动执行
-  workflow_dispatch:        # 支持手动触发
+    # 每天北京时间凌晨 04:00 运行 (UTC 20:00)
+    - cron: '0 20 * * *'
+  workflow_dispatch: # 关键：这行允许你在 GitHub Actions 页面手动点击运行
 
 jobs:
-  revive_scan:
+  discovery:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-      - name: Install dependencies
-        run: pip install requests # 如果需要更复杂的请求可以装，目前内置库即可
+    - name: Install dependencies
+      run: pip install requests
 
-      - name: Run Revive Script
-        run: python revive.py
+    - name: Run Discovery
+      env:
+        PYTHONUNBUFFERED: 1
+      run: |
+        # 运行挖矿脚本，将新活 IP 追加到 manual_fix.txt
+        python md/discovery.py
 
-      - name: Commit and Push
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add revived_hotel.txt
-          # 检查是否有变化，有变化则提交
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-Revive: $(date +'%Y-%m-%d %H:%M') scan completed" && git push)
+    - name: Commit and Push
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        # 只提交 manual_fix.txt 的变更
+        git add md/manual_fix.txt
+        git diff --staged --quiet || (git commit -m "Discovery: 🌟 发现并追加新活 IP 到补丁库" && git push)
