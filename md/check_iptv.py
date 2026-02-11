@@ -1,102 +1,117 @@
-import os, sys, requests, re, concurrent.futures
+import os, requests, re, sys
+from urllib.parse import urlparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# --- 路径配置区 ---
+# --- 配置区 ---
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(CURRENT_DIR)
-
-# 1. 大库源 (只读)
-INPUT_SOURCE = os.path.join(PARENT_DIR, "history", "merged.txt")
-# 2. 手动补丁 (你可以在这里改名字、改顺序)
+# 输入源：唯一的补丁库
 MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
 
-# 输出文件
+# 输出源
 MID_REVIVED = os.path.join(CURRENT_DIR, "revived_temp.txt")
 MID_DEAD = os.path.join(CURRENT_DIR, "dead_tasks.txt")
 
 TIMEOUT = 3
-MAX_WORKERS = 30
+MAX_THREADS_CHECK = 50  # 基础体检并发
+MAX_THREADS_SCAN = 40   # 爆破复活并发
 
-def is_valid_ip(ip_str):
-    pattern = r'^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+):[0-9]+$'
-    return bool(re.match(pattern, ip_str))
+def check_url(url):
+    try:
+        with requests.get(url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"VLC/3.0"}) as r:
+            return r.status_code == 200
+    except:
+        return False
 
-def load_to_map(path, ip_map, is_override=False):
-    if not os.path.exists(path):
-        return
-    print(f"📖 正在加载: {path} {'(强制覆盖模式)' if is_override else '(常规加载)'}")
+def parse_manual_fix():
+    """解析 manual_fix.txt，保留用户的手动排序和频道名"""
+    if not os.path.exists(MANUAL_FIX):
+        return []
     
-    with open(path, 'r', encoding='utf-8', errors='ignore') as f:
-        cur_ip = None
-        for line in f:
-            line = line.strip()
-            if not line: continue
-            if "#genre#" in line:
-                potential_ip = line.split(',')[0].strip()
-                if is_valid_ip(potential_ip):
-                    # 如果是常规加载且补丁库已经有了这个IP，我们就跳过整个块
-                    if not is_override and potential_ip in ip_map:
-                        cur_ip = "SKIP_EXISTING" 
-                    else:
-                        cur_ip = potential_ip
-                        ip_map[cur_ip] = {}
-                else: cur_ip = None
-                continue
-            
-            if ',' in line and cur_ip and cur_ip != "SKIP_EXISTING":
-                name, url = line.split(',', 1)
-                # 保持文件里的原始顺序
-                if name.strip() not in ip_map[cur_ip]:
-                    ip_map[cur_ip][name.strip()] = url.strip()
+    with open(MANUAL_FIX, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # 按两个换行符分割块
+    blocks = [b.strip() for b in content.split('\n\n') if b.strip()]
+    parsed_data = []
+    
+    for block in blocks:
+        lines = block.split('\n')
+        header = lines[0] # 例如: 122.114.131.1:80,#genre#
+        channels = lines[1:] # 剩下的频道行
+        
+        ip_port = header.split(',')[0].strip()
+        parsed_data.append({
+            'header': header,
+            'ip_port': ip_port,
+            'channels': channels,
+            'original_block': block
+        })
+    return parsed_data
 
 def main():
-    ip_map = {} # { "IP": { "Name": "URL" } }
-
-    # 1. 先加载【手动补丁】，占据位置
-    if os.path.exists(MANUAL_FIX):
-        load_to_map(MANUAL_FIX, ip_map, is_override=True)
-    
-    # 2. 再加载【大库汇总】，如果IP已在补丁中，则跳过
-    load_to_map(INPUT_SOURCE, ip_map, is_override=False)
-
-    all_ips = list(ip_map.keys())
-    if not all_ips:
-        print("❌ 未加载到任何有效 IP")
+    tasks = parse_manual_fix()
+    if not tasks:
+        print("❌ manual_fix.txt 为空或不存在", flush=True)
         return
 
-    print(f"📡 共有 {len(all_ips)} 个 IP 网段参与探测...", flush=True)
+    print(f"📡 补丁库加载完成，开始对 {len(tasks)} 个网段执行体检+复活程序...", flush=True)
+    
+    revived_list = []
+    dead_list = []
+    found_ips = set() # 用于检测期间的去重
 
-    # --- 探测逻辑 (与之前一致) ---
-    revived, dead = [], []
-    processed = 0
-
-    def check(ip):
-        try:
-            first_name = list(ip_map[ip].keys())[0]
-            test_url = ip_map[ip][first_name]
-            r = requests.get(test_url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"Mozilla/5.0"})
-            return ip, r.status_code == 200
-        except: return ip, False
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as exe:
-        futures = {exe.submit(check, ip): ip for ip in all_ips}
-        for f in concurrent.futures.as_completed(futures):
-            processed += 1
-            ip, ok = f.result()
+    for idx, item in enumerate(tasks):
+        base_ip_port = item['ip_port']
+        # 拿该组第一个频道测试
+        test_url = item['channels'][0].split(',', 1)[1].strip()
+        
+        print(f"[{idx+1}/{len(tasks)}] ⚖️ 正在体检: {base_ip_port}", flush=True)
+        
+        if check_url(test_url):
+            # --- 情况 A: 直接存活 ---
+            print(f"  ✅ [直连存活]", flush=True)
+            revived_list.append(item['original_block'] + "\n\n")
+            found_ips.add(base_ip_port)
+        else:
+            # --- 情况 B: 失效，尝试复活 (C段爆破) ---
+            print(f"  💀 [已失效] -> 正在尝试 C 段复活...", flush=True)
+            ip, port = base_ip_port.split(':')
+            prefix = '.'.join(ip.split('.')[:-1])
+            path = test_url.split(base_ip_port)[-1]
             
-            block = f"{ip},#genre#\n"
-            for name, url in ip_map[ip].items():
-                block += f"{name},{url}\n"
-            block += "\n"
+            # 构造探测任务
+            test_tasks = {f"http://{prefix}.{i}:{port}{path}": f"{prefix}.{i}:{port}" for i in range(1, 256)}
+            revived_ip = None
             
-            if ok:
-                revived.append(block)
-                print(f"[{processed}/{len(all_ips)}] ✅ [存活] {ip}")
+            with ThreadPoolExecutor(max_workers=MAX_THREADS_SCAN) as executor:
+                futures = {executor.submit(check_url, url): t_ip for url, t_ip in test_tasks.items()}
+                for f in as_completed(futures):
+                    target_ip = futures[f]
+                    if f.result():
+                        revived_ip = target_ip
+                        # 发现第一个活的就作为该组的救命稻草（保持 1 组 1 IP 的整洁）
+                        break 
+            
+            if revived_ip:
+                print(f"  ✨ [复活成功] -> 新 IP: {revived_ip}", flush=True)
+                # 构造复活后的块，保持原来的频道名和顺序
+                new_block = f"{revived_ip},#genre#\n"
+                for ch in item['channels']:
+                    name, old_url = ch.split(',', 1)
+                    new_block += f"{name},{old_url.replace(base_ip_port, revived_ip)}\n"
+                revived_list.append(new_block + "\n\n")
+                found_ips.add(revived_ip)
             else:
-                dead.append(block)
-                print(f"[{processed}/{len(all_ips)}] 💀 [失效] {ip}")
+                print(f"  ❌ [复活失败] 该网段已彻底离线", flush=True)
+                dead_list.append(item['original_block'] + "\n\n")
 
-    with open(MID_REVIVED, 'w', encoding='utf-8') as f: f.writelines(revived)
-    with open(MID_DEAD, 'w', encoding='utf-8') as f: f.writelines(dead)
+    # 写入结果
+    with open(MID_REVIVED, 'w', encoding='utf-8') as f:
+        f.writelines(revived_list)
+    with open(MID_DEAD, 'w', encoding='utf-8') as f:
+        f.writelines(dead_list)
+
+    print(f"\n📊 维保完成：存活/复活 {len(revived_list)} 个 | 彻底失效 {len(dead_list)} 个", flush=True)
 
 if __name__ == "__main__":
     main()
