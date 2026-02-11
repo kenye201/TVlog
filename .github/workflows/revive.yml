@@ -1,9 +1,9 @@
-name: IPTV Discovery and Rescue
+name: IPTV Discovery
 
 on:
   schedule:
-    - cron: '0 */6 * * *' # 每6小时运行一次
-  workflow_dispatch: # 支持手动触发
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # 必须拉取全部历史以便 rebase
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -25,28 +25,27 @@ jobs:
     - name: Install dependencies
       run: pip install requests
 
-    - name: Run Discovery Script
-      run: python md/discovery.py
+    - name: Run Discovery
+      # -u 参数非常关键，确保进度条实时显示在网页控制台
+      run: python -u md/discovery.py
 
-    - name: Commit and Push Changes (Robust Mode)
+    - name: Push results
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # 添加生成的文件
         git add md/manual_fix.txt
+        git commit -m "Discovery: 自动修复活跃网段" || exit 0
         
-        # 尝试提交，如果没有变动则正常退出
-        git commit -m "Discovery: 自动修复并同步活跃网段" || exit 0
+        # 变基拉取防止 Rejected
+        git pull --rebase origin main
         
-        # 【关键】推送前的防御机制
         n=0
         until [ "$n" -ge 5 ]
         do
-          echo "尝试同步远程仓库并推送 (第 $((n+1)) 次)..."
-          # 使用 rebase 将本地修改垫在远程更新之上
-          git pull --rebase origin main
           git push origin main && break
           n=$((n+1))
-          sleep 15 # 冲突严重时等待后再试
+          echo "推送冲突，尝试第 $n 次重试..."
+          git pull --rebase origin main
+          sleep 10
         done
