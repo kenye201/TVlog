@@ -34,23 +34,29 @@ jobs:
         # 3. 汇总发布
         python -u md/format_output.py
 
-    - name: Commit and Robust Push
+    - name: Commit and Push
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # 只提交发布结果和补丁库（如果需要更新补丁库，请在脚本中加入回写逻辑，目前保持补丁库只读）
-        git add final_hotel.txt final_hotel.m3u
+        # 1. 先把所有脚本生成的改动都 add 进来，确保没有 "unstaged changes"
+        # 包含所有的 txt, m3u 和 md 目录下的临时文件
+        git add md/*.txt final_hotel.txt final_hotel.m3u
         
+        # 2. 尝试提交。如果没有变化则跳过
         git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M')" || exit 0
         
-        # 变基推送策略
+        # 3. 核心步骤：先变基拉取。
+        # 此时因为你已经 commit 了，本地是干净的，rebase 就会成功。
+        git pull --rebase origin main
+        
+        # 4. 循环推送
         n=0
         until [ "$n" -ge 5 ]
         do
-          git pull --rebase origin main
           git push origin main && break
           n=$((n+1))
-          echo "Retry push $n..."
+          echo "推送冲突，尝试第 $n 次重试..."
+          git pull --rebase origin main
           sleep 10
         done
