@@ -19220,6 +19220,15 @@ CCTV-14 少儿,http://222.142.184.235:8888/hls/8/index.m3u8
 河南法治,http://222.142.184.235:8888/hls/26/index.m3u8
 河南电视剧,http://222.142.184.235:8888/hls/27/index.m3u8
 河南都市,http://222.142.184.235:8888/hls/24/index.m3u8
+CCTV-1 综合,http://218.19.108.138:808/hls/1/index.m3u8
+CCTV-2 财经,http://218.19.108.138:808/hls/2/index.m3u8
+CCTV-4 中文国际,http://218.19.108.138:808/hls/3/index.m3u8
+CCTV-5+ 体育赛事,http://218.19.108.138:808/hls/31/index.m3u8
+CCTV-9 纪录,http://218.19.108.138:808/hls/5/index.m3u8
+北京卫视,http://218.19.108.138:808/hls/11/index.m3u8
+山东卫视,http://218.19.108.138:808/hls/15/index.m3u8
+湖北卫视,http://218.19.108.138:808/hls/14/index.m3u8
+黑龙江卫视,http://218.19.108.138:808/hls/16/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761245466-2f856630e34a335d22eaa89a6a82430a-0-35a596017138dc8acc41365b05ed70f0
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761245466-e0b7337e60823d2a361f914f61ae3532-0-d51d24680a6e87a76d05e798f2e7a708
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761245466-6b078b4ce196ea8ca2824b55f071cf67-0-619e116f2d22313cbef51f0b74ed639e
