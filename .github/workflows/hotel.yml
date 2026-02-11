@@ -3,12 +3,11 @@ name: IPTV Auto Update
 on:
   schedule:
     - cron: '0 */2 * * *'
-  workflow_dispatch: # 支持你手动点击运行测试
+  workflow_dispatch: 
 
 jobs:
   update:
     runs-on: ubuntu-latest
-    # 必须给予写入权限，否则 git pull/push 会静默失败
     permissions:
       contents: write
 
@@ -16,17 +15,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0 # 获取完整历史
+        fetch-depth: 0 
 
     - name: 强制同步远程最新内容
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        # 核心步骤：丢弃 Actions 机器本地的所有缓存，强行同步远程 main 分支
         git fetch origin main
         git reset --hard origin/main
-        echo "✅ 当前读取的底库内容片段："
-        head -n 5 md/aggregated_hotel.txt
+        # 验证源头文件是否存在
+        if [ -f "history/merged.txt" ]; then
+          echo "✅ 发现汇总源文件，当前行数：$(wc -l < history/merged.txt)"
+        else
+          echo "❌ 警告：history/merged.txt 不存在！"
+        fi
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -40,12 +42,24 @@ jobs:
       env:
         PYTHONUNBUFFERED: 1
       run: |
-        # 显式指定运行目录，确保脚本读取的是根目录下的最新文件
-        python md/aggregate.py
+        # 1. 运行核心探测脚本（读取 merged.txt 和 manual_fix.txt）
+        # 假设你把之前的 Python 脚本命名为 md/check_iptv.py
+        python md/check_iptv.py
+        
+        # 2. 如果你有抢救脚本（爆破C段），在这里运行
         python md/rescue_hotel.py
+        
+        # 3. 运行格式化输出脚本（生成最终的 m3u 和 txt）
         python md/format_output.py
 
     - name: Commit and Push
       run: |
-        git add md/aggregated_hotel.txt final_hotel.txt final_hotel.m3u
-        git commit -m "Update" && git push
+        # 仅添加 md 目录下的中转文件和根目录下的最终发布文件
+        # 显式排除 history/merged.txt，确保不回写源文件
+        git add md/revived_temp.txt \
+                md/dead_tasks.txt \
+                final_hotel.txt \
+                final_hotel.m3u
+        
+        # 检查是否有变化，有变化才提交
+        git diff --staged --quiet || (git commit -m "Auto Update: $(date +'%Y-%m-%d %H:%M')" && git push)
