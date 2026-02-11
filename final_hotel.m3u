@@ -2495,7 +2495,7 @@ http://125.40.199.223:8092/hls/65/index.m3u8
 http://125.40.199.223:8092/hls/57/index.m3u8
 #EXTINF:-1 tvg-id="民生频道" tvg-logo="https://tb.yubo.qzz.io/logo/民生频道.png" group-title="125.40.199.223:8092",民生频道
 http://125.40.199.223:8092/hls/54/index.m3u8
-#EXTINF:-1 tvg-id="河南法制频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法制频道.png" group-title="125.40.199.223:8092",河南法制频道
+#EXTINF:-1 tvg-id="河南法治频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法治频道.png" group-title="125.40.199.223:8092",河南法治频道
 http://125.40.199.223:8092/hls/55/index.m3u8
 #EXTINF:-1 tvg-id="河南电视剧频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南电视剧频道.png" group-title="125.40.199.223:8092",河南电视剧频道
 http://125.40.199.223:8092/hls/56/index.m3u8
@@ -3431,17 +3431,17 @@ http://39.164.138.145:8899/hls/27/index.m3u8
 http://39.164.138.145:8899/hls/25/index.m3u8
 #EXTINF:-1 tvg-id="河南公共频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南公共频道.png" group-title="39.164.138.145:8899",河南公共频道
 http://39.164.138.145:8899/hls/26/index.m3u8
-#EXTINF:-1 tvg-id="文宝频道" tvg-logo="https://tb.yubo.qzz.io/logo/文宝频道.png" group-title="39.164.138.145:8899",文宝频道
+#EXTINF:-1 tvg-id="河南文物宝库" tvg-logo="https://tb.yubo.qzz.io/logo/河南文物宝库.png" group-title="39.164.138.145:8899",河南文物宝库
 http://39.164.138.145:8899/hls/21/index.m3u8
 #EXTINF:-1 tvg-id="河南新闻频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南新闻频道.png" group-title="39.164.138.145:8899",河南新闻频道
 http://39.164.138.145:8899/hls/24/index.m3u8
-#EXTINF:-1 tvg-id="河南法制频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法制频道.png" group-title="39.164.138.145:8899",河南法制频道
+#EXTINF:-1 tvg-id="河南法治频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法治频道.png" group-title="39.164.138.145:8899",河南法治频道
 http://39.164.138.145:8899/hls/22/index.m3u8
-#EXTINF:-1 tvg-id="电视剧频" tvg-logo="https://tb.yubo.qzz.io/logo/电视剧频.png" group-title="39.164.138.145:8899",电视剧频
+#EXTINF:-1 tvg-id="河南电视剧频" tvg-logo="https://tb.yubo.qzz.io/logo/河南电视剧频.png" group-title="39.164.138.145:8899",河南电视剧频
 http://39.164.138.145:8899/hls/23/index.m3u8
-#EXTINF:-1 tvg-id="百姓调解" tvg-logo="https://tb.yubo.qzz.io/logo/百姓调解.png" group-title="39.164.138.145:8899",百姓调解
+#EXTINF:-1 tvg-id="CCTV1" tvg-logo="https://tb.yubo.qzz.io/logo/CCTV1.png" group-title="39.164.138.145:8899",CCTV1
 http://39.164.138.145:8899/hls/28/index.m3u8
-#EXTINF:-1 tvg-id="都市频道" tvg-logo="https://tb.yubo.qzz.io/logo/都市频道.png" group-title="39.164.138.145:8899",都市频道
+#EXTINF:-1 tvg-id="河南都市频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南都市频道.png" group-title="39.164.138.145:8899",河南都市频道
 http://39.164.138.145:8899/hls/20/index.m3u8
 #EXTINF:-1 tvg-id="CCTV1" tvg-logo="https://tb.yubo.qzz.io/logo/CCTV1.png" group-title="218.15.20.81:3388",CCTV1
 http://218.15.20.81:3388/hls/1/index.m3u8
@@ -4795,17 +4795,17 @@ http://39.164.138.145:9003/hls/27/index.m3u8
 http://39.164.138.145:9003/hls/25/index.m3u8
 #EXTINF:-1 tvg-id="河南公共频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南公共频道.png" group-title="39.164.138.145:9003",河南公共频道
 http://39.164.138.145:9003/hls/26/index.m3u8
-#EXTINF:-1 tvg-id="文宝频道" tvg-logo="https://tb.yubo.qzz.io/logo/文宝频道.png" group-title="39.164.138.145:9003",文宝频道
+#EXTINF:-1 tvg-id="河南文物宝库" tvg-logo="https://tb.yubo.qzz.io/logo/河南文物宝库.png" group-title="39.164.138.145:9003",河南文物宝库
 http://39.164.138.145:9003/hls/21/index.m3u8
 #EXTINF:-1 tvg-id="河南新闻频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南新闻频道.png" group-title="39.164.138.145:9003",河南新闻频道
 http://39.164.138.145:9003/hls/24/index.m3u8
-#EXTINF:-1 tvg-id="河南法制频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法制频道.png" group-title="39.164.138.145:9003",河南法制频道
+#EXTINF:-1 tvg-id="河南法治频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南法治频道.png" group-title="39.164.138.145:9003",河南法治频道
 http://39.164.138.145:9003/hls/22/index.m3u8
-#EXTINF:-1 tvg-id="电视剧频" tvg-logo="https://tb.yubo.qzz.io/logo/电视剧频.png" group-title="39.164.138.145:9003",电视剧频
+#EXTINF:-1 tvg-id="河南电视剧频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南电视剧频道.png" group-title="39.164.138.145:9003",河南电视剧频道
 http://39.164.138.145:9003/hls/23/index.m3u8
 #EXTINF:-1 tvg-id="百姓调解" tvg-logo="https://tb.yubo.qzz.io/logo/百姓调解.png" group-title="39.164.138.145:9003",百姓调解
 http://39.164.138.145:9003/hls/28/index.m3u8
-#EXTINF:-1 tvg-id="都市频道" tvg-logo="https://tb.yubo.qzz.io/logo/都市频道.png" group-title="39.164.138.145:9003",都市频道
+#EXTINF:-1 tvg-id="河南都市频道" tvg-logo="https://tb.yubo.qzz.io/logo/河南都市频道.png" group-title="39.164.138.145:9003",河南都市频道
 http://39.164.138.145:9003/hls/20/index.m3u8
 #EXTINF:-1 tvg-id="CCTV-1 综合" tvg-logo="https://tb.yubo.qzz.io/logo/CCTV-1 综合.png" group-title="183.237.71.182:40000",CCTV-1 综合
 http://183.237.71.182:40000/hls/1/index.m3u8
