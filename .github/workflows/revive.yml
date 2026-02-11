@@ -1,20 +1,21 @@
-name: IPTV Daily Discovery
+name: IPTV Discovery and Rescue
 
 on:
   schedule:
-    # 每天北京时间凌晨 04:00 运行 (UTC 20:00)
-    - cron: '0 20 * * *'
-  workflow_dispatch: # 关键：这行允许你在 GitHub Actions 页面手动点击运行
+    - cron: '0 */6 * * *' # 每6小时运行一次
+  workflow_dispatch: # 支持手动触发
 
 jobs:
-  discovery:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # 必须拉取全部历史以便 rebase
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -24,32 +25,28 @@ jobs:
     - name: Install dependencies
       run: pip install requests
 
-    - name: 运行挖矿脚本
+    - name: Run Discovery Script
       run: python md/discovery.py
 
-    - name: 提交并推送更新 (加固版)
+    - name: Commit and Push Changes (Robust Mode)
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # 1. 强制同步远程最新状态，防止脚本运行期间仓库有变动
-        git fetch origin main
-        
-        # 2. 尝试添加并提交
+        # 添加生成的文件
         git add md/manual_fix.txt
-        git commit -m "Discovery: 自动挖掘并修复活跃网段" || exit 0
         
-        # 3. 核心改进：使用 rebase 解决冲突
-        # 这一步会把你刚挖到的矿“接”在远程最新提交的后面
-        git pull --rebase origin main
+        # 尝试提交，如果没有变动则正常退出
+        git commit -m "Discovery: 自动修复并同步活跃网段" || exit 0
         
-        # 4. 循环推送尝试（防止极高频率的连环冲突）
+        # 【关键】推送前的防御机制
         n=0
         until [ "$n" -ge 5 ]
         do
-           git push origin main && break
-           n=$((n+1))
-           echo "推送失败，尝试第 $n 次变基后重试..."
-           git pull --rebase origin main
-           sleep 10
+          echo "尝试同步远程仓库并推送 (第 $((n+1)) 次)..."
+          # 使用 rebase 将本地修改垫在远程更新之上
+          git pull --rebase origin main
+          git push origin main && break
+          n=$((n+1))
+          sleep 15 # 冲突严重时等待后再试
         done
