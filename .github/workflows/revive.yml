@@ -35,6 +35,14 @@ jobs:
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
-        # 只提交 manual_fix.txt 的变更
-        git add md/manual_fix.txt
-        git diff --staged --quiet || (git commit -m "Discovery: 🌟 发现并追加新活 IP 到补丁库" && git push)
+        
+        # 核心：即使没有文件，执行这个命令也不会报错
+        git add md/manual_fix.txt || echo "No manual_fix.txt found"
+        
+        # 只有在有变动时才 commit
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Discovery: 全量体检并同步存活网段"
+          git push
+        fi
