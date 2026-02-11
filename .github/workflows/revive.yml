@@ -27,26 +27,29 @@ jobs:
     - name: 运行挖矿脚本
       run: python md/discovery.py
 
-    - name: 提交并推送更新
+    - name: 提交并推送更新 (加固版)
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         
-        # 1. 先把远程最新的改动拉下来，避免在你挖矿期间别人提交了代码
+        # 1. 强制同步远程最新状态，防止脚本运行期间仓库有变动
+        git fetch origin main
+        
+        # 2. 尝试添加并提交
+        git add md/manual_fix.txt
+        git commit -m "Discovery: 自动挖掘并修复活跃网段" || exit 0
+        
+        # 3. 核心改进：使用 rebase 解决冲突
+        # 这一步会把你刚挖到的矿“接”在远程最新提交的后面
         git pull --rebase origin main
         
-        # 2. 添加修改的文件
-        git add md/manual_fix.txt
-        
-        # 3. 提交，如果没有变化则跳过
-        git commit -m "Discovery: 自动挖掘并修复活跃网段" || echo "No changes to commit"
-        
-        # 4. 推送，如果还是冲突，重试最多 3 次
+        # 4. 循环推送尝试（防止极高频率的连环冲突）
         n=0
-        until [ "$n" -ge 3 ]
+        until [ "$n" -ge 5 ]
         do
            git push origin main && break
            n=$((n+1))
+           echo "推送失败，尝试第 $n 次变基后重试..."
            git pull --rebase origin main
-           sleep 5
+           sleep 10
         done
