@@ -7,9 +7,10 @@ PARENT_DIR = os.path.dirname(CURRENT_DIR)
 MERGED_SOURCE = os.path.join(PARENT_DIR, "history", "merged.txt")
 MANUAL_FIX = os.path.join(CURRENT_DIR, "manual_fix.txt")
 
-TIMEOUT = 3
-MAX_WORKERS_CHECK = 100 # 第一步快测：并发开大
-MAX_WORKERS_RESCUE = 100 # 第二步爆破：总并发控制
+TIMEOUT = 2  # 爆破时超时缩短，提高单任务周转率
+MAX_WORKERS_CHECK = 100 
+# 降低爆破任务并发，防止 GitHub 封锁，建议 5-8
+MAX_WORKERS_RESCUE = 5 
 
 def extract_ip_port(url):
     try:
@@ -19,7 +20,6 @@ def extract_ip_port(url):
     return None
 
 def check_url(url):
-    """检测单个 URL 是否存活"""
     try:
         r = requests.get(url, timeout=TIMEOUT, stream=True, headers={"User-Agent":"VLC/3.0"})
         return r.status_code == 200
@@ -27,29 +27,39 @@ def check_url(url):
         return False
 
 def rescue_task(base_ip_port, channels):
-    """C段爆破单个网段的任务函数"""
-    ip, port = base_ip_port.split(':')
-    # 过滤掉非 IP 的域名（域名无法爆破 C 段）
+    """C段爆破任务：现在会实时打印探测细节"""
+    ip_parts = base_ip_port.split(':')
+    if len(ip_parts) != 2: return None
+    
+    ip, port = ip_parts
     if not re.match(r'^\d+\.\d+\.\d+\.\d+$', ip):
+        print(f"⏩ [跳过] {base_ip_port} 非标准IP，无法执行C段爆破。")
         return None
         
     prefix = '.'.join(ip.split('.')[:-1])
     path = channels[0].split(',')[1].split(base_ip_port)[-1]
     
-    # 构造该 C 段所有 255 个探测地址
+    print(f"\n🔎 [开始挖掘] 目标网段: {prefix}.1-255:{port}")
+    
     for i in range(1, 256):
         target_ip = f"{prefix}.{i}:{port}"
-        if target_ip == base_ip_port: continue # 跳过已知的死 IP
+        # 这里是你要的：每个 IP 跳出来的过程
+        # 使用 end='' 和 \r 可以让日志在同一行刷新（部分终端支持），
+        # 或者直接 print 产生滚动流
+        if i % 20 == 0: # 每20个IP打个招呼，防止日志过长
+             print(f"  ⏳ {base_ip_port} 正在探测至 .{i} ...")
         
         test_url = f"http://{target_ip}{path}"
         if check_url(test_url):
-            # 只要找到一个活的，立即返回块内容
+            print(f"  ✨ [爆破命中!!] {base_ip_port} -> 找到活源: {target_ip}")
             block = f"{target_ip},#genre#\n"
             for ch in channels:
                 name, old_url = ch.split(',', 1)
                 new_url = old_url.replace(base_ip_port, target_ip)
                 block += f"{name},{new_url}\n"
             return block + "\n"
+            
+    print(f"  ❌ [挖掘失败] {base_ip_port} C段无存活。")
     return None
 
 def main():
@@ -72,44 +82,39 @@ def main():
     print(f"📖 基因库解析完成，共 {len(ip_groups)} 个原始网段。")
     
     final_results = []
-    to_rescue = [] # 存放失效网段进行爆破
+    to_rescue = []
 
-    # --- 第一步：并发快测原始 IP ---
-    print(f"📡 阶段 1：正在快速检测原始 IP 存活情况...")
+    # --- 阶段 1：并发快测 ---
+    print(f"\n📡 阶段 1：全量直连探测 (并发:{MAX_WORKERS_CHECK})")
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_CHECK) as executor:
         future_to_ip = {executor.submit(check_url, data[0].split(',')[1]): ip for ip, data in ip_groups.items()}
         for future in concurrent.futures.as_completed(future_to_ip):
             ip_port = future_to_ip[future]
             if future.result():
-                print(f"✅ [直连存活] {ip_port}")
+                print(f"  ✅ [直连存活] {ip_port}")
                 block = f"{ip_port},#genre#\n" + "\n".join(ip_groups[ip_port]) + "\n\n"
                 final_results.append(block)
             else:
                 to_rescue.append(ip_port)
 
-    print(f"📊 统计：直连成功 {len(final_results)} 个，待爆破抢救 {len(to_rescue)} 个。")
+    print(f"\n📊 统计：直连成功 {len(final_results)} | 需要爆破 {len(to_rescue)}")
 
-    # --- 第二步：并发执行 C 段爆破 ---
+    # --- 阶段 2：串行化/低并发爆破 ---
     if to_rescue:
-        print(f"🚀 阶段 2：开始并行 C 段爆破（耗时较长，请耐心等待）...")
-        # 限制爆破任务的并发，防止 CPU/带宽 瞬间过载
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        print(f"\n🚀 阶段 2：开始执行 C 段挖掘任务 (任务并发:{MAX_WORKERS_RESCUE})")
+        # 使用较小的线程池，方便观察每一个任务的滚动日志
+        with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS_RESCUE) as executor:
             rescue_futures = {executor.submit(rescue_task, ip, ip_groups[ip]): ip for ip in to_rescue}
             for future in concurrent.futures.as_completed(rescue_futures):
-                orig_ip = rescue_futures[future]
                 result_block = future.result()
                 if result_block:
-                    print(f"✨ [抢救成功] 原始: {orig_ip}")
                     final_results.append(result_block)
-                else:
-                    # print(f"💀 [彻底失效] {orig_ip}")
-                    pass
 
     # 3. 写入文件
     if final_results:
         with open(MANUAL_FIX, 'w', encoding='utf-8') as f:
             f.writelines(final_results)
-        print(f"🎉 任务完成！共导出 {len(final_results)} 个活网段至 manual_fix.txt")
+        print(f"\n🎉 任务完成！有效网段已写入 {MANUAL_FIX}")
 
 if __name__ == "__main__":
     main()
