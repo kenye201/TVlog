@@ -19109,6 +19109,7 @@ CCTV-少儿高清,http://182.150.31.44:808/hls/14/index.m3u8
 辽宁卫视,http://182.150.31.44:808/hls/45/index.m3u8
 陕西卫视,http://182.150.31.44:808/hls/36/index.m3u8
 青海卫视,http://182.150.31.44:808/hls/39/index.m3u8
+山西卫视,http://122.114.131.154:4007/hls/32/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761185747-b4f2187c533664bacfada18705ded4e8-0-7cd68706c893360e01f4bbb257b032be
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761185747-aecab5272aa4a766988370dc8f525842-0-7ff5729841cfda84e189d5979d314abe
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761185747-d835d4f5247e27f3bea2e1e4cff0796c-0-913fe3fe09f80ba352c7d6c38007a368
