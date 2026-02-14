@@ -14799,6 +14799,7 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761138425-a95e7fa005e70
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761138425-27aa3157c2337dda65ff57dd589c8156-0-65108cf26f79e9404609cf9dce301f45
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761138425-545238cdefb125bf25b7dfd98cf4ea35-0-6932dc1739e7c6fed5603a3f39d19bc7
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761138425-c736ef6899cf100b1e3ec7b1cc54a86b-0-4bb7f4893e69e91f7673d872f1a7d01f
+山西卫视,http://122.114.131.154:4007/hls/32/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761099728-84399b3f6b720704105f63e115bb8a32-0-1023f30797a0ec986e4617bfccd49f97
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761099728-612816aede786088e27c938954b3349d-0-3497db3e32e3db3aecb242ef12f00829
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761099728-286b55584a51993a0dac0a899c56867e-0-61bfa3691173d4b14a46815dc90c8405
@@ -19109,7 +19110,6 @@ CCTV-少儿高清,http://182.150.31.44:808/hls/14/index.m3u8
 辽宁卫视,http://182.150.31.44:808/hls/45/index.m3u8
 陕西卫视,http://182.150.31.44:808/hls/36/index.m3u8
 青海卫视,http://182.150.31.44:808/hls/39/index.m3u8
-山西卫视,http://122.114.131.154:4007/hls/32/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761185747-b4f2187c533664bacfada18705ded4e8-0-7cd68706c893360e01f4bbb257b032be
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761185747-aecab5272aa4a766988370dc8f525842-0-7ff5729841cfda84e189d5979d314abe
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761185747-d835d4f5247e27f3bea2e1e4cff0796c-0-913fe3fe09f80ba352c7d6c38007a368
