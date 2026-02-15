@@ -19110,6 +19110,19 @@ CCTV-少儿高清,http://182.150.31.44:808/hls/14/index.m3u8
 辽宁卫视,http://182.150.31.44:808/hls/45/index.m3u8
 陕西卫视,http://182.150.31.44:808/hls/36/index.m3u8
 青海卫视,http://182.150.31.44:808/hls/39/index.m3u8
+CCTV-1 综合,http://1.196.157.212:999/hls/1/index.m3u8
+CCTV-2 财经,http://1.196.157.212:999/hls/2/index.m3u8
+CCTV-3 综艺,http://1.196.157.212:999/hls/3/index.m3u8
+CCTV-4 中文国际,http://1.196.157.212:999/hls/4/index.m3u8
+CCTV-5 体育,http://1.196.157.212:999/hls/5/index.m3u8
+CCTV-6 电影,http://1.196.157.212:999/hls/6/index.m3u8
+CCTV-7 国防军事,http://1.196.157.212:999/hls/7/index.m3u8
+CCTV-8 电视剧,http://1.196.157.212:999/hls/8/index.m3u8
+东方卫视,http://122.114.131.154:4007/hls/16/index.m3u8
+北京卫视,http://122.114.131.154:4007/hls/18/index.m3u8
+江苏卫视,http://122.114.131.154:4007/hls/17/index.m3u8
+电视剧轮播,http://122.114.131.154:4007/hls/51/index.m3u8
+经典电影,http://122.114.131.154:4007/hls/50/index.m3u8
 CETV1,http://live1.hrtn.net/live/zgjy1hd_3000.m3u8?auth_key=1761185747-b4f2187c533664bacfada18705ded4e8-0-7cd68706c893360e01f4bbb257b032be
 CETV4,http://live1.hrtn.net/live/zgjy4_1000.m3u8?auth_key=1761185747-aecab5272aa4a766988370dc8f525842-0-7ff5729841cfda84e189d5979d314abe
 BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761185747-d835d4f5247e27f3bea2e1e4cff0796c-0-913fe3fe09f80ba352c7d6c38007a368
@@ -20046,11 +20059,6 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761272311-89b15276d84a7
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761272311-628836839a4b5e6e3434d9db6e68cdfd-0-f37151dcf9777d1e9ea035cf1dac33f2
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761272311-724c8ae81efd59a902985f6b0768baeb-0-6e299544a11c407f41cf0c80a709b5a1
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761272311-23a567ca0359db3d9f3b1ef2e9a04bb0-0-65a5c0a3fc09b812467650a23598012a
-东方卫视,http://122.114.131.154:4007/hls/16/index.m3u8
-北京卫视,http://122.114.131.154:4007/hls/18/index.m3u8
-江苏卫视,http://122.114.131.154:4007/hls/17/index.m3u8
-电视剧轮播,http://122.114.131.154:4007/hls/51/index.m3u8
-经典电影,http://122.114.131.154:4007/hls/50/index.m3u8
 浙江卫视,http://123.14.46.0:8899/hls/25/index.m3u8
 浙江卫视,http://123.14.46.0:9003/hls/25/index.m3u8
 CCTV-1 综合,http://125.46.178.119:60000/hls/1/index.m3u8
