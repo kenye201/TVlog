@@ -20046,6 +20046,11 @@ BRTV,http://live1.hrtn.net/live/dajs_1000.m3u8?auth_key=1761272311-89b15276d84a7
 WHTV,http://live1.hrtn.net/live/jyjs_1000.m3u8?auth_key=1761272311-628836839a4b5e6e3434d9db6e68cdfd-0-f37151dcf9777d1e9ea035cf1dac33f2
 CGTN,http://live1.hrtn.net/live/cctvnews_1000.m3u8?auth_key=1761272311-724c8ae81efd59a902985f6b0768baeb-0-6e299544a11c407f41cf0c80a709b5a1
 BRTV少儿,http://live1.hrtn.net/live/kkse_1000.m3u8?auth_key=1761272311-23a567ca0359db3d9f3b1ef2e9a04bb0-0-65a5c0a3fc09b812467650a23598012a
+东方卫视,http://122.114.131.154:4007/hls/16/index.m3u8
+北京卫视,http://122.114.131.154:4007/hls/18/index.m3u8
+江苏卫视,http://122.114.131.154:4007/hls/17/index.m3u8
+电视剧轮播,http://122.114.131.154:4007/hls/51/index.m3u8
+经典电影,http://122.114.131.154:4007/hls/50/index.m3u8
 浙江卫视,http://123.14.46.0:8899/hls/25/index.m3u8
 浙江卫视,http://123.14.46.0:9003/hls/25/index.m3u8
 CCTV-1 综合,http://125.46.178.119:60000/hls/1/index.m3u8
