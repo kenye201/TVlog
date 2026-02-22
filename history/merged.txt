@@ -20378,6 +20378,79 @@ CCYV-7,http://175.151.205.153:81/hls/7/index.m3u8
 辽宁移动电视,http://175.151.205.153:81/hls/57/index.m3u8
 辽宁经济,http://175.151.205.153:81/hls/56/index.m3u8
 高清电影,http://175.151.205.153:81/hls/64/index.m3u8
+CCTV-1 综合,http://114.252.255.213:10443/hls/1/index.m3u8
+CCTV-1 综合,http://171.11.199.174:5000/hls/1/index.m3u8
+CCTV-2 财经,http://114.252.255.213:10443/hls/2/index.m3u8
+CCTV-2 财经,http://171.11.199.174:5000/hls/2/index.m3u8
+CCTV-3 综艺,http://171.11.199.174:5000/hls/3/index.m3u8
+CCTV-4 中文国际,http://171.11.199.174:5000/hls/4/index.m3u8
+CCTV-5 体育,http://114.252.255.213:10443/hls/5/index.m3u8
+CCTV-5 体育,http://171.11.199.174:5000/hls/5/index.m3u8
+CCTV-5+ 体育赛事,http://114.252.255.213:10443/hls/6/index.m3u8
+CCTV-6 电影,http://171.11.199.174:5000/hls/6/index.m3u8
+CCTV-7 国防军事,http://114.252.255.213:10443/hls/7/index.m3u8
+CCTV-7 国防军事,http://171.11.199.174:5000/hls/7/index.m3u8
+CCTV-8 电视剧,http://171.11.199.174:5000/hls/8/index.m3u8
+CCTV-9 纪录,http://114.252.255.213:10443/hls/9/index.m3u8
+CCTV-9 纪录,http://171.11.199.174:5000/hls/9/index.m3u8
+CCTV-10 科教,http://114.252.255.213:10443/hls/10/index.m3u8
+CCTV-10 科教,http://171.11.199.174:5000/hls/10/index.m3u8
+CCTV-11 戏曲,http://171.11.199.174:5000/hls/11/index.m3u8
+CCTV-12 社会与法,http://114.252.255.213:10443/hls/12/index.m3u8
+CCTV-12 社会与法,http://171.11.199.174:5000/hls/12/index.m3u8
+CCTV-13 新闻,http://171.11.199.174:5000/hls/13/index.m3u8
+CCTV-14 少儿,http://171.11.199.174:5000/hls/14/index.m3u8
+CCTV-15 音乐,http://171.11.199.174:5000/hls/15/index.m3u8
+东南卫视,http://171.11.199.174:5000/hls/24/index.m3u8
+东方卫视,http://114.252.255.213:10443/hls/23/index.m3u8
+东方卫视,http://171.11.199.174:5000/hls/26/index.m3u8
+云南卫视,http://171.11.199.174:5000/hls/28/index.m3u8
+北京卫视,http://114.252.255.213:10443/hls/16/index.m3u8
+北京卫视,http://171.11.199.174:5000/hls/20/index.m3u8
+吉林卫视,http://171.11.199.174:5000/hls/31/index.m3u8
+天津卫视,http://114.252.255.213:10443/hls/26/index.m3u8
+天津卫视,http://171.11.199.174:5000/hls/27/index.m3u8
+安徽卫视,http://114.252.255.213:10443/hls/30/index.m3u8
+安徽卫视,http://171.11.199.174:5000/hls/32/index.m3u8
+山东卫视,http://114.252.255.213:10443/hls/28/index.m3u8
+山东卫视,http://171.11.199.174:5000/hls/33/index.m3u8
+山西卫视,http://171.11.199.174:5000/hls/35/index.m3u8
+广东卫视,http://114.252.255.213:10443/hls/27/index.m3u8
+江苏卫视,http://114.252.255.213:10443/hls/22/index.m3u8
+江苏卫视,http://171.11.199.174:5000/hls/22/index.m3u8
+江西卫视,http://171.11.199.174:5000/hls/34/index.m3u8
+河北卫视,http://171.11.199.174:5000/hls/29/index.m3u8
+河南卫视,http://171.11.199.174:5000/hls/16/index.m3u8
+浙江卫视,http://114.252.255.213:10443/hls/24/index.m3u8
+浙江卫视,http://171.11.199.174:5000/hls/25/index.m3u8
+深圳卫视,http://114.252.255.213:10443/hls/21/index.m3u8
+湖北卫视,http://114.252.255.213:10443/hls/25/index.m3u8
+湖北卫视,http://171.11.199.174:5000/hls/30/index.m3u8
+湖南卫视,http://114.252.255.213:10443/hls/19/index.m3u8
+湖南卫视,http://171.11.199.174:5000/hls/21/index.m3u8
+辽宁卫视,http://114.252.255.213:10443/hls/29/index.m3u8
+辽宁卫视,http://171.11.199.174:5000/hls/23/index.m3u8
+陕西卫视,http://171.11.199.174:5000/hls/36/index.m3u8
+黑龙江卫视,http://114.252.255.213:10443/hls/20/index.m3u8
+BTV体育,http://114.252.255.213:10443/hls/36/index.m3u8
+BTV体育高清,http://114.252.255.213:10443/hls/18/index.m3u8
+BTV卡酷少儿,http://114.252.255.213:10443/hls/40/index.m3u8
+BTV国际频道,http://114.252.255.213:10443/hls/38/index.m3u8
+BTV影视,http://114.252.255.213:10443/hls/34/index.m3u8
+BTV文艺,http://114.252.255.213:10443/hls/32/index.m3u8
+BTV文艺高清,http://114.252.255.213:10443/hls/17/index.m3u8
+BTV新闻,http://114.252.255.213:10443/hls/39/index.m3u8
+BTV生活,http://114.252.255.213:10443/hls/37/index.m3u8
+BTV科教,http://114.252.255.213:10443/hls/33/index.m3u8
+BTV财经,http://114.252.255.213:10443/hls/35/index.m3u8
+四川,http://171.11.199.174:5000/hls/37/index.m3u8
+少儿动画,http://114.252.255.213:10443/hls/3/index.m3u8
+广东,http://171.11.199.174:5000/hls/40/index.m3u8
+民生,http://171.11.199.174:5000/hls/18/index.m3u8
+法制,http://171.11.199.174:5000/hls/19/index.m3u8
+深圳,http://171.11.199.174:5000/hls/38/index.m3u8
+甘肃,http://171.11.199.174:5000/hls/39/index.m3u8
+都市频道,http://171.11.199.174:5000/hls/17/index.m3u8
 CCTV-1 综合,http://171.15.91.18:8888/hls/1/index.m3u8
 CCTV-2 财经,http://171.15.91.18:8888/hls/2/index.m3u8
 CCTV-3 综艺,http://171.15.91.18:8888/hls/3/index.m3u8
@@ -20710,79 +20783,6 @@ CCTV-8 电视剧,http://182.125.147.200:8088/hls/8/index.m3u8
 7,http://39.89.8.237:8083/hls/7/index.m3u8
 8,http://39.89.8.237:8083/hls/8/index.m3u8
 9,http://39.89.8.237:8083/hls/9/index.m3u8
-CCTV-1 综合,http://114.252.255.213:10443/hls/1/index.m3u8
-CCTV-1 综合,http://171.11.199.174:5000/hls/1/index.m3u8
-CCTV-2 财经,http://114.252.255.213:10443/hls/2/index.m3u8
-CCTV-2 财经,http://171.11.199.174:5000/hls/2/index.m3u8
-CCTV-3 综艺,http://171.11.199.174:5000/hls/3/index.m3u8
-CCTV-4 中文国际,http://171.11.199.174:5000/hls/4/index.m3u8
-CCTV-5 体育,http://114.252.255.213:10443/hls/5/index.m3u8
-CCTV-5 体育,http://171.11.199.174:5000/hls/5/index.m3u8
-CCTV-5+ 体育赛事,http://114.252.255.213:10443/hls/6/index.m3u8
-CCTV-6 电影,http://171.11.199.174:5000/hls/6/index.m3u8
-CCTV-7 国防军事,http://114.252.255.213:10443/hls/7/index.m3u8
-CCTV-7 国防军事,http://171.11.199.174:5000/hls/7/index.m3u8
-CCTV-8 电视剧,http://171.11.199.174:5000/hls/8/index.m3u8
-CCTV-9 纪录,http://114.252.255.213:10443/hls/9/index.m3u8
-CCTV-9 纪录,http://171.11.199.174:5000/hls/9/index.m3u8
-CCTV-10 科教,http://114.252.255.213:10443/hls/10/index.m3u8
-CCTV-10 科教,http://171.11.199.174:5000/hls/10/index.m3u8
-CCTV-11 戏曲,http://171.11.199.174:5000/hls/11/index.m3u8
-CCTV-12 社会与法,http://114.252.255.213:10443/hls/12/index.m3u8
-CCTV-12 社会与法,http://171.11.199.174:5000/hls/12/index.m3u8
-CCTV-13 新闻,http://171.11.199.174:5000/hls/13/index.m3u8
-CCTV-14 少儿,http://171.11.199.174:5000/hls/14/index.m3u8
-CCTV-15 音乐,http://171.11.199.174:5000/hls/15/index.m3u8
-东南卫视,http://171.11.199.174:5000/hls/24/index.m3u8
-东方卫视,http://114.252.255.213:10443/hls/23/index.m3u8
-东方卫视,http://171.11.199.174:5000/hls/26/index.m3u8
-云南卫视,http://171.11.199.174:5000/hls/28/index.m3u8
-北京卫视,http://114.252.255.213:10443/hls/16/index.m3u8
-北京卫视,http://171.11.199.174:5000/hls/20/index.m3u8
-吉林卫视,http://171.11.199.174:5000/hls/31/index.m3u8
-天津卫视,http://114.252.255.213:10443/hls/26/index.m3u8
-天津卫视,http://171.11.199.174:5000/hls/27/index.m3u8
-安徽卫视,http://114.252.255.213:10443/hls/30/index.m3u8
-安徽卫视,http://171.11.199.174:5000/hls/32/index.m3u8
-山东卫视,http://114.252.255.213:10443/hls/28/index.m3u8
-山东卫视,http://171.11.199.174:5000/hls/33/index.m3u8
-山西卫视,http://171.11.199.174:5000/hls/35/index.m3u8
-广东卫视,http://114.252.255.213:10443/hls/27/index.m3u8
-江苏卫视,http://114.252.255.213:10443/hls/22/index.m3u8
-江苏卫视,http://171.11.199.174:5000/hls/22/index.m3u8
-江西卫视,http://171.11.199.174:5000/hls/34/index.m3u8
-河北卫视,http://171.11.199.174:5000/hls/29/index.m3u8
-河南卫视,http://171.11.199.174:5000/hls/16/index.m3u8
-浙江卫视,http://114.252.255.213:10443/hls/24/index.m3u8
-浙江卫视,http://171.11.199.174:5000/hls/25/index.m3u8
-深圳卫视,http://114.252.255.213:10443/hls/21/index.m3u8
-湖北卫视,http://114.252.255.213:10443/hls/25/index.m3u8
-湖北卫视,http://171.11.199.174:5000/hls/30/index.m3u8
-湖南卫视,http://114.252.255.213:10443/hls/19/index.m3u8
-湖南卫视,http://171.11.199.174:5000/hls/21/index.m3u8
-辽宁卫视,http://114.252.255.213:10443/hls/29/index.m3u8
-辽宁卫视,http://171.11.199.174:5000/hls/23/index.m3u8
-陕西卫视,http://171.11.199.174:5000/hls/36/index.m3u8
-黑龙江卫视,http://114.252.255.213:10443/hls/20/index.m3u8
-BTV体育,http://114.252.255.213:10443/hls/36/index.m3u8
-BTV体育高清,http://114.252.255.213:10443/hls/18/index.m3u8
-BTV卡酷少儿,http://114.252.255.213:10443/hls/40/index.m3u8
-BTV国际频道,http://114.252.255.213:10443/hls/38/index.m3u8
-BTV影视,http://114.252.255.213:10443/hls/34/index.m3u8
-BTV文艺,http://114.252.255.213:10443/hls/32/index.m3u8
-BTV文艺高清,http://114.252.255.213:10443/hls/17/index.m3u8
-BTV新闻,http://114.252.255.213:10443/hls/39/index.m3u8
-BTV生活,http://114.252.255.213:10443/hls/37/index.m3u8
-BTV科教,http://114.252.255.213:10443/hls/33/index.m3u8
-BTV财经,http://114.252.255.213:10443/hls/35/index.m3u8
-四川,http://171.11.199.174:5000/hls/37/index.m3u8
-少儿动画,http://114.252.255.213:10443/hls/3/index.m3u8
-广东,http://171.11.199.174:5000/hls/40/index.m3u8
-民生,http://171.11.199.174:5000/hls/18/index.m3u8
-法制,http://171.11.199.174:5000/hls/19/index.m3u8
-深圳,http://171.11.199.174:5000/hls/38/index.m3u8
-甘肃,http://171.11.199.174:5000/hls/39/index.m3u8
-都市频道,http://171.11.199.174:5000/hls/17/index.m3u8
 少儿动画,http://113.81.20.155:808/hls/63/index.m3u8
 CCTV-1 综合,http://171.8.60.197:5000/hls/1/index.m3u8
 CCTV -1高清,http://58.255.200.226:808/hls/1/index.m3u8
