@@ -2,7 +2,7 @@ name: IPTV Discovery
 
 on:
   schedule:
-    - cron: '0 9,21 * * *'
+    - cron: '0 21 * * *'
   workflow_dispatch:
 
 jobs:
