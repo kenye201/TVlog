@@ -29,11 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      # 1. 运行主脚本生成文件
-     # - name: 运行主脚本生成文件
-        run: |
-          python md/test22.py
-          echo "主文件生成完成。"
+
 
       # 2. 创建并复制备份文件到 history/
       - name: 创建并复制备份文件到 history/
