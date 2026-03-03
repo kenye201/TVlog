@@ -30,7 +30,7 @@ jobs:
           pip install requests
 
       # 1. 运行主脚本生成文件
-      - name: 运行主脚本生成文件
+     # - name: 运行主脚本生成文件
         run: |
           python md/test22.py
           echo "主文件生成完成。"
